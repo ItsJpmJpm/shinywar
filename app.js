@@ -29,7 +29,12 @@
         if (errU) throw new Error(friendlyError(errU));
         if (errT) throw new Error(friendlyError(errT));
         allUsers = users || [];
-        allTargets = targets || [];
+        allTargets = (targets || []).map(t => {
+            if (t.tier && !t.tier.startsWith('tier') && t.tier !== 'legendary' && t.tier !== 'alpha') {
+                t.tier = 'tier' + t.tier;
+            }
+            return t;
+        });
     }
 
     function getUserTargets(userId) {

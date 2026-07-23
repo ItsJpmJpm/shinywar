@@ -141,7 +141,8 @@ function getPokemonTier(pokemonName) {
 }
 
 function calculatePoints(tier, method) {
-    const base = TIER_POINTS[tier] || 0;
+    const normalizedTier = tier && !tier.startsWith('tier') && tier !== 'legendary' && tier !== 'alpha' ? 'tier' + tier : tier;
+    const base = TIER_POINTS[normalizedTier] || TIER_POINTS[tier] || 0;
     const bonus = METHOD_BONUS[method] || 0;
     if (method === "egg") {
         return Math.max(35, base);
