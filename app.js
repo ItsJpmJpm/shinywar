@@ -25,7 +25,7 @@
         const { data: users, error: errU } = await supabaseClient
             .from('users').select('id, username, display_name, role').order('created_at');
         const { data: targets, error: errT } = await supabaseClient
-            .from('targets').select('id, user_id, pokemon_name, tier, method, caught').order('created_at');
+            .from('targets').select('id, user_id, pokemon_name, tier, method, is_alpha, is_secret, caught').order('created_at');
         if (errU) throw new Error(friendlyError(errU));
         if (errT) throw new Error(friendlyError(errT));
         allUsers = users || [];
@@ -42,7 +42,7 @@
     }
 
     function getMemberPoints(user) {
-        return getUserTargets(user.id).reduce((s, t) => s + calculatePoints(t.tier, 'wild', t.is_alpha, t.is_secret), 0);
+        return getUserTargets(user.id).reduce((s, t) => s + calculatePoints(t.tier, t.method || 'wild', t.is_alpha, t.is_secret), 0);
     }
 
     function updateStats() {
@@ -205,7 +205,7 @@
         const { data, error } = await supabaseClient
             .from('targets')
             .insert({ user_id: session.id, pokemon_name: name, tier, method: 'wild', is_alpha: false, is_secret: false, caught: false })
-            .select('id, user_id, pokemon_name, tier, method, caught')
+            .select('id, user_id, pokemon_name, tier, method, is_alpha, is_secret, caught')
             .single();
         if (error) {
             errorDiv.textContent = friendlyError(error);
