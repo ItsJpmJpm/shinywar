@@ -2072,20 +2072,21 @@ footer {
     flex-shrink: 0;
 }
 .method-pill {
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
+    height: 24px;
+    border-radius: 12px;
     border: 1.5px solid var(--border);
     background: transparent;
-    font-size: 0.75rem;
+    font-size: 0.65rem;
     cursor: pointer;
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 2px;
     transition: all 0.15s;
     opacity: 0.45;
-    padding: 0;
+    padding: 0 6px;
     line-height: 1;
+    white-space: nowrap;
+    color: var(--text-muted);
 }
 .method-pill:hover {
     opacity: 0.8;
@@ -2094,8 +2095,54 @@ footer {
 .method-pill.active {
     opacity: 1;
     border-color: var(--accent);
-    background: rgba(255,255,255,0.08);
-    box-shadow: 0 0 6px rgba(99,102,241,0.3);
+    background: rgba(99,102,241,0.12);
+    box-shadow: 0 0 6px rgba(99,102,241,0.25);
+    color: var(--text);
+}
+
+/* ─── TARGET OPTIONS (alpha + method) ─── */
+.target-options {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+.options-sep {
+    color: var(--border);
+    font-size: 0.7rem;
+    opacity: 0.5;
+}
+.alpha-pill {
+    height: 24px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    font-size: 0.65rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    transition: all 0.15s;
+    opacity: 0.45;
+    padding: 0 6px;
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--text-muted);
+}
+.alpha-pill:hover {
+    opacity: 0.8;
+    border-color: #f472b6;
+}
+.alpha-pill.active {
+    opacity: 1;
+    border-color: #f472b6;
+    background: rgba(244,114,182,0.15);
+    box-shadow: 0 0 6px rgba(244,114,182,0.25);
+    color: #f472b6;
+}
+.alpha-dot {
+    font-size: 0.7rem;
+    line-height: 1;
 }
 .method-pill-ro {
     width: 22px;

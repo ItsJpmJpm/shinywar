@@ -1,6 +1,9 @@
 -- Run this in Supabase SQL Editor to add the method column
 ALTER TABLE targets ADD COLUMN IF NOT EXISTS method TEXT DEFAULT 'wild';
 
+-- Run this to add is_alpha column
+ALTER TABLE targets ADD COLUMN IF NOT EXISTS is_alpha BOOLEAN DEFAULT FALSE;
+
 -- Migrate old tier values
 UPDATE targets SET tier = 'tier' || tier WHERE tier ~ '^[0-7]$';
 
@@ -21,6 +24,7 @@ CREATE TABLE IF NOT EXISTS targets (
   pokemon_name TEXT NOT NULL,
   tier TEXT DEFAULT 'tier7',
   method TEXT DEFAULT 'wild',
+  is_alpha BOOLEAN DEFAULT FALSE,
   caught BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
