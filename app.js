@@ -423,14 +423,12 @@
         document.getElementById('authTabLogin').addEventListener('click', () => {
             document.getElementById('authTabLogin').classList.add('active');
             document.getElementById('authTabRegister').classList.remove('active');
-            document.getElementById('registerFields').classList.add('hidden');
             document.getElementById('authSubmit').textContent = 'Iniciar sesión';
             document.getElementById('authError').classList.add('hidden');
         });
         document.getElementById('authTabRegister').addEventListener('click', () => {
             document.getElementById('authTabRegister').classList.add('active');
             document.getElementById('authTabLogin').classList.remove('active');
-            document.getElementById('registerFields').classList.remove('hidden');
             document.getElementById('authSubmit').textContent = 'Registrarse';
             document.getElementById('authError').classList.add('hidden');
         });
@@ -456,8 +454,7 @@
 
             try {
                 if (isRegister) {
-                    const displayName = document.getElementById('authDisplayName').value.trim() || username;
-                    await Auth.register(username, password, displayName);
+                    await Auth.register(username, password);
                 } else {
                     await Auth.login(username, password);
                 }

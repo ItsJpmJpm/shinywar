@@ -8,7 +8,7 @@
         return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    async function register(username, password, displayName) {
+    async function register(username, password) {
         const { data: existing } = await supabaseClient
             .from('users')
             .select('id')
@@ -19,7 +19,7 @@
         const passwordHash = await hashPassword(password);
         const { data, error } = await supabaseClient
             .from('users')
-            .insert({ username, password_hash: passwordHash, display_name: displayName })
+            .insert({ username, password_hash: passwordHash, display_name: username })
             .select('id, username, display_name, role')
             .single();
         if (error) throw new Error('Error al registrar: ' + error.message);
