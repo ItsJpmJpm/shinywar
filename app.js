@@ -5,6 +5,7 @@
     let searchQuery = '';
     let currentView = 'myTargets';
     let acIndex = -1;
+    let refreshInterval = null;
 
     function getSession() { return Auth.getSession(); }
 
@@ -20,6 +21,30 @@
         return e.message ? 'Error: ' + e.message : 'Error desconocido.';
     }
 
+    // ─── TOAST ───
+    function showToast(message, type = 'success') {
+        let container = document.getElementById('toastContainer');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.style.cssText = 'position:fixed;top:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;pointer-events:none;';
+            document.body.appendChild(container);
+        }
+        const toast = document.createElement('div');
+        const colors = { success: '#22c55e', error: '#ef4444', info: '#60a5fa' };
+        const bg = colors[type] || colors.success;
+        toast.style.cssText = `padding:0.6rem 1rem;border-radius:10px;font-size:0.85rem;font-weight:500;color:#fff;background:${bg};box-shadow:0 4px 16px rgba(0,0,0,0.3);opacity:0;transform:translateX(20px);transition:all 0.3s ease;pointer-events:auto;max-width:280px;`;
+        toast.textContent = message;
+        container.appendChild(toast);
+        requestAnimationFrame(() => { toast.style.opacity = '1'; toast.style.transform = 'translateX(0)'; });
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(20px)';
+            setTimeout(() => toast.remove(), 300);
+        }, 2500);
+    }
+
+    // ─── DATA ───
     async function loadAllData() {
         if (!supabaseClient) throw new Error('No se pudo conectar con la base de datos.');
         const { data: users, error: errU } = await supabaseClient
@@ -35,6 +60,19 @@
             }
             return t;
         });
+    }
+
+    async function refreshData() {
+        try {
+            const oldCaught = allTargets.filter(t => t.caught).length;
+            const oldCount = allTargets.length;
+            await loadAllData();
+            const newCaught = allTargets.filter(t => t.caught).length;
+            if (newCaught > oldCaught) showToast(`¡${newCaught - oldCaught} nuevo${newCaught - oldCaught > 1 ? 's' : ''} shiny capturado!`, 'info');
+            updateStats();
+            if (currentView === 'teamRoster') renderTeamRoster();
+            if (currentView === 'myTargets') renderMyTargets();
+        } catch (e) { /* silent */ }
     }
 
     function getUserTargets(userId) {
@@ -74,20 +112,25 @@
             <div class="sb-row"><span>Shinies capturados</span><span class="sb-val">${teamScore.caughtCount}</span></div>
         `;
 
+        const playersWithScore = allUsers.map(u => ({
+            user: u,
+            score: calculatePlayerScore(getUserTargets(u.id), allTargets)
+        })).filter(p => p.score.caughtCount > 0).sort((a, b) => b.score.total - a.score.total);
+
         let playerHtml = '';
-        allUsers.forEach(u => {
-            const ps = calculatePlayerScore(getUserTargets(u.id), allTargets);
-            if (ps.caughtCount === 0) return;
-            const badge = u.role === 'admin' ? ' <span class="admin-badge">Admin</span>' : '';
+        playersWithScore.forEach((p, idx) => {
+            const badge = p.user.role === 'admin' ? ' <span class="admin-badge">Admin</span>' : '';
+            const rank = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `<span class="sb-rank-num">${idx + 1}</span>`;
             playerHtml += `
                 <div class="sb-player">
-                    <span class="sb-player-name">${esc(u.display_name || u.username)}${badge}</span>
-                    <span class="sb-player-detail">${ps.caughtCount} shinies</span>
-                    <span class="sb-player-pts">${ps.total} pts</span>
+                    <span class="sb-rank">${rank}</span>
+                    <span class="sb-player-name">${esc(p.user.display_name || p.user.username)}${badge}</span>
+                    <span class="sb-player-detail">${p.score.caughtCount} shinies</span>
+                    <span class="sb-player-pts">${p.score.total} pts</span>
                 </div>
             `;
         });
-        perPlayerEl.innerHTML = playerHtml;
+        perPlayerEl.innerHTML = playerHtml || '<div style="padding:0.5rem;color:var(--text-muted);font-size:0.85rem;text-align:center">Sin capturas todavía</div>';
     }
 
     function esc(str) {
@@ -214,26 +257,30 @@
         hideAutocomplete();
         renderMyTargets();
         updateStats();
+        showToast(`${name} agregado a tu lista`);
         if (currentView === 'teamRoster') renderTeamRoster();
     }
 
     async function toggleMyCaught(targetId) {
         const session = getSession();
         const target = allTargets.find(t => t.id === targetId);
-        if (!target || !session || target.user_id !== session.id) return;
+        if (!target || !session) return;
+        if (target.user_id !== session.id && session.role !== 'admin') return;
         const newCaught = !target.caught;
         const { error } = await supabaseClient.from('targets').update({ caught: newCaught }).eq('id', targetId);
         if (error) { alert(friendlyError(error)); return; }
         target.caught = newCaught;
         renderMyTargets();
         updateStats();
+        showToast(newCaught ? `¡${target.pokemon_name} capturado!` : `${target.pokemon_name} descapturado`, newCaught ? 'success' : 'info');
         if (currentView === 'teamRoster') renderTeamRoster();
     }
 
     async function changeMethod(targetId, method) {
         const session = getSession();
         const target = allTargets.find(t => t.id === targetId);
-        if (!target || !session || target.user_id !== session.id) return;
+        if (!target || !session) return;
+        if (target.user_id !== session.id && session.role !== 'admin') return;
         const { error } = await supabaseClient.from('targets').update({ method }).eq('id', targetId);
         if (error) { alert(friendlyError(error)); return; }
         target.method = method;
@@ -245,7 +292,8 @@
     async function changeToggle(targetId, field, value) {
         const session = getSession();
         const target = allTargets.find(t => t.id === targetId);
-        if (!target || !session || target.user_id !== session.id) return;
+        if (!target || !session) return;
+        if (target.user_id !== session.id && session.role !== 'admin') return;
         const { error } = await supabaseClient.from('targets').update({ [field]: value }).eq('id', targetId);
         if (error) { alert(friendlyError(error)); return; }
         target[field] = value;
@@ -258,11 +306,13 @@
         const session = getSession();
         const target = allTargets.find(t => t.id === targetId);
         if (!target || !session || target.user_id !== session.id) return;
+        if (!confirm(`¿Quitar ${target.pokemon_name} de tu lista?`)) return;
         const { error } = await supabaseClient.from('targets').delete().eq('id', targetId);
         if (error) { alert(friendlyError(error)); return; }
         allTargets = allTargets.filter(t => t.id !== targetId);
         renderMyTargets();
         updateStats();
+        showToast(`${target.pokemon_name} eliminado`, 'info');
         if (currentView === 'teamRoster') renderTeamRoster();
     }
 
@@ -335,14 +385,16 @@
 
     // ─── TEAM ROSTER VIEW ───
 
+    let rosterSearch = '';
+
     function getFilteredMembers() {
         return allUsers.filter(u => {
             const targets = getUserTargets(u.id);
             if (currentFilter === 'assigned' && targets.length === 0) return false;
             if (currentFilter === 'unassigned' && targets.length > 0) return false;
             if (currentFilter === 'caught' && !targets.some(t => t.caught)) return false;
-            if (searchQuery) {
-                const q = searchQuery.toLowerCase();
+            if (rosterSearch) {
+                const q = rosterSearch.toLowerCase();
                 if ((u.display_name || u.username || '').toLowerCase().includes(q)) return true;
                 if (targets.some(t => t.pokemon_name.toLowerCase().includes(q))) return true;
                 return false;
@@ -361,15 +413,23 @@
         const session = getSession();
         const filtered = getFilteredMembers();
 
-        list.innerHTML = filtered.map((u, i) => {
+        const membersWithScore = filtered.map(u => ({
+            user: u,
+            score: calculatePlayerScore(getUserTargets(u.id), allTargets)
+        })).sort((a, b) => b.score.total - a.score.total);
+
+        list.innerHTML = membersWithScore.map((item, i) => {
+            const u = item.user;
+            const ps = item.score;
             const targets = getUserTargets(u.id);
-            const ps = calculatePlayerScore(targets, allTargets);
             const isMe = session && u.id === session.id;
+            const isAdmin = session && session.role === 'admin';
             const displayName = u.display_name || u.username || '???';
+            const rank = i === 0 && ps.total > 0 ? '🥇' : i === 1 && ps.total > 0 ? '🥈' : i === 2 && ps.total > 0 ? '🥉' : '';
 
             return `
                 <div class="member-card ${targets.length > 0 ? 'assigned' : 'unassigned'} ${isMe ? 'is-me' : ''}">
-                    <div class="member-number">${i + 1}</div>
+                    <div class="member-number">${rank || i + 1}</div>
                     <div class="member-info">
                         <div class="member-header">
                             <span class="member-name">${esc(displayName)}${isMe ? ' <span class="me-badge">TÚ</span>' : ''} ${u.role === 'admin' ? '<span class="admin-badge">ADMIN</span>' : ''}</span>
@@ -389,9 +449,10 @@
                                     const pts2 = calculatePoints(t.tier, t.method || 'wild', t.is_alpha, t.is_secret);
                                     const method = t.method || 'wild';
                                     const methodLabel = method === 'egg' ? '🥚' : method === 'safari' ? '🌴' : '🌿';
+                                    const canEdit = isMe || isAdmin;
                                     return `
                                         <div class="target-row ${t.caught ? 'is-caught' : ''}">
-                                            <span class="caught-indicator ${t.caught ? 'is-caught' : ''}">${t.caught ? '✓' : '○'}</span>
+                                            ${canEdit ? `<button class="caught-btn-sm ${t.caught ? 'is-caught' : ''}" data-tid="${t.id}" title="${t.caught ? 'Descapturar' : 'Marcar como capturado'}">${t.caught ? '✓' : '○'}</button>` : `<span class="caught-indicator ${t.caught ? 'is-caught' : ''}">${t.caught ? '✓' : '○'}</span>`}
                                             ${sprite ? `<img src="${sprite}" class="target-sprite" onerror="this.style.display='none'">` : ''}
                                             <span class="tier-badge ${tc}">${tl}</span>
                                             <span class="target-name">${esc(t.pokemon_name)}</span>
@@ -408,6 +469,13 @@
                 </div>
             `;
         }).join('');
+
+        list.querySelectorAll('.caught-btn-sm').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleMyCaught(btn.dataset.tid);
+            });
+        });
     }
 
     // ─── POKEMON LOOKUP ───
@@ -459,8 +527,14 @@
         document.getElementById('authScreen').classList.add('hidden');
         document.getElementById('mainApp').classList.remove('hidden');
         document.getElementById('userGreeting').textContent = session.display_name || session.username || '???';
+        document.getElementById('myTargetList').innerHTML = '<div class="skeleton-list"><div class="skeleton-item"></div><div class="skeleton-item"></div><div class="skeleton-item"></div></div>';
         loadAllData()
-            .then(() => { switchView('myTargets'); updateStats(); })
+            .then(() => {
+                switchView('myTargets');
+                updateStats();
+                if (refreshInterval) clearInterval(refreshInterval);
+                refreshInterval = setInterval(refreshData, 30000);
+            })
             .catch(err => {
                 document.getElementById('myTargetList').innerHTML = `
                     <div class="empty-state" style="text-align:center;padding:2rem">
@@ -480,7 +554,6 @@
     document.addEventListener('DOMContentLoaded', () => {
         if (getSession()) { showApp(); } else { showAuth(); }
 
-        // Auth tabs
         document.getElementById('authTabLogin').addEventListener('click', () => {
             document.getElementById('authTabLogin').classList.add('active');
             document.getElementById('authTabRegister').classList.remove('active');
@@ -494,7 +567,6 @@
             document.getElementById('authError').classList.add('hidden');
         });
 
-        // Auth form submit
         document.getElementById('authForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const errorDiv = document.getElementById('authError');
@@ -519,18 +591,17 @@
             }
         });
 
-        // Logout
-        document.getElementById('logoutBtn').addEventListener('click', () => { Auth.logout(); showAuth(); });
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            if (refreshInterval) clearInterval(refreshInterval);
+            Auth.logout(); showAuth();
+        });
 
-        // View tabs
         document.querySelectorAll('.view-tab').forEach(tab => {
             tab.addEventListener('click', () => switchView(tab.dataset.view));
         });
 
-        // My Targets - add
         document.getElementById('myTargetAddBtn').addEventListener('click', addMyTarget);
 
-        // My Targets - autocomplete
         const nameInput = document.getElementById('myTargetInput');
         nameInput.addEventListener('input', e => showAutocomplete(e.target.value));
         nameInput.addEventListener('keydown', e => {
@@ -541,8 +612,7 @@
         });
         nameInput.addEventListener('blur', () => setTimeout(hideAutocomplete, 200));
 
-        // Team Roster - search & filters
-        document.getElementById('searchInput').addEventListener('input', e => { searchQuery = e.target.value; renderTeamRoster(); });
+        document.getElementById('searchInput').addEventListener('input', e => { rosterSearch = e.target.value; renderTeamRoster(); });
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -552,7 +622,6 @@
             });
         });
 
-        // Pokemon lookup
         document.getElementById('pokemonLookup')?.addEventListener('input', e => renderPokemonResults(e.target.value));
         document.getElementById('tierFilter')?.addEventListener('change', () => renderPokemonResults(document.getElementById('pokemonLookup').value));
     });

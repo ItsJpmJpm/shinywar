@@ -2033,43 +2033,213 @@ footer {
 }
 
 /* Responsive */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+    header {
+        padding: 1.5rem 1rem 1.25rem;
+    }
     header h1 {
         font-size: 1.4rem;
     }
+    .subtitle {
+        font-size: 0.85rem;
+    }
+    .nav-bar {
+        gap: 1rem;
+    }
+    .nav-link {
+        font-size: 0.8rem;
+    }
 
+    main {
+        padding: 1rem 0.75rem;
+    }
+
+    /* Stats: 2-col */
+    .stats-bar {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+    .stat {
+        padding: 0.75rem 0.5rem;
+    }
+    .stat-value {
+        font-size: 1.4rem;
+    }
+
+    /* Scoreboard */
+    .scoreboard {
+        padding: 1rem;
+    }
+    .sb-total-number {
+        font-size: 2rem;
+    }
+    .sb-player {
+        flex-wrap: wrap;
+    }
+    .sb-player-pts {
+        min-width: 40px;
+        font-size: 0.85rem;
+    }
+
+    /* View tabs */
+    .view-tab {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.82rem;
+    }
+
+    /* Controls stack */
     .controls {
         flex-direction: column;
         align-items: stretch;
     }
-
     .search-box input {
         width: 100%;
     }
-
     .filter-buttons {
         justify-content: center;
     }
-
-    .actions {
-        margin-left: 0;
-        justify-content: center;
+    .filter-btn {
+        padding: 0.45rem 0.7rem;
+        font-size: 0.78rem;
     }
 
+    /* My targets */
+    .my-targets-add {
+        flex-direction: column;
+    }
+    .my-targets-add .autocomplete-wrap {
+        flex: 1;
+        min-width: 0;
+    }
+    .my-targets-add .action-btn {
+        width: 100%;
+    }
+
+    /* Target item — stack on narrow */
+    .my-target-item {
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        padding: 0.5rem 0.6rem;
+    }
+    .my-target-item .target-options {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    /* Target row — wrap pills below name */
+    .target-row {
+        flex-wrap: wrap;
+    }
+    .target-options {
+        flex-wrap: wrap;
+    }
+    .method-pills {
+        flex-wrap: wrap;
+    }
+
+    /* Roster grid */
     .member-list {
         grid-template-columns: 1fr;
     }
+    .member-card {
+        padding: 0.7rem;
+    }
 
+    /* Tier grid */
     .tier-grid {
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     }
 
-    .stats-bar {
-        grid-template-columns: repeat(2, 1fr);
+    /* Pokemon lookup */
+    .pokemon-lookup {
+        padding: 1rem;
+    }
+    .lookup-controls {
+        flex-direction: column;
+    }
+    .lookup-controls input {
+        min-width: 0;
+    }
+    .pokemon-results {
+        grid-template-columns: 1fr;
     }
 
-    .target-options {
-        flex-wrap: wrap;
+    /* Points legend */
+    .points-legend {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 1.2rem;
+    }
+    .nav-bar {
+        gap: 0.75rem;
+    }
+    .nav-link {
+        font-size: 0.75rem;
+    }
+    .nav-title {
+        font-size: 0.78rem;
+    }
+
+    .stat-value {
+        font-size: 1.2rem;
+    }
+    .stat-label {
+        font-size: 0.65rem;
+    }
+
+    .sb-total-number {
+        font-size: 1.7rem;
+    }
+
+    .view-tab {
+        font-size: 0.78rem;
+    }
+
+    .filter-btn {
+        padding: 0.4rem 0.55rem;
+        font-size: 0.72rem;
+    }
+
+    .method-pill,
+    .alpha-pill,
+    .secret-pill,
+    .toggle-pill {
+        height: 30px;
+        font-size: 0.7rem;
+        padding: 0 8px;
+    }
+
+    .caught-btn-sm {
+        width: 30px;
+        height: 30px;
+        font-size: 0.8rem;
+    }
+
+    .my-target-remove {
+        width: 30px;
+        height: 30px;
+    }
+
+    .target-sprite {
+        width: 28px;
+        height: 28px;
+    }
+    .my-target-sprite {
+        width: 36px;
+        height: 36px;
+    }
+
+    .pokemon-lookup h2 {
+        font-size: 0.95rem;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 1rem;
     }
 }
 
