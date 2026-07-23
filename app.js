@@ -36,14 +36,6 @@
         return allTargets.filter(t => t.user_id === userId);
     }
 
-    function isPokemonTaken(pokemon, excludeUserId) {
-        const lower = pokemon.toLowerCase();
-        return allTargets.some(t =>
-            t.user_id !== excludeUserId &&
-            t.pokemon_name.toLowerCase() === lower
-        );
-    }
-
     function getMemberPoints(user) {
         return getUserTargets(user.id).reduce((s, t) => s + calculatePoints(t.tier, 'wild'), 0);
     }
@@ -134,12 +126,6 @@
             return;
         }
 
-        if (isPokemonTaken(name, session.id)) {
-            errorDiv.textContent = `"${name}" ya tiene target otro miembro.`;
-            errorDiv.classList.remove('hidden');
-            return;
-        }
-
         const { data, error } = await supabaseClient
             .from('targets')
             .insert({ user_id: session.id, pokemon_name: name, tier, caught: false })
@@ -201,16 +187,14 @@
                 const tc = r.tier === 'legendary' ? 'legendary' : r.tier === 'alpha' ? 'alpha' : `tier-${r.tier}`;
                 const tl = r.tier === 'legendary' ? 'LEG' : r.tier === 'alpha' ? 'ALPHA' : `T${r.tier}`;
                 const inMyList = myTargets.some(t => t.pokemon_name.toLowerCase() === r.name.toLowerCase());
-                const taken = isPokemonTaken(r.name, session ? session.id : null);
                 const sprite = getShinySpriteUrl(r.name);
                 return `
-                    <div class="ac-item ${inMyList ? 'in-list' : ''} ${taken ? 'taken' : ''}" data-name="${esc(r.name)}">
+                    <div class="ac-item ${inMyList ? 'in-list' : ''}" data-name="${esc(r.name)}">
                         ${sprite ? `<img src="${sprite}" class="ac-sprite" onerror="this.style.display='none'">` : ''}
                         <span class="tier-badge ${tc}">${tl}</span>
                         <span class="ac-name">${esc(r.name)}</span>
                         <span class="ac-pts">${r.points} pts</span>
                         ${inMyList ? '<span class="ac-badge">YA LO TENÉS</span>' : ''}
-                        ${taken && !inMyList ? '<span class="ac-badge taken">OCUPADO</span>' : ''}
                     </div>
                 `;
             }).join('');
@@ -221,7 +205,7 @@
         box.classList.remove('hidden');
         acIndex = -1;
 
-        box.querySelectorAll('.ac-item:not(.taken):not(.in-list)').forEach(item => {
+        box.querySelectorAll('.ac-item:not(.in-list)').forEach(item => {
             item.addEventListener('click', () => {
                 document.getElementById('myTargetInput').value = item.dataset.name;
                 hideAutocomplete();
@@ -237,7 +221,7 @@
     }
 
     function navAC(dir) {
-        const items = document.querySelectorAll('#autocompleteList .ac-item:not(.taken):not(.in-list)');
+        const items = document.querySelectorAll('#autocompleteList .ac-item:not(.in-list)');
         if (!items.length) return false;
         items.forEach(i => i.classList.remove('selected'));
         acIndex += dir;
@@ -249,7 +233,7 @@
     }
 
     function selectAC() {
-        const items = document.querySelectorAll('#autocompleteList .ac-item:not(.taken):not(.in-list)');
+        const items = document.querySelectorAll('#autocompleteList .ac-item:not(.in-list)');
         if (acIndex >= 0 && acIndex < items.length) { items[acIndex].click(); return true; }
         return false;
     }
@@ -332,16 +316,15 @@
         container.innerHTML = results.map(r => {
             const tc = r.tier === 'legendary' ? 'legendary' : r.tier === 'alpha' ? 'alpha' : `tier-${r.tier}`;
             const tl = r.tier === 'legendary' ? 'LEG' : r.tier === 'alpha' ? 'ALPHA' : `T${r.tier}`;
-            const taken = isPokemonTaken(r.name, null);
             const sprite = getShinySpriteUrl(r.name);
-            const who = taken ? allUsers.find(u => allTargets.some(t => t.user_id === u.id && t.pokemon_name.toLowerCase() === r.name.toLowerCase())) : null;
+            const holders = allUsers.filter(u => allTargets.some(t => t.user_id === u.id && t.pokemon_name.toLowerCase() === r.name.toLowerCase()));
             return `
-                <div class="pokemon-result-card ${taken ? 'taken' : ''}">
+                <div class="pokemon-result-card">
                     ${sprite ? `<img src="${sprite}" class="pokemon-result-sprite" onerror="this.style.display='none'">` : ''}
                     <span class="tier-badge ${tc}">${tl}</span>
                     <span class="pokemon-result-name">${r.name}</span>
                     <span class="pokemon-result-pts">${r.points} pts</span>
-                    ${who ? `<span class="pokemon-result-who">${esc(who.display_name || who.username)}</span>` : ''}
+                    ${holders.length > 0 ? holders.map(u => `<span class="pokemon-result-who">${esc(u.display_name || u.username)}</span>`).join('') : ''}
                 </div>
             `;
         }).join('');
