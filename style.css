@@ -31,6 +31,10 @@
     --tier-7: #64748b;
 }
 
+.hidden {
+    display: none !important;
+}
+
 body {
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     background: var(--bg-dark);
@@ -1568,6 +1572,181 @@ footer {
     color: var(--success);
     font-weight: 500;
     white-space: nowrap;
+}
+
+/* Auth Screen */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    padding: 2rem 1rem;
+}
+
+.auth-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+}
+
+.auth-title {
+    font-size: 1.6rem;
+    background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.2rem;
+}
+
+.auth-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+.auth-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 0.6rem;
+    background: var(--bg-dark);
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.auth-tab.active {
+    background: var(--accent-blue);
+    color: #fff;
+    font-weight: 600;
+}
+
+.auth-form {
+    text-align: left;
+}
+
+.auth-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+    margin-top: 0.75rem;
+}
+
+.auth-input {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.auth-input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+}
+
+.auth-btn {
+    width: 100%;
+    margin-top: 1.25rem;
+    padding: 0.7rem;
+    background: var(--accent-blue);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.auth-btn:hover {
+    background: #3b82f6;
+}
+
+.auth-error {
+    margin-top: 0.75rem;
+    padding: 0.5rem;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid var(--danger);
+    border-radius: 6px;
+    color: var(--danger);
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+.auth-error.hidden {
+    display: none;
+}
+
+/* App top bar */
+.app-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding: 0.6rem 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.user-greeting {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.user-greeting::before {
+    content: '👤 ';
+}
+
+.logout-btn {
+    padding: 0.4rem 0.8rem;
+    background: transparent;
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.logout-btn:hover {
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+/* Me badge */
+.me-badge {
+    display: inline-block;
+    font-size: 0.55rem;
+    padding: 0.1rem 0.35rem;
+    background: var(--accent-cyan);
+    color: #000;
+    border-radius: 4px;
+    font-weight: 700;
+    vertical-align: middle;
+    margin-left: 0.3rem;
+}
+
+.member-card.is-me {
+    border-left: 3px solid var(--accent-cyan) !important;
 }
 
 /* Responsive */
