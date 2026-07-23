@@ -372,7 +372,7 @@
                     <div class="member-number">${i + 1}</div>
                     <div class="member-info">
                         <div class="member-header">
-                            <span class="member-name">${esc(displayName)}${isMe ? ' <span class="me-badge">VOS</span>' : ''} ${u.role === 'admin' ? '<span class="admin-badge">ADMIN</span>' : ''}</span>
+                            <span class="member-name">${esc(displayName)}${isMe ? ' <span class="me-badge">TÚ</span>' : ''} ${u.role === 'admin' ? '<span class="admin-badge">ADMIN</span>' : ''}</span>
                             ${ps.caughtCount > 0 ? `
                                 <span class="member-count">${ps.caughtCount} shiny${ps.caughtCount > 1 ? 's' : ''}</span>
                                 <span class="member-total-pts">${ps.total} pts</span>
