@@ -84,18 +84,16 @@ const POKEMON_TIERS = {
 
     // Legendarios/Míticos — 200 pts
     legendary: [
-        "Articuno","Zapdos","Moltres","Mewtwo","Mew","Raikou","Entei",
-        "Suicune","Lugia","Ho-Oh","Celebi","Regirock","Regice","Registeel",
-        "Latias","Latios","Kyogre","Groudon","Rayquaza","Jirachi",
-        "Deoxys","Uxie","Mesprit","Azelf","Dialga","Palkia","Heatran",
-        "Regigigas","Giratina","Cresselia","Phione","Manaphy","Darkrai",
-        "Shaymin","Arceus","Victini","Cobalion","Terrakion","Virizion",
-        "Tornadus","Thundurus","Reshiram","Zekrom","Landorus","Kyurem",
-        "Keldeo","Meloetta","Genesect","Xerneas","Yveltal","Zygarde",
-        "Diancie","Hoopa","Volcanion","Cosmog","Cosmoem","Solgaleo",
-        "Lunala","Necrozma","Magearna","Marshadow","Zeraora","Meltan",
-        "Melmetal","Zacian","Zamazenta","Eternatus","Kubfu","Urshifu",
-        "Zarude","Calyrex","Glastrier","Spectrier","Enamorus"
+        "Arceus","Articuno","Azelf","Celebi","Cobalion",
+        "Cresselia","Darkrai","Deoxys","Dialga","Entei",
+        "Genesect","Giratina","Groudon","Heatran","Ho-Oh",
+        "Jirachi","Keldeo","Kyogre","Kyurem","Landorus",
+        "Latias","Latios","Lugia","Manaphy","Meloetta",
+        "Mesprit","Mew","Mewtwo","Moltres","Palkia",
+        "Phione","Raikou","Rayquaza","Regice","Regigigas",
+        "Regirock","Registeel","Reshiram","Shaymin","Suicune",
+        "Terrakion","Thundurus","Tornadus","Uxie","Victini",
+        "Virizion","Zapdos","Zekrom"
     ]
 };
 
