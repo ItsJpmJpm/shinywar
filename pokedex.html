@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokédex Shiny — Team Snow</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="nav-bar">
+            <a href="index.html" class="nav-link">← Asignación</a>
+            <span class="nav-title">❄️ Team Snow</span>
+            <span class="nav-link disabled">Pokédex Shiny</span>
+        </div>
+        <h1>Pokédex Shiny Wars 2026</h1>
+        <p class="subtitle">Todos los Pokémon Gen 1–5 • Imágenes shiny animadas</p>
+    </header>
+
+    <main>
+        <div class="pokedex-controls">
+            <div class="search-box">
+                <input type="text" id="pokedexSearch" placeholder="Buscar Pokémon...">
+            </div>
+            <div class="pokedex-count" id="pokedexCount"></div>
+        </div>
+        <div id="pokedexGrid" class="pokedex-pokemon-grid"></div>
+    </main>
+
+    <footer>
+        <p>Team Snow ❄️ • Shiny Wars 2026</p>
+    </footer>
+
+    <script src="pokemon-sprites.js"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var grid = document.getElementById("pokedexGrid");
+        var countEl = document.getElementById("pokedexCount");
+        var searchInput = document.getElementById("pokedexSearch");
+        var STORAGE_KEY = "snow-shinywar-2026";
+
+        var allPokemon = [];
+        for (var key in POKEAPI_IDS) {
+            var id = POKEAPI_IDS[key];
+            if (id <= 649) {
+                allPokemon.push({ name: key, id: id });
+            }
+        }
+        allPokemon.sort(function(a, b) { return a.id - b.id; });
+
+        function loadAssignedMap() {
+            var map = {};
+            try {
+                var saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    var members = JSON.parse(saved);
+                    for (var i = 0; i < members.length; i++) {
+                        var m = members[i];
+                        var targets = m.targets || [];
+                        for (var j = 0; j < targets.length; j++) {
+                            map[targets[j].name.toLowerCase()] = m.name;
+                        }
+                    }
+                }
+            } catch(e) {}
+            return map;
+        }
+
+        function getAnimatedSprite(id) {
+            return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/" + id + ".gif";
+        }
+
+        function getStaticSprite(id) {
+            return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/" + id + ".png";
+        }
+
+        var NAME_MAP = {
+            "nidoran-f": "Nidoran♀",
+            "nidoran♀": "Nidoran♀",
+            "nidoran-m": "Nidoran♂",
+            "nidoran♂": "Nidoran♂",
+            "farfetchd": "Farfetch'd",
+            "farfetch'd": "Farfetch'd",
+            "mr. mime": "Mr. Mime",
+            "mime jr.": "Mime Jr.",
+            "porygon-z": "Porygon-Z",
+            "porygon2": "Porygon2",
+            "ho-oh": "Ho-Oh"
+        };
+
+        function displayName(name) {
+            if (NAME_MAP[name]) return NAME_MAP[name];
+            return name.charAt(0).toUpperCase() + name.slice(1);
+        }
+
+        function render(query) {
+            var assignedMap = loadAssignedMap();
+            var q = (query || "").toLowerCase();
+            var filtered = [];
+            var count = 0;
+
+            for (var i = 0; i < allPokemon.length; i++) {
+                var p = allPokemon[i];
+                if (q && p.name.indexOf(q) === -1) continue;
+                filtered.push(p);
+                count++;
+            }
+
+            var html = "";
+            for (var i = 0; i < filtered.length; i++) {
+                var p = filtered[i];
+                var assigned = assignedMap[p.name] || null;
+                var animSprite = getAnimatedSprite(p.id);
+
+                html += '<div class="pokedex-card' + (assigned ? ' claimed' : '') + '" title="' + (assigned ? 'Asignado a: ' + assigned : '') + '">';
+                html += '<div class="pokedex-sprite-wrap">';
+                html += '<img src="' + animSprite + '" class="pokedex-sprite" loading="lazy" onerror="this.src=\'' + getStaticSprite(p.id) + '\'">';
+                if (assigned) {
+                    html += '<div class="pokedex-claimed-badge">✓</div>';
+                }
+                html += '</div>';
+                html += '<div class="pokedex-card-name">' + displayName(p.name) + '</div>';
+                html += '<div class="pokedex-card-id">#' + p.id + '</div>';
+                if (assigned) {
+                    html += '<div class="pokedex-card-member">' + assigned + '</div>';
+                }
+                html += '</div>';
+            }
+
+            if (count === 0) {
+                html = '<div class="pokedex-empty">No se encontraron Pokémon.</div>';
+            }
+
+            grid.innerHTML = html;
+            countEl.textContent = count + " Pokémon";
+        }
+
+        render("");
+
+        searchInput.addEventListener("input", function(e) {
+            render(e.target.value);
+        });
+    });
+    </script>
+</body>
+</html>

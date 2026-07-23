@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Snow - Shiny Wars 2026</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="nav-bar">
+            <span class="nav-link disabled">Asignación</span>
+            <span class="nav-title">❄️ Team Snow</span>
+            <a href="pokedex.html" class="nav-link">Pokédex Shiny →</a>
+        </div>
+        <h1>Team Snow - Shiny Wars 2026</h1>
+        <p class="subtitle">¿Qué shiny querés capturar? • Evento: 1-28 Agosto 2026</p>
+    </header>
+
+    <main>
+        <section class="stats-bar">
+            <div class="stat">
+                <span class="stat-value" id="totalAssigned">0</span>
+                <span class="stat-label">Con target</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" id="totalCaught">0</span>
+                <span class="stat-label">Capturados</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" id="totalMembers">28</span>
+                <span class="stat-label">Miembros</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value" id="totalPoints">0</span>
+                <span class="stat-label">Puntos posibles</span>
+            </div>
+        </section>
+
+        <section class="points-legend">
+            <span class="legend-title">Puntos por tier:</span>
+            <span class="tier-badge tier-7">T7 · 3</span>
+            <span class="tier-badge tier-6">T6 · 5</span>
+            <span class="tier-badge tier-5">T5 · 10</span>
+            <span class="tier-badge tier-4">T4 · 15</span>
+            <span class="tier-badge tier-3">T3 · 30</span>
+            <span class="tier-badge tier-2">T2 · 40</span>
+            <span class="tier-badge tier-1">T1 · 45</span>
+            <span class="tier-badge tier-0">T0 · 50</span>
+            <span class="tier-badge alpha">Alpha · 75</span>
+            <span class="tier-badge legendary">LEG · 200</span>
+        </section>
+
+        <section class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Buscar miembro o Pokémon...">
+            </div>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="assigned">Con target</button>
+                <button class="filter-btn" data-filter="unassigned">Sin target</button>
+                <button class="filter-btn" data-filter="caught">Capturados ✓</button>
+            </div>
+
+        </section>
+
+        <section class="pokemon-lookup">
+            <h2>🔍 Buscar Pokémon por Tier</h2>
+            <div class="lookup-controls">
+                <input type="text" id="pokemonLookup" placeholder="Escribí un nombre...">
+                <select id="tierFilter">
+                    <option value="">Todos los tiers</option>
+                    <option value="legendary">Legendario/Mítico (200)</option>
+                    <option value="alpha">Alpha (75)</option>
+                    <option value="0">Tier 0 (50)</option>
+                    <option value="1">Tier 1 (45)</option>
+                    <option value="2">Tier 2 (40)</option>
+                    <option value="3">Tier 3 (30)</option>
+                    <option value="4">Tier 4 (15)</option>
+                    <option value="5">Tier 5 (10)</option>
+                    <option value="6">Tier 6 (5)</option>
+                    <option value="7">Tier 7 (3)</option>
+                </select>
+            </div>
+            <div id="pokemonResults" class="pokemon-results"></div>
+        </section>
+
+        <section class="roster">
+            <h2>Roster del Equipo</h2>
+            <div id="memberList" class="member-list"></div>
+        </section>
+    </main>
+
+    <!-- Modal -->
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 id="modalTitle">Targets</h3>
+            <div class="modal-body">
+                <input type="text" id="modalMemberName" class="hidden">
+
+                <p id="modalSummary" class="modal-summary"></p>
+
+                <div id="modalTargetList" class="modal-target-list"></div>
+
+                <div class="modal-add-row">
+                    <div class="autocomplete-wrap">
+                        <input type="text" id="modalPokemonName" placeholder="Agregá un Pokémon..." autocomplete="off">
+                        <div id="autocompleteList" class="autocomplete-list hidden"></div>
+                    </div>
+
+                    <select id="modalTierSelect">
+                        <option value="7">T7 · 3 pts</option>
+                        <option value="6">T6 · 5 pts</option>
+                        <option value="5">T5 · 10 pts</option>
+                        <option value="4">T4 · 15 pts</option>
+                        <option value="3">T3 · 30 pts</option>
+                        <option value="2">T2 · 40 pts</option>
+                        <option value="1">T1 · 45 pts</option>
+                        <option value="0">T0 · 50 pts</option>
+                        <option value="alpha">Alpha · 75 pts</option>
+                        <option value="legendary">LEG · 200 pts</option>
+                    </select>
+
+                    <button id="modalAddBtn" class="action-btn primary">+ Agregar</button>
+                </div>
+
+                <div id="modalSpritePreview" class="modal-sprite-preview hidden"></div>
+                <div id="modalError" class="error-message hidden"></div>
+            </div>
+            <div class="modal-actions">
+                <button id="modalCancel" class="action-btn">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+
+    <footer>
+        <p>Team Snow ❄️ • Shiny Wars 2026 • PokeMMO</p>
+    </footer>
+
+    <script src="pokemon-data.js"></script>
+    <script src="pokemon-sprites.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
