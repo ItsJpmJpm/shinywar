@@ -75,7 +75,7 @@
             <div class="sb-row"><span>Base (tiers capturados)</span><span class="sb-val">${teamScore.base}</span></div>
             <div class="sb-row"><span>Bonus métodos</span><span class="sb-val sb-bonus">+${teamScore.methodBonus}</span></div>
             <div class="sb-row"><span>Bonus especies únicas (${teamScore.uniqueLines.length} líneas × 8)</span><span class="sb-val sb-bonus">+${teamScore.uniqueBonus}</span></div>
-            <div class="sb-row"><span>Penalización duplicados</span><span class="sb-val sb-penalty">-${teamScore.duplicatePenalty}</span></div>
+            ${teamScore.duplicateCount > 0 ? `<div class="sb-row"><span>Duplicados (reducidos a +1)</span><span class="sb-val sb-muted">${teamScore.duplicateCount}</span></div>` : ''}
             <div class="sb-row"><span>Shinies capturados</span><span class="sb-val">${teamScore.caughtCount}</span></div>
         `;
 
@@ -130,12 +130,12 @@
                     ${sprite ? `<img src="${sprite}" class="my-target-sprite" onerror="this.style.display='none'">` : ''}
                     <span class="tier-badge ${tc}">${tl}</span>
                     <span class="my-target-name">${esc(t.pokemon_name)}</span>
-                    <select class="method-select" data-tid="${t.id}" title="Método de captura">
-                        <option value="wild" ${method === 'wild' ? 'selected' : ''}>Wild</option>
-                        <option value="egg" ${method === 'egg' ? 'selected' : ''}>Egg</option>
-                        <option value="safari" ${method === 'safari' ? 'selected' : ''}>Safari</option>
-                        <option value="secret" ${method === 'secret' ? 'selected' : ''}>Secret</option>
-                    </select>
+                    <div class="method-pills" data-tid="${t.id}">
+                        <button class="method-pill ${method === 'wild' ? 'active' : ''}" data-method="wild" title="Salvaje">🌿</button>
+                        <button class="method-pill ${method === 'egg' ? 'active' : ''}" data-method="egg" title="Huevo">🥚</button>
+                        <button class="method-pill ${method === 'safari' ? 'active' : ''}" data-method="safari" title="Safari">🌴</button>
+                        <button class="method-pill ${method === 'secret' ? 'active' : ''}" data-method="secret" title="Secret">✨</button>
+                    </div>
                     <span class="my-target-pts">${pts} pts</span>
                     <button class="my-target-remove" data-tid="${t.id}" title="Quitar de mi lista">✕</button>
                 </div>
@@ -145,8 +145,15 @@
         container.querySelectorAll('.caught-btn').forEach(btn => {
             btn.addEventListener('click', () => toggleMyCaught(btn.dataset.tid));
         });
-        container.querySelectorAll('.method-select').forEach(sel => {
-            sel.addEventListener('change', () => changeMethod(sel.dataset.tid, sel.value));
+        container.querySelectorAll('.method-pill').forEach(pill => {
+            pill.addEventListener('click', () => {
+                const pills = pill.parentElement;
+                const tid = pills.dataset.tid;
+                const method = pill.dataset.method;
+                pills.querySelectorAll('.method-pill').forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                changeMethod(tid, method);
+            });
         });
         container.querySelectorAll('.my-target-remove').forEach(btn => {
             btn.addEventListener('click', () => removeMyTarget(btn.dataset.tid));
@@ -359,14 +366,14 @@
                                     const sprite = getShinySpriteUrl(t.pokemon_name);
                                     const pts2 = calculatePoints(t.tier, t.method || 'wild');
                                     const method = t.method || 'wild';
-                                    const methodIcon = method === 'egg' ? '🥚' : method === 'safari' ? '🌴' : method === 'secret' ? '✨' : '';
+                                    const methodLabel = method === 'egg' ? '🥚' : method === 'safari' ? '🌴' : method === 'secret' ? '✨' : '🌿';
                                     return `
                                         <div class="target-row ${t.caught ? 'is-caught' : ''}">
                                             <span class="caught-indicator ${t.caught ? 'is-caught' : ''}">${t.caught ? '✓' : '○'}</span>
                                             ${sprite ? `<img src="${sprite}" class="target-sprite" onerror="this.style.display='none'">` : ''}
                                             <span class="tier-badge ${tc}">${tl}</span>
                                             <span class="target-name">${esc(t.pokemon_name)}</span>
-                                            ${methodIcon ? `<span class="method-icon">${methodIcon}</span>` : ''}
+                                            <span class="method-pill-ro" title="${method}">${methodLabel}</span>
                                             <span class="target-pts">${pts2} pts</span>
                                         </div>
                                     `;

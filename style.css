@@ -2065,21 +2065,49 @@ footer {
     text-align: right;
 }
 
-/* ─── METHOD SELECT ─── */
-.method-select {
-    background: var(--input-bg);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    color: var(--text);
-    font-size: 0.7rem;
-    padding: 0.15rem 0.3rem;
-    cursor: pointer;
-    max-width: 70px;
+/* ─── METHOD PILLS ─── */
+.method-pills {
+    display: flex;
+    gap: 2px;
+    flex-shrink: 0;
 }
-.method-select:focus {
-    outline: none;
-    border-color: var(--accent);
-}
-.method-icon {
+.method-pill {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: transparent;
     font-size: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    opacity: 0.45;
+    padding: 0;
+    line-height: 1;
+}
+.method-pill:hover {
+    opacity: 0.8;
+    border-color: var(--text-muted);
+}
+.method-pill.active {
+    opacity: 1;
+    border-color: var(--accent);
+    background: rgba(255,255,255,0.08);
+    box-shadow: 0 0 6px rgba(99,102,241,0.3);
+}
+.method-pill-ro {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: rgba(255,255,255,0.04);
+    font-size: 0.65rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    opacity: 0.7;
+    line-height: 1;
 }
