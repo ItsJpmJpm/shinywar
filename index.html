@@ -79,18 +79,56 @@
             <span class="tier-badge legendary">LEG · 200</span>
         </section>
 
-        <section class="controls">
-            <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Buscar miembro o Pokémon...">
+        <!-- VIEW TABS -->
+        <div class="view-tabs">
+            <button class="view-tab active" data-view="myTargets">Mis Targets</button>
+            <button class="view-tab" data-view="teamRoster">Roster del Equipo</button>
+        </div>
+
+        <!-- MY TARGETS VIEW -->
+        <section id="myTargetsView" class="view-panel">
+            <div class="my-targets-add">
+                <div class="autocomplete-wrap">
+                    <input type="text" id="myTargetInput" placeholder="Escribí el nombre de un Pokémon..." autocomplete="off">
+                    <div id="autocompleteList" class="autocomplete-list hidden"></div>
+                </div>
+                <select id="myTargetTier">
+                    <option value="7">T7 · 3 pts</option>
+                    <option value="6">T6 · 5 pts</option>
+                    <option value="5">T5 · 10 pts</option>
+                    <option value="4">T4 · 15 pts</option>
+                    <option value="3">T3 · 30 pts</option>
+                    <option value="2">T2 · 40 pts</option>
+                    <option value="1">T1 · 45 pts</option>
+                    <option value="0">T0 · 50 pts</option>
+                    <option value="alpha">Alpha · 75 pts</option>
+                    <option value="legendary">LEG · 200 pts</option>
+                </select>
+                <button id="myTargetAddBtn" class="action-btn primary">+ Agregar</button>
             </div>
-            <div class="filter-buttons">
-                <button class="filter-btn active" data-filter="all">Todos</button>
-                <button class="filter-btn" data-filter="assigned">Con target</button>
-                <button class="filter-btn" data-filter="unassigned">Sin target</button>
-                <button class="filter-btn" data-filter="caught">Capturados ✓</button>
+            <div id="myTargetError" class="error-message hidden"></div>
+            <div id="myTargetList" class="my-target-list">
+                <div class="empty-state">Todavía no tenés targets. ¡Agregá uno arriba!</div>
             </div>
         </section>
 
+        <!-- TEAM ROSTER VIEW -->
+        <section id="teamRosterView" class="view-panel hidden">
+            <div class="controls">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Buscar miembro o Pokémon...">
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">Todos</button>
+                    <button class="filter-btn" data-filter="assigned">Con target</button>
+                    <button class="filter-btn" data-filter="unassigned">Sin target</button>
+                    <button class="filter-btn" data-filter="caught">Capturados ✓</button>
+                </div>
+            </div>
+            <div id="memberList" class="member-list"></div>
+        </section>
+
+        <!-- POKEMON LOOKUP (always visible) -->
         <section class="pokemon-lookup">
             <h2>🔍 Buscar Pokémon por Tier</h2>
             <div class="lookup-controls">
@@ -111,48 +149,7 @@
             </div>
             <div id="pokemonResults" class="pokemon-results"></div>
         </section>
-
-        <section class="roster">
-            <h2>Roster del Equipo</h2>
-            <div id="memberList" class="member-list"></div>
-        </section>
     </main>
-
-    <!-- Modal -->
-    <div id="modal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h3 id="modalTitle">Targets</h3>
-            <div class="modal-body">
-                <p id="modalSummary" class="modal-summary"></p>
-                <div id="modalTargetList" class="modal-target-list"></div>
-                <div class="modal-add-row">
-                    <div class="autocomplete-wrap">
-                        <input type="text" id="modalPokemonName" placeholder="Agregá un Pokémon..." autocomplete="off">
-                        <div id="autocompleteList" class="autocomplete-list hidden"></div>
-                    </div>
-                    <select id="modalTierSelect">
-                        <option value="7">T7 · 3 pts</option>
-                        <option value="6">T6 · 5 pts</option>
-                        <option value="5">T5 · 10 pts</option>
-                        <option value="4">T4 · 15 pts</option>
-                        <option value="3">T3 · 30 pts</option>
-                        <option value="2">T2 · 40 pts</option>
-                        <option value="1">T1 · 45 pts</option>
-                        <option value="0">T0 · 50 pts</option>
-                        <option value="alpha">Alpha · 75 pts</option>
-                        <option value="legendary">LEG · 200 pts</option>
-                    </select>
-                    <button id="modalAddBtn" class="action-btn primary">+ Agregar</button>
-                </div>
-                <div id="modalSpritePreview" class="modal-sprite-preview hidden"></div>
-                <div id="modalError" class="error-message hidden"></div>
-            </div>
-            <div class="modal-actions">
-                <button id="modalCancel" class="action-btn">Cerrar</button>
-            </div>
-        </div>
-    </div>
 
     <footer>
         <p>Team Snow ❄️ • Shiny Wars 2026 • PokeMMO</p>

@@ -8,22 +8,23 @@
         return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    function friendlySupabaseError(error) {
-        if (!error) return 'Error desconocido.';
-        const msg = (error.message || '').toLowerCase();
+    function friendlyError(e) {
+        if (!e) return 'Error desconocido.';
+        const msg = (e.message || String(e)).toLowerCase();
         if (msg.includes('row-level security') || msg.includes('rls'))
-            return 'No tenés permiso para realizar esta acción. Si recién creaste la cuenta, probá recargar la página.';
+            return 'No tenés permiso para realizar esta acción. Si recién creaste la cuenta, recargá la página.';
         if (msg.includes('relation') && msg.includes('does not exist'))
-            return 'La base de datos no está configurada correctamente. Contactá al admin.';
-        if (msg.includes('duplicate key') || msg.includes('unique'))
+            return 'La base de datos no está configurada. contactá al admin.';
+        if (msg.includes('duplicate key') || msg.includes('unique constraint'))
             return 'Ya existe un usuario con ese nombre.';
         if (msg.includes('invalid input') || msg.includes('violates'))
             return 'Los datos ingresados no son válidos.';
-        if (msg.includes('fetch') || msg.includes('network') || msg.includes('failed to fetch'))
+        if (msg.includes('fetch') || msg.includes('network') || msg.includes('failed to fetch') || msg.includes('err_name'))
             return 'No se pudo conectar con el servidor. Verificá tu conexión a internet.';
         if (msg.includes('timeout'))
             return 'La conexión tardó demasiado. Intentá de nuevo.';
-        return 'Error del servidor: ' + (error.message || 'desconocido');
+        if (e.message) return 'Error: ' + e.message;
+        return 'Ocurrió un error inesperado.';
     }
 
     async function register(username, password) {
@@ -31,24 +32,17 @@
             throw new Error('No se pudo conectar con la base de datos. Recargá la página e intentá de nuevo.');
         }
 
-        let existing;
         try {
-            const result = await supabaseClient
+            const { data: existing, error: selErr } = await supabaseClient
                 .from('users')
                 .select('id')
                 .eq('username', username)
                 .maybeSingle();
-            existing = result.data;
-            if (result.error) {
-                throw new Error(friendlySupabaseError(result.error));
-            }
+            if (selErr) throw new Error(friendlyError(selErr));
+            if (existing) throw new Error('__DUPLICATE__');
         } catch (e) {
-            if (e.message && !e.message.includes('desconocido') && !e.message.includes('base de datos')) throw e;
-            throw new Error('No se pudo verificar el usuario. Verificá tu conexión e intentá de nuevo.');
-        }
-
-        if (existing) {
-            throw new Error('Ya existe un usuario con ese nombre. Elegí otro nombre.');
+            if (e.message === '__DUPLICATE__') throw new Error('Ya existe un usuario con ese nombre. Elegí otro.');
+            throw new Error(friendlyError(e));
         }
 
         const passwordHash = await hashPassword(password);
@@ -59,13 +53,10 @@
                 .insert({ username, password_hash: passwordHash, display_name: username })
                 .select('id, username, display_name, role')
                 .single();
-            if (result.error) {
-                throw new Error(friendlySupabaseError(result.error));
-            }
+            if (result.error) throw new Error(friendlyError(result.error));
             data = result.data;
         } catch (e) {
-            if (e.message && !e.message.includes('desconocido') && !e.message.includes('servidor')) throw e;
-            throw new Error('No se pudo crear la cuenta. Intentá de nuevo en unos segundos.');
+            throw new Error(friendlyError(e));
         }
 
         if (!data || !data.id) {
@@ -81,7 +72,6 @@
                 data.role = 'admin';
             }
         } catch (e) {
-            // Non-critical: account was created, just admin promotion failed
             console.warn('Admin auto-promotion failed:', e);
         }
 
@@ -101,13 +91,10 @@
                 .select('id, username, display_name, role, password_hash')
                 .eq('username', username)
                 .maybeSingle();
-            if (result.error) {
-                throw new Error(friendlySupabaseError(result.error));
-            }
+            if (result.error) throw new Error(friendlyError(result.error));
             user = result.data;
         } catch (e) {
-            if (e.message && !e.message.includes('desconocido') && !e.message.includes('servidor')) throw e;
-            throw new Error('No se pudo verificar el usuario. Verificá tu conexión e intentá de nuevo.');
+            throw new Error(friendlyError(e));
         }
 
         if (!user) {
