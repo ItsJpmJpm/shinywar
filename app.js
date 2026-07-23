@@ -25,7 +25,7 @@
         const { data: users, error: errU } = await supabaseClient
             .from('users').select('id, username, display_name, role').order('created_at');
         const { data: targets, error: errT } = await supabaseClient
-            .from('targets').select('id, user_id, pokemon_name, tier, caught').order('created_at');
+            .from('targets').select('id, user_id, pokemon_name, tier, method, caught').order('created_at');
         if (errU) throw new Error(friendlyError(errU));
         if (errT) throw new Error(friendlyError(errT));
         allUsers = users || [];
@@ -49,11 +49,50 @@
         const el = (id) => document.getElementById(id);
         const totalTargets = allTargets.length;
         const totalCaught = allTargets.filter(t => t.caught).length;
-        const totalPoints = allTargets.reduce((s, t) => s + calculatePoints(t.tier, 'wild'), 0);
+        const totalPoints = allTargets.reduce((s, t) => s + calculatePoints(t.tier, t.method || 'wild'), 0);
         if (el('totalAssigned')) el('totalAssigned').textContent = totalTargets;
         if (el('totalCaught')) el('totalCaught').textContent = totalCaught;
         if (el('totalMembers')) el('totalMembers').textContent = allUsers.length;
         if (el('totalPoints')) el('totalPoints').textContent = totalPoints;
+        renderScoreboard();
+    }
+
+    function renderScoreboard() {
+        const scoreboardEl = document.getElementById('scoreboard');
+        const breakdownEl = document.getElementById('scoreBreakdown');
+        const perPlayerEl = document.getElementById('scorePerPlayer');
+        if (!scoreboardEl || !breakdownEl || !perPlayerEl) return;
+
+        const teamScore = calculateTeamScore(allTargets);
+        if (teamScore.caughtCount === 0) {
+            scoreboardEl.classList.add('hidden');
+            return;
+        }
+        scoreboardEl.classList.remove('hidden');
+
+        breakdownEl.innerHTML = `
+            <div class="sb-total"><span class="sb-total-number">${teamScore.total}</span><span class="sb-total-label">Puntos totales</span></div>
+            <div class="sb-row"><span>Base (tiers capturados)</span><span class="sb-val">${teamScore.base}</span></div>
+            <div class="sb-row"><span>Bonus métodos</span><span class="sb-val sb-bonus">+${teamScore.methodBonus}</span></div>
+            <div class="sb-row"><span>Bonus especies únicas (${teamScore.uniqueLines.length} líneas × 8)</span><span class="sb-val sb-bonus">+${teamScore.uniqueBonus}</span></div>
+            <div class="sb-row"><span>Penalización duplicados</span><span class="sb-val sb-penalty">-${teamScore.duplicatePenalty}</span></div>
+            <div class="sb-row"><span>Shinies capturados</span><span class="sb-val">${teamScore.caughtCount}</span></div>
+        `;
+
+        let playerHtml = '';
+        allUsers.forEach(u => {
+            const ps = calculatePlayerScore(getUserTargets(u.id), allTargets);
+            if (ps.caughtCount === 0) return;
+            const badge = u.role === 'admin' ? ' <span class="admin-badge">Admin</span>' : '';
+            playerHtml += `
+                <div class="sb-player">
+                    <span class="sb-player-name">${esc(u.display_name || u.username)}${badge}</span>
+                    <span class="sb-player-detail">${ps.caughtCount} shinies</span>
+                    <span class="sb-player-pts">${ps.total} pts</span>
+                </div>
+            `;
+        });
+        perPlayerEl.innerHTML = playerHtml;
     }
 
     function esc(str) {
@@ -81,7 +120,8 @@
             const tc = t.tier === 'legendary' ? 'legendary' : t.tier === 'alpha' ? 'alpha' : `tier-${t.tier.replace('tier', '')}`;
             const tl = t.tier === 'legendary' ? 'LEG' : t.tier === 'alpha' ? 'ALPHA' : `T${t.tier.replace('tier', '')}`;
             const sprite = getShinySpriteUrl(t.pokemon_name);
-            const pts = calculatePoints(t.tier, 'wild');
+            const pts = calculatePoints(t.tier, t.method || 'wild');
+            const method = t.method || 'wild';
             return `
                 <div class="my-target-item ${t.caught ? 'is-caught' : ''}">
                     <button class="caught-btn ${t.caught ? 'is-caught' : ''}" data-tid="${t.id}" title="${t.caught ? 'Descapturar' : 'Marcar como capturado'}">
@@ -90,6 +130,12 @@
                     ${sprite ? `<img src="${sprite}" class="my-target-sprite" onerror="this.style.display='none'">` : ''}
                     <span class="tier-badge ${tc}">${tl}</span>
                     <span class="my-target-name">${esc(t.pokemon_name)}</span>
+                    <select class="method-select" data-tid="${t.id}" title="Método de captura">
+                        <option value="wild" ${method === 'wild' ? 'selected' : ''}>Wild</option>
+                        <option value="egg" ${method === 'egg' ? 'selected' : ''}>Egg</option>
+                        <option value="safari" ${method === 'safari' ? 'selected' : ''}>Safari</option>
+                        <option value="secret" ${method === 'secret' ? 'selected' : ''}>Secret</option>
+                    </select>
                     <span class="my-target-pts">${pts} pts</span>
                     <button class="my-target-remove" data-tid="${t.id}" title="Quitar de mi lista">✕</button>
                 </div>
@@ -98,6 +144,9 @@
 
         container.querySelectorAll('.caught-btn').forEach(btn => {
             btn.addEventListener('click', () => toggleMyCaught(btn.dataset.tid));
+        });
+        container.querySelectorAll('.method-select').forEach(sel => {
+            sel.addEventListener('change', () => changeMethod(sel.dataset.tid, sel.value));
         });
         container.querySelectorAll('.my-target-remove').forEach(btn => {
             btn.addEventListener('click', () => removeMyTarget(btn.dataset.tid));
@@ -133,8 +182,8 @@
 
         const { data, error } = await supabaseClient
             .from('targets')
-            .insert({ user_id: session.id, pokemon_name: name, tier, caught: false })
-            .select('id, user_id, pokemon_name, tier, caught')
+            .insert({ user_id: session.id, pokemon_name: name, tier, method: 'wild', caught: false })
+            .select('id, user_id, pokemon_name, tier, method, caught')
             .single();
         if (error) {
             errorDiv.textContent = friendlyError(error);
@@ -159,6 +208,18 @@
         const { error } = await supabaseClient.from('targets').update({ caught: newCaught }).eq('id', targetId);
         if (error) { alert(friendlyError(error)); return; }
         target.caught = newCaught;
+        renderMyTargets();
+        updateStats();
+        if (currentView === 'teamRoster') renderTeamRoster();
+    }
+
+    async function changeMethod(targetId, method) {
+        const session = getSession();
+        const target = allTargets.find(t => t.id === targetId);
+        if (!target || !session || target.user_id !== session.id) return;
+        const { error } = await supabaseClient.from('targets').update({ method }).eq('id', targetId);
+        if (error) { alert(friendlyError(error)); return; }
+        target.method = method;
         renderMyTargets();
         updateStats();
         if (currentView === 'teamRoster') renderTeamRoster();
@@ -261,6 +322,10 @@
         });
     }
 
+    function getMemberPoints(user) {
+        return calculatePlayerScore(getUserTargets(user.id), allTargets).total;
+    }
+
     function renderTeamRoster() {
         const list = document.getElementById('memberList');
         if (!list) return;
@@ -269,7 +334,7 @@
 
         list.innerHTML = filtered.map((u, i) => {
             const targets = getUserTargets(u.id);
-            const pts = getMemberPoints(u);
+            const ps = calculatePlayerScore(targets, allTargets);
             const isMe = session && u.id === session.id;
             const displayName = u.display_name || u.username || '???';
 
@@ -279,9 +344,11 @@
                     <div class="member-info">
                         <div class="member-header">
                             <span class="member-name">${esc(displayName)}${isMe ? ' <span class="me-badge">VOS</span>' : ''} ${u.role === 'admin' ? '<span class="admin-badge">ADMIN</span>' : ''}</span>
-                            ${targets.length > 0 ? `
-                                <span class="member-count">${targets.length} shiny${targets.length > 1 ? 's' : ''}</span>
-                                <span class="member-total-pts">${pts} pts</span>
+                            ${ps.caughtCount > 0 ? `
+                                <span class="member-count">${ps.caughtCount} shiny${ps.caughtCount > 1 ? 's' : ''}</span>
+                                <span class="member-total-pts">${ps.total} pts</span>
+                            ` : targets.length > 0 ? `
+                                <span class="member-count">${targets.length} target${targets.length > 1 ? 's' : ''}</span>
                             ` : ''}
                         </div>
                         ${targets.length > 0 ? `
@@ -290,13 +357,16 @@
                                     const tc = t.tier === 'legendary' ? 'legendary' : t.tier === 'alpha' ? 'alpha' : `tier-${t.tier.replace('tier', '')}`;
                                     const tl = t.tier === 'legendary' ? 'LEG' : t.tier === 'alpha' ? 'ALPHA' : `T${t.tier.replace('tier', '')}`;
                                     const sprite = getShinySpriteUrl(t.pokemon_name);
-                                    const pts2 = calculatePoints(t.tier, 'wild');
+                                    const pts2 = calculatePoints(t.tier, t.method || 'wild');
+                                    const method = t.method || 'wild';
+                                    const methodIcon = method === 'egg' ? '🥚' : method === 'safari' ? '🌴' : method === 'secret' ? '✨' : '';
                                     return `
                                         <div class="target-row ${t.caught ? 'is-caught' : ''}">
                                             <span class="caught-indicator ${t.caught ? 'is-caught' : ''}">${t.caught ? '✓' : '○'}</span>
                                             ${sprite ? `<img src="${sprite}" class="target-sprite" onerror="this.style.display='none'">` : ''}
                                             <span class="tier-badge ${tc}">${tl}</span>
                                             <span class="target-name">${esc(t.pokemon_name)}</span>
+                                            ${methodIcon ? `<span class="method-icon">${methodIcon}</span>` : ''}
                                             <span class="target-pts">${pts2} pts</span>
                                         </div>
                                     `;
