@@ -132,7 +132,7 @@
                     <span class="my-target-name">${esc(t.pokemon_name)}</span>
                     <div class="target-options" data-tid="${t.id}">
                         <button class="toggle-pill alpha-pill ${t.is_alpha ? 'active' : ''}" data-toggle="is_alpha" title="Alpha (75 pts base)">🅰️ Alpha</button>
-                        <button class="toggle-pill secret-pill ${t.is_secret ? 'active' : ''}" data-toggle="is_secret" title="Secret Shiny (+20 pts)">💎 Secret</button>
+                        <button class="toggle-pill secret-pill ${t.is_secret ? 'active' : ''}" data-toggle="is_secret" title="Secret Shiny (+20 pts)">⭐ Secret</button>
                         <span class="options-sep">|</span>
                         <div class="method-pills">
                             <button class="method-pill ${method === 'wild' ? 'active' : ''}" data-method="wild" title="Salvaje">🌿</button>
@@ -401,7 +401,7 @@
                                             <span class="tier-badge ${tc}">${tl}</span>
                                             <span class="target-name">${esc(t.pokemon_name)}</span>
                                             ${t.is_alpha ? '<span class="alpha-dot" title="Alpha">🅰️</span>' : ''}
-                                            ${t.is_secret ? '<span class="secret-dot" title="Secret Shiny">💎</span>' : ''}
+                                            ${t.is_secret ? '<span class="secret-dot" title="Secret Shiny">⭐</span>' : ''}
                                             <span class="method-pill-ro" title="${method}">${methodLabel}</span>
                                             <span class="target-pts">${pts2} pts</span>
                                         </div>
