@@ -64,11 +64,6 @@
         if (!scoreboardEl || !breakdownEl || !perPlayerEl) return;
 
         const teamScore = calculateTeamScore(allTargets);
-        if (teamScore.caughtCount === 0) {
-            scoreboardEl.classList.add('hidden');
-            return;
-        }
-        scoreboardEl.classList.remove('hidden');
 
         breakdownEl.innerHTML = `
             <div class="sb-total"><span class="sb-total-number">${teamScore.total}</span><span class="sb-total-label">Puntos totales</span></div>
@@ -135,8 +130,8 @@
                         <button class="toggle-pill secret-pill ${t.is_secret ? 'active' : ''}" data-toggle="is_secret" title="Secret Shiny (+20 pts)">⭐ Secret</button>
                         <span class="options-sep">|</span>
                         <div class="method-pills">
-                            <button class="toggle-pill method-pill ${method === 'wild' ? 'active' : ''}" data-method="wild" title="Salvaje">🌿 Wild</button>
-                            <button class="toggle-pill method-pill ${method === 'egg' ? 'active' : ''}" data-method="egg" title="Huevo">🥚 Egg</button>
+                            <button class="toggle-pill method-pill ${method === 'wild' ? 'active' : ''}" data-method="wild" title="Salvaje">🌿 Salvaje</button>
+                            <button class="toggle-pill method-pill ${method === 'egg' ? 'active' : ''}" data-method="egg" title="Huevo">🥚 Huevo</button>
                             <button class="toggle-pill method-pill ${method === 'safari' ? 'active' : ''}" data-method="safari" title="Safari">🌴 Safari</button>
                         </div>
                     </div>
