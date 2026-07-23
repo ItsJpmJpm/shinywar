@@ -6,9 +6,30 @@
 
     function getSession() { return Auth.getSession(); }
 
+    function friendlySupabaseError(error) {
+        if (!error) return 'Error desconocido.';
+        const msg = (error.message || '').toLowerCase();
+        if (msg.includes('row-level security') || msg.includes('rls'))
+            return 'No tenés permiso para esta acción.';
+        if (msg.includes('relation') && msg.includes('does not exist'))
+            return 'La base de datos no está configurada. Contactá al admin.';
+        if (msg.includes('failed to fetch') || msg.includes('network'))
+            return 'Sin conexión a internet.';
+        return 'Error: ' + (error.message || 'desconocido');
+    }
+
     async function loadAllData() {
-        const { data: users } = await supabaseClient.from('users').select('id, username, display_name, role').order('created_at');
-        const { data: targets } = await supabaseClient.from('targets').select('id, user_id, pokemon_name, tier, caught').order('created_at');
+        if (!supabaseClient) {
+            throw new Error('No se pudo conectar con la base de datos.');
+        }
+        const { data: users, error: errUsers } = await supabaseClient
+            .from('users').select('id, username, display_name, role').order('created_at');
+        const { data: targets, error: errTargets } = await supabaseClient
+            .from('targets').select('id, user_id, pokemon_name, tier, caught').order('created_at');
+
+        if (errUsers) throw new Error('Error al cargar miembros: ' + friendlySupabaseError(errUsers));
+        if (errTargets) throw new Error('Error al cargar targets: ' + friendlySupabaseError(errTargets));
+
         allUsers = users || [];
         allTargets = targets || [];
     }
@@ -30,13 +51,14 @@
     }
 
     function updateStats() {
+        const el = (id) => document.getElementById(id);
         const totalTargets = allTargets.length;
         const totalCaught = allTargets.filter(t => t.caught).length;
         const totalPoints = allTargets.reduce((s, t) => s + calculatePoints(t.tier, 'wild'), 0);
-        document.getElementById('totalAssigned').textContent = totalTargets;
-        document.getElementById('totalCaught').textContent = totalCaught;
-        document.getElementById('totalMembers').textContent = allUsers.length;
-        document.getElementById('totalPoints').textContent = totalPoints;
+        if (el('totalAssigned')) el('totalAssigned').textContent = totalTargets;
+        if (el('totalCaught')) el('totalCaught').textContent = totalCaught;
+        if (el('totalMembers')) el('totalMembers').textContent = allUsers.length;
+        if (el('totalPoints')) el('totalPoints').textContent = totalPoints;
     }
 
     function getFilteredMembers() {
@@ -47,7 +69,7 @@
             if (currentFilter === 'caught' && !targets.some(t => t.caught)) return false;
             if (searchQuery) {
                 const q = searchQuery.toLowerCase();
-                if (u.display_name.toLowerCase().includes(q)) return true;
+                if ((u.display_name || u.username || '').toLowerCase().includes(q)) return true;
                 if (targets.some(t => t.pokemon_name.toLowerCase().includes(q))) return true;
                 return false;
             }
@@ -57,6 +79,7 @@
 
     function renderRoster() {
         const list = document.getElementById('memberList');
+        if (!list) return;
         const session = getSession();
         const filtered = getFilteredMembers();
 
@@ -64,13 +87,14 @@
             const targets = getUserTargets(u.id);
             const pts = getMemberPoints(u);
             const isMe = session && u.id === session.id;
+            const displayName = u.display_name || u.username || '???';
 
             return `
                 <div class="member-card ${targets.length > 0 ? 'assigned' : 'unassigned'} ${isMe ? 'is-me' : ''}" data-uid="${u.id}">
                     <div class="member-number">${i + 1}</div>
                     <div class="member-info">
                         <div class="member-header">
-                            <span class="member-name">${esc(u.display_name)}${isMe ? ' <span class="me-badge">VOS</span>' : ''}</span>
+                            <span class="member-name">${esc(displayName)}${isMe ? ' <span class="me-badge">VOS</span>' : ''}</span>
                             ${targets.length > 0 ? `
                                 <span class="member-count">${targets.length} shiny${targets.length > 1 ? 's' : ''}</span>
                                 <span class="member-total-pts">${pts} pts</span>
@@ -130,13 +154,18 @@
         const session = getSession();
         if (!session || (target.user_id !== session.id && !Auth.isAdmin())) return;
         const newCaught = !target.caught;
-        await supabaseClient.from('targets').update({ caught: newCaught }).eq('id', targetId);
+        const { error } = await supabaseClient.from('targets').update({ caught: newCaught }).eq('id', targetId);
+        if (error) {
+            alert('No se pudo actualizar: ' + friendlySupabaseError(error));
+            return;
+        }
         target.caught = newCaught;
         renderRoster();
         updateStats();
     }
 
     function esc(str) {
+        if (!str) return '';
         const d = document.createElement('div');
         d.textContent = str;
         return d.innerHTML;
@@ -151,14 +180,18 @@
         if (!Auth.isAdmin() && (!session || user.id !== session.id)) return;
 
         modalUserId = userId;
-        document.getElementById('modalTitle').textContent = `Targets de ${user.display_name}`;
+        document.getElementById('modalTitle').textContent = `Targets de ${user.display_name || user.username || '???'} `;
         renderModalTargets(user);
         document.getElementById('modal').classList.remove('hidden');
-        if (focusAdd) setTimeout(() => document.getElementById('modalPokemonName').focus(), 100);
+        if (focusAdd) setTimeout(() => {
+            const input = document.getElementById('modalPokemonName');
+            if (input) input.focus();
+        }, 100);
     }
 
     function renderModalTargets(user) {
         const container = document.getElementById('modalTargetList');
+        if (!container) return;
         const targets = getUserTargets(user.id);
         const pts = getMemberPoints(user);
         const caughtCount = targets.filter(t => t.caught).length;
@@ -205,7 +238,11 @@
                 if (!session) return;
                 const target = allTargets.find(t => t.id === btn.dataset.tid);
                 if (target && target.user_id !== session.id && !Auth.isAdmin()) return;
-                await supabaseClient.from('targets').delete().eq('id', btn.dataset.tid);
+                const { error } = await supabaseClient.from('targets').delete().eq('id', btn.dataset.tid);
+                if (error) {
+                    alert('No se pudo eliminar: ' + friendlySupabaseError(error));
+                    return;
+                }
                 allTargets = allTargets.filter(t => t.id !== btn.dataset.tid);
                 const user = allUsers.find(u => u.id === modalUserId);
                 if (user) renderModalTargets(user);
@@ -256,7 +293,7 @@
             .select('id, user_id, pokemon_name, tier, caught')
             .single();
         if (error) {
-            errorDiv.textContent = 'Error: ' + error.message;
+            errorDiv.textContent = 'Error al agregar: ' + friendlySupabaseError(error);
             errorDiv.classList.remove('hidden');
             return;
         }
@@ -268,11 +305,11 @@
 
         const sprite = getShinySpriteUrl(name);
         const preview = document.getElementById('modalSpritePreview');
-        if (sprite) {
+        if (sprite && preview) {
             preview.innerHTML = `<img src="${sprite}">`;
             preview.classList.remove('hidden');
             setTimeout(() => preview.classList.add('hidden'), 2000);
-        } else {
+        } else if (preview) {
             preview.classList.add('hidden');
         }
 
@@ -351,7 +388,8 @@
     }
 
     function hideAutocomplete() {
-        document.getElementById('autocompleteList').classList.add('hidden');
+        const box = document.getElementById('autocompleteList');
+        if (box) box.classList.add('hidden');
         acIndex = -1;
     }
 
@@ -392,7 +430,7 @@
                     <span class="tier-badge ${tc}">${tl}</span>
                     <span class="pokemon-result-name">${r.name}</span>
                     <span class="pokemon-result-pts">${r.points} pts</span>
-                    ${who ? `<span class="pokemon-result-who">${esc(who.display_name)}</span>` : ''}
+                    ${who ? `<span class="pokemon-result-who">${esc(who.display_name || who.username)}</span>` : ''}
                 </div>
             `;
         }).join('');
@@ -403,13 +441,28 @@
     }
 
     function showApp() {
+        const session = getSession();
+        if (!session) { showAuth(); return; }
+
         document.getElementById('authScreen').classList.add('hidden');
         document.getElementById('mainApp').classList.remove('hidden');
-        const session = getSession();
-        document.getElementById('userGreeting').textContent = session.display_name;
-        loadAllData().then(() => { renderRoster(); updateStats(); }).catch(err => {
-            document.getElementById('memberList').innerHTML = `<div class="pokedex-empty">Error al cargar datos: ${esc(err.message)}</div>`;
-        });
+        document.getElementById('userGreeting').textContent = session.display_name || session.username || '???';
+
+        loadAllData()
+            .then(() => { renderRoster(); updateStats(); })
+            .catch(err => {
+                const list = document.getElementById('memberList');
+                if (list) {
+                    list.innerHTML = `
+                        <div class="pokedex-empty" style="text-align:center;padding:2rem">
+                            <p style="font-size:1.2rem;margin-bottom:0.5rem">⚠️ No se pudieron cargar los datos</p>
+                            <p style="color:var(--text-muted);margin-bottom:1rem">${esc(err.message)}</p>
+                            <p style="color:var(--text-muted)">Si recién creaste tu cuenta, recargá la página.</p>
+                            <button onclick="location.reload()" class="action-btn primary" style="margin-top:1rem">Recargar página</button>
+                        </div>
+                    `;
+                }
+            });
     }
 
     function showAuth() {
@@ -418,7 +471,8 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        if (getSession()) { showApp(); } else { showAuth(); }
+        const session = getSession();
+        if (session) { showApp(); } else { showAuth(); }
 
         document.getElementById('authTabLogin').addEventListener('click', () => {
             document.getElementById('authTabLogin').classList.add('active');
@@ -436,10 +490,21 @@
         document.getElementById('authForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const errorDiv = document.getElementById('authError');
+            const submitBtn = document.getElementById('authSubmit');
             errorDiv.classList.add('hidden');
+
             const isRegister = document.getElementById('authTabRegister').classList.contains('active');
-            const username = document.getElementById('authUsername').value.trim();
-            const password = document.getElementById('authPassword').value;
+            const usernameEl = document.getElementById('authUsername');
+            const passwordEl = document.getElementById('authPassword');
+
+            if (!usernameEl || !passwordEl) {
+                errorDiv.textContent = 'Error interno: no se encontraron los campos. Recargá la página.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            const username = usernameEl.value.trim();
+            const password = passwordEl.value;
 
             if (!username || !password) {
                 errorDiv.textContent = 'Completá todos los campos.';
@@ -452,6 +517,9 @@
                 return;
             }
 
+            submitBtn.disabled = true;
+            submitBtn.textContent = isRegister ? 'Registrando...' : 'Ingresando...';
+
             try {
                 if (isRegister) {
                     await Auth.register(username, password);
@@ -460,8 +528,11 @@
                 }
                 showApp();
             } catch (err) {
-                errorDiv.textContent = err.message;
+                errorDiv.textContent = err.message || 'Ocurrió un error inesperado. Intentá de nuevo.';
                 errorDiv.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = isRegister ? 'Registrarse' : 'Iniciar sesión';
             }
         });
 
