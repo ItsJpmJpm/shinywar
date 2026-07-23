@@ -135,9 +135,9 @@
                         <button class="toggle-pill secret-pill ${t.is_secret ? 'active' : ''}" data-toggle="is_secret" title="Secret Shiny (+20 pts)">⭐ Secret</button>
                         <span class="options-sep">|</span>
                         <div class="method-pills">
-                            <button class="method-pill ${method === 'wild' ? 'active' : ''}" data-method="wild" title="Salvaje">🌿</button>
-                            <button class="method-pill ${method === 'egg' ? 'active' : ''}" data-method="egg" title="Huevo">🥚</button>
-                            <button class="method-pill ${method === 'safari' ? 'active' : ''}" data-method="safari" title="Safari">🌴</button>
+                            <button class="toggle-pill method-pill ${method === 'wild' ? 'active' : ''}" data-method="wild" title="Salvaje">🌿 Wild</button>
+                            <button class="toggle-pill method-pill ${method === 'egg' ? 'active' : ''}" data-method="egg" title="Huevo">🥚 Egg</button>
+                            <button class="toggle-pill method-pill ${method === 'safari' ? 'active' : ''}" data-method="safari" title="Safari">🌴 Safari</button>
                         </div>
                     </div>
                     <span class="my-target-pts">${pts} pts</span>

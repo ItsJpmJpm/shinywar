@@ -2094,10 +2094,10 @@ footer {
 }
 .method-pill.active {
     opacity: 1;
-    border-color: var(--accent);
-    background: rgba(99,102,241,0.12);
-    box-shadow: 0 0 6px rgba(99,102,241,0.25);
-    color: var(--text);
+    border-color: #22c55e;
+    background: rgba(34,197,94,0.15);
+    box-shadow: 0 0 6px rgba(34,197,94,0.25);
+    color: #22c55e;
 }
 
 /* ─── TARGET OPTIONS (alpha + method) ─── */
