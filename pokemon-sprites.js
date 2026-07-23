@@ -3,8 +3,8 @@ const POKEAPI_IDS = {
     "squirtle":7,"wartortle":8,"blastoise":9,"caterpie":10,"metapod":11,"butterfree":12,
     "weedle":13,"kakuna":14,"beedrill":15,"pidgey":16,"pidgeotto":17,"pidgeot":18,
     "rattata":19,"raticate":20,"spearow":21,"fearow":22,"ekans":23,"arbok":24,
-    "pikachu":25,"raichu":26,"sandshrew":27,"sandslash":28,"nidoran♀":29,"nidoran-f":29,
-    "nidorina":30,"nidoqueen":31,"nidoran♂":32,"nidoran-m":32,"nidorino":33,"nidoking":34,
+    "pikachu":25,"raichu":26,"sandshrew":27,"sandslash":28,"nidoran♀":29,
+    "nidorina":30,"nidoqueen":31,"nidoran♂":32,"nidorino":33,"nidoking":34,
     "clefairy":35,"clefable":36,"vulpix":37,"ninetales":38,"jigglypuff":39,"wigglytuff":40,
     "zubat":41,"golbat":42,"oddish":43,"gloom":44,"vileplume":45,"paras":46,"parasect":47,
     "venonat":48,"venomoth":49,"diglett":50,"dugtrio":51,"meowth":52,"persian":53,
@@ -13,7 +13,7 @@ const POKEAPI_IDS = {
     "machop":66,"machoke":67,"machamp":68,"bellsprout":69,"weepinbell":70,"victreebel":71,
     "tentacool":72,"tentacruel":73,"geodude":74,"graveler":75,"golem":76,"ponyta":77,
     "rapidash":78,"slowpoke":79,"slowbro":80,"magnemite":81,"magneton":82,
-    "farfetch'd":83,"farfetchd":83,"doduo":84,"dodrio":85,"seel":86,"dewgong":87,
+    "farfetch'd":83,"doduo":84,"dodrio":85,"seel":86,"dewgong":87,
     "grimer":88,"muk":89,"shellder":90,"cloyster":91,"gastly":92,"haunter":93,
     "gengar":94,"onix":95,"drowzee":96,"hypno":97,"krabby":98,"kingler":99,
     "voltorb":100,"electrode":101,"exeggcute":102,"exeggutor":103,"cubone":104,
@@ -131,22 +131,33 @@ const POKEAPI_IDS = {
     "kyurem":646,"keldeo":647,"meloetta":648,"genesect":649
 };
 
+const NAME_ALIASES = {
+    'nidoran-f': 29, 'nidoran♀': 29,
+    'nidoran-m': 32, 'nidoran♂': 32,
+    'farfetchd': 83, "farfetch'd": 83,
+    'mr. mime': 122, 'mr mime': 122,
+    'mime jr.': 439, 'mime jr': 439,
+    'porygon-z': 473, 'porygon z': 473,
+    'porygon2': 233, 'porygon 2': 233,
+    'ho-oh': 250, 'ho oh': 250
+};
+
 function getShinySpriteUrl(name) {
     if (!name) return null;
-    // Direct match first
-    const direct = POKEAPI_IDS[name];
-    if (direct) return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${direct}.png`;
+    var base = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/';
+    // Direct match
+    if (POKEAPI_IDS[name]) return base + POKEAPI_IDS[name] + '.png';
     // Lowercase match
-    const lower = name.toLowerCase();
-    const lowMatch = POKEAPI_IDS[lower];
-    if (lowMatch) return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${lowMatch}.png`;
-    // Try removing dots and normalizing spaces
-    const normalized = lower.replace(/\./g, "").replace(/\s+/g, " ").trim();
-    for (const [key, id] of Object.entries(POKEAPI_IDS)) {
-        const kNorm = key.replace(/\./g, "").replace(/\s+/g, " ").trim();
-        if (kNorm === normalized) {
-            return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${id}.png`;
-        }
+    var lower = name.toLowerCase();
+    if (POKEAPI_IDS[lower]) return base + POKEAPI_IDS[lower] + '.png';
+    // Alias match
+    if (NAME_ALIASES[lower]) return base + NAME_ALIASES[lower] + '.png';
+    // Normalized match
+    var normalized = lower.replace(/[.\s]+/g, ' ').trim();
+    var keys = Object.keys(POKEAPI_IDS);
+    for (var i = 0; i < keys.length; i++) {
+        var kNorm = keys[i].replace(/[.\s]+/g, ' ').trim();
+        if (kNorm === normalized) return base + POKEAPI_IDS[keys[i]] + '.png';
     }
     return null;
 }
