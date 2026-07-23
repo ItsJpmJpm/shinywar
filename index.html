@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Team Snow - Shiny Wars 2026</title>
-    <link rel="stylesheet" href="style.css">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
     <header>
@@ -92,18 +95,6 @@
                     <input type="text" id="myTargetInput" placeholder="Escribí el nombre de un Pokémon..." autocomplete="off">
                     <div id="autocompleteList" class="autocomplete-list hidden"></div>
                 </div>
-                <select id="myTargetTier">
-                    <option value="7">T7 · 3 pts</option>
-                    <option value="6">T6 · 5 pts</option>
-                    <option value="5">T5 · 10 pts</option>
-                    <option value="4">T4 · 15 pts</option>
-                    <option value="3">T3 · 30 pts</option>
-                    <option value="2">T2 · 40 pts</option>
-                    <option value="1">T1 · 45 pts</option>
-                    <option value="0">T0 · 50 pts</option>
-                    <option value="alpha">Alpha · 75 pts</option>
-                    <option value="legendary">LEG · 200 pts</option>
-                </select>
                 <button id="myTargetAddBtn" class="action-btn primary">+ Agregar</button>
             </div>
             <div id="myTargetError" class="error-message hidden"></div>
@@ -156,10 +147,10 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    <script src="pokemon-data.js"></script>
-    <script src="pokemon-sprites.js"></script>
-    <script src="auth.js"></script>
-    <script src="app.js"></script>
+    <script src="supabase-config.js?v=2"></script>
+    <script src="pokemon-data.js?v=2"></script>
+    <script src="pokemon-sprites.js?v=2"></script>
+    <script src="auth.js?v=2"></script>
+    <script src="app.js?v=2"></script>
 </body>
 </html>

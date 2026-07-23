@@ -112,11 +112,17 @@
         if (!session) return;
         const input = document.getElementById('myTargetInput');
         const name = input.value.trim();
-        const tier = document.getElementById('myTargetTier').value;
         const errorDiv = document.getElementById('myTargetError');
 
         if (!name) {
             errorDiv.textContent = 'Escribí el nombre del Pokémon.';
+            errorDiv.classList.remove('hidden');
+            return;
+        }
+
+        const tier = getPokemonTier(name);
+        if (!tier) {
+            errorDiv.textContent = `"${name}" no está en la lista de Pokémon disponibles.`;
             errorDiv.classList.remove('hidden');
             return;
         }
@@ -188,8 +194,6 @@
         const results = suggestPokemon(query);
         const session = getSession();
         const myTargets = session ? getUserTargets(session.id) : [];
-        const currentTier = document.getElementById('myTargetTier').value;
-        const currentPts = TIER_POINTS[currentTier] || 0;
 
         let html = '';
         if (results.length > 0) {
@@ -200,7 +204,7 @@
                 const taken = isPokemonTaken(r.name, session ? session.id : null);
                 const sprite = getShinySpriteUrl(r.name);
                 return `
-                    <div class="ac-item ${inMyList ? 'in-list' : ''} ${taken ? 'taken' : ''}" data-name="${esc(r.name)}" data-tier="${r.tier}">
+                    <div class="ac-item ${inMyList ? 'in-list' : ''} ${taken ? 'taken' : ''}" data-name="${esc(r.name)}">
                         ${sprite ? `<img src="${sprite}" class="ac-sprite" onerror="this.style.display='none'">` : ''}
                         <span class="tier-badge ${tc}">${tl}</span>
                         <span class="ac-name">${esc(r.name)}</span>
@@ -212,26 +216,6 @@
             }).join('');
         }
 
-        const manualName = query.trim();
-        const manualInList = myTargets.some(t => t.pokemon_name.toLowerCase() === manualName.toLowerCase());
-        const manualTaken = isPokemonTaken(manualName, session ? session.id : null);
-        if (manualName.length > 0 && !manualInList) {
-            const manualSprite = getShinySpriteUrl(manualName);
-            const tc = currentTier === 'legendary' ? 'legendary' : currentTier === 'alpha' ? 'alpha' : `tier-${currentTier}`;
-            const tl = currentTier === 'legendary' ? 'LEG' : currentTier === 'alpha' ? 'ALPHA' : `T${currentTier}`;
-            const exactMatch = results.some(r => r.name.toLowerCase() === manualName.toLowerCase());
-            html += `
-                <div class="ac-item ac-manual ${manualTaken ? 'taken' : ''}" data-name="${esc(manualName)}" data-tier="${currentTier}">
-                    ${manualSprite ? `<img src="${manualSprite}" class="ac-sprite" onerror="this.style.display='none'">` : ''}
-                    <span class="tier-badge ${tc}">${tl}</span>
-                    <span class="ac-name">${esc(manualName)}</span>
-                    <span class="ac-pts">${currentPts} pts</span>
-                    ${manualTaken ? '<span class="ac-badge taken">OCUPADO</span>' : ''}
-                    ${!exactMatch && !manualTaken ? '<span class="ac-badge manual-badge">AGREGAR A MANO</span>' : ''}
-                </div>
-            `;
-        }
-
         if (!html) { box.classList.add('hidden'); return; }
         box.innerHTML = html;
         box.classList.remove('hidden');
@@ -240,7 +224,6 @@
         box.querySelectorAll('.ac-item:not(.taken):not(.in-list)').forEach(item => {
             item.addEventListener('click', () => {
                 document.getElementById('myTargetInput').value = item.dataset.name;
-                document.getElementById('myTargetTier').value = item.dataset.tier;
                 hideAutocomplete();
                 addMyTarget();
             });
