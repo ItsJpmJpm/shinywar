@@ -45,9 +45,22 @@ body {
 
 header {
     text-align: center;
-    padding: 2rem 1rem;
-    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
-    border-bottom: 1px solid var(--border);
+    padding: 2.5rem 1rem 2rem;
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #312e81 60%, #0f172a 100%);
+    border-bottom: 1px solid rgba(99,102,241,0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at 60% 50%, rgba(99,102,241,0.08) 0%, transparent 60%);
+    pointer-events: none;
 }
 
 header h1 {
@@ -78,9 +91,9 @@ main {
     gap: 0.4rem;
     flex-wrap: wrap;
     padding: 0.75rem 1rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(17,24,39,0.9) 0%, rgba(30,41,59,0.4) 100%);
+    border: 1px solid rgba(99,102,241,0.08);
+    border-radius: 12px;
     margin-bottom: 1.5rem;
 }
 
@@ -98,35 +111,47 @@ main {
 
 /* Stats Bar */
 .stats-bar {
-    display: flex;
-    gap: 1rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
     margin-bottom: 1.5rem;
-    flex-wrap: wrap;
 }
 
 .stat {
-    flex: 1;
-    min-width: 120px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1rem;
+    background: linear-gradient(135deg, rgba(17,24,39,0.9) 0%, rgba(30,27,75,0.6) 100%);
+    border: 1px solid rgba(99,102,241,0.12);
+    border-radius: 14px;
+    padding: 1rem 0.75rem;
     text-align: center;
+    backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+}
+
+.stat:hover {
+    border-color: rgba(99,102,241,0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(99,102,241,0.08);
 }
 
 .stat-value {
     display: block;
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--accent-cyan);
+    font-size: 1.7rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
 }
 
 .stat-label {
     display: block;
-    font-size: 0.8rem;
-    color: var(--text-secondary);
+    font-size: 0.7rem;
+    color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
+    margin-top: 0.2rem;
+    font-weight: 500;
 }
 
 /* Controls */
@@ -141,16 +166,18 @@ main {
 .search-box input {
     width: 250px;
     padding: 0.6rem 1rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    background: rgba(17,24,39,0.8);
+    border: 1px solid rgba(99,102,241,0.12);
+    border-radius: 10px;
     color: var(--text-primary);
     font-size: 0.9rem;
+    transition: all 0.2s;
 }
 
 .search-box input:focus {
     outline: none;
-    border-color: var(--accent-blue);
+    border-color: rgba(99,102,241,0.4);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.08);
 }
 
 .filter-buttons {
@@ -240,9 +267,14 @@ main {
     align-items: center;
     gap: 0.3rem;
     padding: 0.6rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(17,24,39,0.9) 0%, rgba(30,41,59,0.4) 100%);
+    border: 1px solid rgba(99,102,241,0.06);
+    border-radius: 10px;
+    transition: all 0.2s;
+}
+
+.tier-card:hover {
+    border-color: rgba(99,102,241,0.15);
 }
 
 .tier-badge {
@@ -281,10 +313,10 @@ main {
 /* Pokemon Lookup */
 .pokemon-lookup {
     margin-bottom: 2rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1rem;
+    background: linear-gradient(135deg, rgba(17,24,39,0.95) 0%, rgba(30,41,59,0.6) 100%);
+    border: 1px solid rgba(99,102,241,0.08);
+    border-radius: 14px;
+    padding: 1.25rem;
 }
 
 .pokemon-lookup h2 {
@@ -304,21 +336,29 @@ main {
     flex: 1;
     min-width: 200px;
     padding: 0.6rem 1rem;
-    background: var(--bg-dark);
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    background: rgba(10,14,26,0.8);
+    border: 1px solid rgba(99,102,241,0.12);
+    border-radius: 10px;
     color: var(--text-primary);
     font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.lookup-controls input:focus {
+    outline: none;
+    border-color: rgba(99,102,241,0.4);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.08);
 }
 
 .lookup-controls select {
     padding: 0.6rem 1rem;
-    background: var(--bg-dark);
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    background: rgba(10,14,26,0.8);
+    border: 1px solid rgba(99,102,241,0.12);
+    border-radius: 10px;
     color: var(--text-primary);
     font-size: 0.9rem;
     cursor: pointer;
+    transition: all 0.2s;
 }
 
 .pokemon-results {
@@ -334,9 +374,16 @@ main {
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem;
-    background: var(--bg-dark);
-    border: 1px solid var(--border);
+    background: rgba(10,14,26,0.6);
+    border: 1px solid rgba(99,102,241,0.06);
     border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.pokemon-result-card:hover {
+    border-color: rgba(99,102,241,0.2);
+    background: rgba(17,24,39,0.8);
+}
     font-size: 0.85rem;
 }
 
@@ -357,9 +404,12 @@ main {
 
 /* Roster */
 .roster h2 {
-    font-size: 1.1rem;
+    font-size: 0.85rem;
     margin-bottom: 0.75rem;
-    color: var(--text-secondary);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
 }
 
 .member-list {
@@ -372,17 +422,18 @@ main {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.75rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
+    padding: 0.85rem;
+    background: linear-gradient(135deg, rgba(17,24,39,0.95) 0%, rgba(30,41,59,0.6) 100%);
+    border: 1px solid rgba(99,102,241,0.08);
+    border-radius: 12px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.25s ease;
 }
 
 .member-card:hover {
-    border-color: var(--accent-blue);
-    background: var(--bg-card-hover);
+    border-color: rgba(99,102,241,0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(99,102,241,0.06);
 }
 
 .member-card.assigned {
@@ -1701,9 +1752,9 @@ footer {
     justify-content: space-between;
     margin-bottom: 1rem;
     padding: 0.6rem 1rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(17,24,39,0.9) 0%, rgba(30,41,59,0.5) 100%);
+    border: 1px solid rgba(99,102,241,0.08);
+    border-radius: 12px;
 }
 
 .user-greeting {
@@ -1754,32 +1805,35 @@ footer {
     display: flex;
     gap: 0;
     margin-bottom: 1.5rem;
-    border: 1px solid var(--border);
-    border-radius: 10px;
+    border: 1px solid rgba(99,102,241,0.15);
+    border-radius: 12px;
     overflow: hidden;
+    background: rgba(17,24,39,0.5);
 }
 
 .view-tab {
     flex: 1;
     padding: 0.75rem 1rem;
-    background: var(--bg-card);
+    background: transparent;
     border: none;
-    color: var(--text-secondary);
-    font-size: 0.95rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.25s ease;
+    position: relative;
 }
 
 .view-tab:hover {
-    background: var(--bg-card-hover);
     color: var(--text-primary);
+    background: rgba(99,102,241,0.05);
 }
 
 .view-tab.active {
-    background: var(--accent-blue);
-    color: #fff;
+    background: linear-gradient(135deg, rgba(99,102,241,0.2) 0%, rgba(34,211,238,0.1) 100%);
+    color: var(--accent-cyan);
     font-weight: 700;
+    box-shadow: inset 0 -2px 0 var(--accent-cyan);
 }
 
 .view-panel {
@@ -1803,31 +1857,34 @@ footer {
 .my-targets-add .autocomplete-wrap input {
     width: 100%;
     padding: 0.65rem 0.8rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    background: rgba(17,24,39,0.8);
+    border: 1px solid rgba(99,102,241,0.12);
+    border-radius: 10px;
     color: var(--text-primary);
     font-size: 0.9rem;
+    transition: all 0.2s;
 }
 
 .my-targets-add .autocomplete-wrap input:focus {
     outline: none;
-    border-color: var(--accent-blue);
+    border-color: rgba(99,102,241,0.4);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.08);
 }
 
 .my-targets-add select {
     padding: 0.65rem 0.5rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    background: rgba(17,24,39,0.8);
+    border: 1px solid rgba(99,102,241,0.12);
+    border-radius: 10px;
     color: var(--text-primary);
     font-size: 0.85rem;
     cursor: pointer;
+    transition: all 0.2s;
 }
 
 .my-targets-add select:focus {
     outline: none;
-    border-color: var(--accent-blue);
+    border-color: rgba(99,102,241,0.4);
 }
 
 .my-target-list {
@@ -1840,20 +1897,23 @@ footer {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.55rem 0.75rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    transition: all 0.2s;
+    padding: 0.6rem 0.75rem;
+    background: linear-gradient(135deg, rgba(17,24,39,0.95) 0%, rgba(30,41,59,0.6) 100%);
+    border: 1px solid rgba(99,102,241,0.08);
+    border-radius: 10px;
+    transition: all 0.25s ease;
 }
 
 .my-target-item:hover {
-    border-color: var(--border-light);
+    border-color: rgba(99,102,241,0.2);
+    box-shadow: 0 2px 12px rgba(99,102,241,0.06);
+    transform: translateY(-1px);
 }
 
 .my-target-item.is-caught {
-    background: rgba(34, 197, 94, 0.06);
-    border-color: var(--success);
+    background: linear-gradient(135deg, rgba(34,197,94,0.06) 0%, rgba(34,197,94,0.03) 100%);
+    border-color: rgba(34,197,94,0.3);
+    box-shadow: 0 0 12px rgba(34,197,94,0.06);
 }
 
 .my-target-item.is-caught .my-target-name {
@@ -1865,6 +1925,15 @@ footer {
     width: 32px;
     height: 32px;
     font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.caught-btn:hover {
+    transform: scale(1.1);
+}
+
+.caught-btn.is-caught {
+    box-shadow: 0 0 8px rgba(34,197,94,0.3);
 }
 
 .my-target-sprite {
@@ -1994,74 +2063,106 @@ footer {
     .tier-grid {
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     }
+
+    .stats-bar {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .target-options {
+        flex-wrap: wrap;
+    }
 }
 
 /* ─── SCOREBOARD ─── */
 .scoreboard {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.25rem;
-    margin-bottom: 1rem;
+    background: linear-gradient(135deg, rgba(17,24,39,0.95) 0%, rgba(30,27,75,0.5) 100%);
+    border: 1px solid rgba(99,102,241,0.15);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    backdrop-filter: blur(8px);
 }
 .scoreboard-title {
-    font-size: 0.95rem;
-    color: var(--text);
+    font-size: 0.85rem;
+    color: var(--text-muted);
     margin-bottom: 1rem;
-    font-weight: 700;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
 }
 .sb-total {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     gap: 0.5rem;
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--border);
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(99,102,241,0.12);
 }
 .sb-total-number {
-    font-size: 2rem;
+    font-size: 2.5rem;
     font-weight: 800;
-    color: var(--accent);
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
 }
 .sb-total-label {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--text-muted);
+    font-weight: 500;
 }
 .sb-row {
     display: flex;
     justify-content: space-between;
-    padding: 0.3rem 0;
-    font-size: 0.85rem;
+    align-items: center;
+    padding: 0.4rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.82rem;
     color: var(--text-muted);
+    transition: background 0.15s;
+}
+.sb-row:hover {
+    background: rgba(255,255,255,0.02);
 }
 .sb-val {
     font-weight: 600;
-    color: var(--text);
+    color: var(--text-primary);
+    font-size: 0.9rem;
 }
-.sb-bonus { color: #22c55e; }
-.sb-penalty { color: #ef4444; }
+.sb-bonus { color: #22c55e; font-weight: 700; }
+.sb-muted { color: var(--text-muted); font-weight: 500; }
 .sb-player {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.5rem 0;
-    border-top: 1px solid var(--border);
+    padding: 0.6rem 0.75rem;
+    margin-top: 0.3rem;
+    border-top: 1px solid rgba(99,102,241,0.08);
+    border-radius: 8px;
+    transition: background 0.15s;
+}
+.sb-player:hover {
+    background: rgba(255,255,255,0.02);
 }
 .sb-player-name {
     font-weight: 600;
-    font-size: 0.9rem;
-    color: var(--text);
+    font-size: 0.88rem;
+    color: var(--text-primary);
     flex: 1;
 }
 .sb-player-detail {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: var(--text-muted);
 }
 .sb-player-pts {
-    font-weight: 700;
-    color: var(--accent);
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     font-size: 0.95rem;
-    min-width: 50px;
+    min-width: 55px;
     text-align: right;
 }
 
@@ -2106,11 +2207,15 @@ footer {
     align-items: center;
     gap: 4px;
     flex-shrink: 0;
+    padding: 2px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.04);
 }
 .options-sep {
-    color: var(--border);
+    color: rgba(255,255,255,0.08);
     font-size: 0.7rem;
-    opacity: 0.5;
+    margin: 0 1px;
 }
 .alpha-pill {
     height: 24px;
