@@ -100,14 +100,14 @@ const POKEMON_TIERS = {
 const TIER_POINTS = {
     "legendary": 200,
     "alpha": 75,
-    "0": 50,
-    "1": 45,
-    "2": 40,
-    "3": 30,
-    "4": 15,
-    "5": 10,
-    "6": 5,
-    "7": 3
+    "tier0": 50,
+    "tier1": 45,
+    "tier2": 40,
+    "tier3": 30,
+    "tier4": 15,
+    "tier5": 10,
+    "tier6": 5,
+    "tier7": 3
 };
 
 const METHOD_BONUS = {
@@ -120,13 +120,13 @@ const METHOD_BONUS = {
 const TIER_COLORS = {
     "legendary": "#fbbf24",
     "alpha": "#f472b6",
-    "0": "#ef4444",
-    "1": "#f97316",
-    "2": "#eab308",
-    "3": "#84cc16",
-    "4": "#22c55e",
-    "5": "#14b8a6",
-    "6": "#06b6d4",
+    "tier0": "#ef4444",
+    "tier1": "#f97316",
+    "tier2": "#eab308",
+    "tier3": "#84cc16",
+    "tier4": "#22c55e",
+    "tier5": "#14b8a6",
+    "tier6": "#06b6d4",
     "7": "#64748b"
 };
 

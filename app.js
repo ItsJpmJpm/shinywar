@@ -73,8 +73,8 @@
         }
 
         container.innerHTML = targets.map(t => {
-            const tc = t.tier === 'legendary' ? 'legendary' : t.tier === 'alpha' ? 'alpha' : `tier-${t.tier}`;
-            const tl = t.tier === 'legendary' ? 'LEG' : t.tier === 'alpha' ? 'ALPHA' : `T${t.tier}`;
+            const tc = t.tier === 'legendary' ? 'legendary' : t.tier === 'alpha' ? 'alpha' : `tier-${t.tier.replace('tier', '')}`;
+            const tl = t.tier === 'legendary' ? 'LEG' : t.tier === 'alpha' ? 'ALPHA' : `T${t.tier.replace('tier', '')}`;
             const sprite = getShinySpriteUrl(t.pokemon_name);
             const pts = calculatePoints(t.tier, 'wild');
             return `
@@ -184,8 +184,8 @@
         let html = '';
         if (results.length > 0) {
             html = results.map(r => {
-                const tc = r.tier === 'legendary' ? 'legendary' : r.tier === 'alpha' ? 'alpha' : `tier-${r.tier}`;
-                const tl = r.tier === 'legendary' ? 'LEG' : r.tier === 'alpha' ? 'ALPHA' : `T${r.tier}`;
+                const tc = r.tier === 'legendary' ? 'legendary' : r.tier === 'alpha' ? 'alpha' : `tier-${r.tier.replace('tier', '')}`;
+                const tl = r.tier === 'legendary' ? 'LEG' : r.tier === 'alpha' ? 'ALPHA' : `T${r.tier.replace('tier', '')}`;
                 const inMyList = myTargets.some(t => t.pokemon_name.toLowerCase() === r.name.toLowerCase());
                 const sprite = getShinySpriteUrl(r.name);
                 return `
@@ -282,8 +282,8 @@
                         ${targets.length > 0 ? `
                             <div class="member-targets">
                                 ${targets.map(t => {
-                                    const tc = t.tier === 'legendary' ? 'legendary' : t.tier === 'alpha' ? 'alpha' : `tier-${t.tier}`;
-                                    const tl = t.tier === 'legendary' ? 'LEG' : t.tier === 'alpha' ? 'ALPHA' : `T${t.tier}`;
+                                    const tc = t.tier === 'legendary' ? 'legendary' : t.tier === 'alpha' ? 'alpha' : `tier-${t.tier.replace('tier', '')}`;
+                                    const tl = t.tier === 'legendary' ? 'LEG' : t.tier === 'alpha' ? 'ALPHA' : `T${t.tier.replace('tier', '')}`;
                                     const sprite = getShinySpriteUrl(t.pokemon_name);
                                     const pts2 = calculatePoints(t.tier, 'wild');
                                     return `
@@ -314,8 +314,8 @@
         if (tierFilter) results = results.filter(r => r.tier === tierFilter);
 
         container.innerHTML = results.map(r => {
-            const tc = r.tier === 'legendary' ? 'legendary' : r.tier === 'alpha' ? 'alpha' : `tier-${r.tier}`;
-            const tl = r.tier === 'legendary' ? 'LEG' : r.tier === 'alpha' ? 'ALPHA' : `T${r.tier}`;
+            const tc = r.tier === 'legendary' ? 'legendary' : r.tier === 'alpha' ? 'alpha' : `tier-${r.tier.replace('tier', '')}`;
+            const tl = r.tier === 'legendary' ? 'LEG' : r.tier === 'alpha' ? 'ALPHA' : `T${r.tier.replace('tier', '')}`;
             const sprite = getShinySpriteUrl(r.name);
             const holders = allUsers.filter(u => allTargets.some(t => t.user_id === u.id && t.pokemon_name.toLowerCase() === r.name.toLowerCase()));
             return `
