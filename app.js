@@ -127,6 +127,8 @@
     async function toggleCaught(targetId) {
         const target = allTargets.find(t => t.id === targetId);
         if (!target) return;
+        const session = getSession();
+        if (!session || (target.user_id !== session.id && !Auth.isAdmin())) return;
         const newCaught = !target.caught;
         await supabaseClient.from('targets').update({ caught: newCaught }).eq('id', targetId);
         target.caught = newCaught;
@@ -199,6 +201,10 @@
 
         container.querySelectorAll('.modal-remove-btn').forEach(btn => {
             btn.addEventListener('click', async () => {
+                const session = getSession();
+                if (!session) return;
+                const target = allTargets.find(t => t.id === btn.dataset.tid);
+                if (target && target.user_id !== session.id && !Auth.isAdmin()) return;
                 await supabaseClient.from('targets').delete().eq('id', btn.dataset.tid);
                 allTargets = allTargets.filter(t => t.id !== btn.dataset.tid);
                 const user = allUsers.find(u => u.id === modalUserId);
@@ -217,6 +223,8 @@
     async function addPokemon() {
         const user = allUsers.find(u => u.id === modalUserId);
         if (!user) return;
+        const session = getSession();
+        if (!session || (user.id !== session.id && !Auth.isAdmin())) return;
 
         const input = document.getElementById('modalPokemonName');
         const name = input.value.trim();
@@ -375,7 +383,7 @@
         container.innerHTML = results.map(r => {
             const tc = r.tier === 'legendary' ? 'legendary' : r.tier === 'alpha' ? 'alpha' : `tier-${r.tier}`;
             const tl = r.tier === 'legendary' ? 'LEG' : r.tier === 'alpha' ? 'ALPHA' : `T${r.tier}`;
-            const taken = isPokemonTaken(r.name, -1);
+            const taken = isPokemonTaken(r.name, null);
             const sprite = getShinySpriteUrl(r.name);
             const who = taken ? allUsers.find(u => allTargets.some(t => t.user_id === u.id && t.pokemon_name.toLowerCase() === r.name.toLowerCase())) : null;
             return `
@@ -399,7 +407,9 @@
         document.getElementById('mainApp').classList.remove('hidden');
         const session = getSession();
         document.getElementById('userGreeting').textContent = session.display_name;
-        loadAllData().then(() => { renderRoster(); updateStats(); });
+        loadAllData().then(() => { renderRoster(); updateStats(); }).catch(err => {
+            document.getElementById('memberList').innerHTML = `<div class="pokedex-empty">Error al cargar datos: ${esc(err.message)}</div>`;
+        });
     }
 
     function showAuth() {

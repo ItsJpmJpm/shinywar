@@ -24,6 +24,14 @@
             .single();
         if (error) throw new Error('Error al registrar: ' + error.message);
 
+        const { count } = await supabaseClient
+            .from('users')
+            .select('id', { count: 'exact', head: true });
+        if (count === 1) {
+            await supabaseClient.from('users').update({ role: 'admin' }).eq('id', data.id);
+            data.role = 'admin';
+        }
+
         setSession(data);
         return data;
     }
