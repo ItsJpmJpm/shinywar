@@ -2140,7 +2140,58 @@ footer {
     box-shadow: 0 0 6px rgba(244,114,182,0.25);
     color: #f472b6;
 }
-.alpha-dot {
+.secret-pill {
+    height: 24px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    font-size: 0.65rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    transition: all 0.15s;
+    opacity: 0.45;
+    padding: 0 6px;
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--text-muted);
+}
+.secret-pill:hover {
+    opacity: 0.8;
+    border-color: #60a5fa;
+}
+.secret-pill.active {
+    opacity: 1;
+    border-color: #60a5fa;
+    background: rgba(96,165,250,0.15);
+    box-shadow: 0 0 6px rgba(96,165,250,0.25);
+    color: #60a5fa;
+}
+.toggle-pill {
+    height: 24px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    font-size: 0.65rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    transition: all 0.15s;
+    opacity: 0.45;
+    padding: 0 6px;
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--text-muted);
+}
+.toggle-pill:hover { opacity: 0.8; }
+.toggle-pill.active { opacity: 1; }
+.alpha-dot, .secret-dot {
+    font-size: 0.7rem;
+    line-height: 1;
+}
+.secret-dot {
     font-size: 0.7rem;
     line-height: 1;
 }

@@ -140,12 +140,13 @@ function getPokemonTier(pokemonName) {
     return null;
 }
 
-function calculatePoints(tier, method, isAlpha) {
+function calculatePoints(tier, method, isAlpha, isSecret) {
     const normalizedTier = tier && !tier.startsWith('tier') && tier !== 'legendary' && tier !== 'alpha' ? 'tier' + tier : tier;
     let base = isAlpha ? 75 : (TIER_POINTS[normalizedTier] || TIER_POINTS[tier] || 0);
-    if (method === "egg") return Math.max(35, base);
-    const bonus = METHOD_BONUS[method] || 0;
-    return base + bonus;
+    if (method === "egg") base = Math.max(35, base);
+    if (method === "safari") base += 10;
+    if (isSecret) base += 20;
+    return base;
 }
 
 function getEvolutionLine(pokemonName) {
@@ -179,24 +180,21 @@ function calculateTeamScore(allTargets) {
         const key = t.pokemon_name.toLowerCase();
         const isDuplicate = pokemonCatchers[key].length > 1 && pokemonCatchers[key][0] !== t;
         const isAlphaCatch = t.is_alpha;
+        const isSecretCatch = t.is_secret;
         let pts;
         if (isDuplicate) {
-            const alphaBase = pokemonCatchers[key][0].is_alpha ? 75 : (TIER_POINTS[pokemonCatchers[key][0].tier] || TIER_POINTS[t.tier] || 0);
             pts = isAlphaCatch ? 35 : 1;
             duplicateCount++;
         } else {
-            const basePts = isAlphaCatch ? 75 : (TIER_POINTS[t.tier] || 0);
-            if (method === 'egg') {
-                pts = Math.max(35, basePts);
-            } else {
-                pts = basePts + (METHOD_BONUS[method] || 0);
-            }
+            let basePts = isAlphaCatch ? 75 : (TIER_POINTS[t.tier] || 0);
+            if (method === 'egg') basePts = Math.max(35, basePts);
+            if (method === 'safari') basePts += 10;
+            if (isSecretCatch) basePts += 20;
+            pts = basePts;
         }
-        base += isDuplicate ? pts : (isAlphaCatch ? 75 : (TIER_POINTS[t.tier] || 0));
-        if (!isDuplicate) {
-            const rawBase = isAlphaCatch ? 75 : (TIER_POINTS[t.tier] || 0);
-            methodBonus += (pts - rawBase);
-        }
+        const rawBase = isAlphaCatch ? 75 : (TIER_POINTS[t.tier] || 0);
+        base += isDuplicate ? pts : rawBase;
+        if (!isDuplicate) methodBonus += (pts - rawBase);
         allLines.add(line);
 
         if (!perPlayer[t.user_id]) perPlayer[t.user_id] = [];
@@ -240,16 +238,16 @@ function calculatePlayerScore(playerTargets, allTargets) {
         const key = t.pokemon_name.toLowerCase();
         const isDuplicate = pokemonCatchers[key] && pokemonCatchers[key].length > 1;
         const isAlphaCatch = t.is_alpha;
+        const isSecretCatch = t.is_secret;
         let pts;
         if (isDuplicate) {
             pts = isAlphaCatch ? 35 : 1;
         } else {
-            const basePts = isAlphaCatch ? 75 : (TIER_POINTS[t.tier] || 0);
-            if (method === 'egg') {
-                pts = Math.max(35, basePts);
-            } else {
-                pts = basePts + (METHOD_BONUS[method] || 0);
-            }
+            let basePts = isAlphaCatch ? 75 : (TIER_POINTS[t.tier] || 0);
+            if (method === 'egg') basePts = Math.max(35, basePts);
+            if (method === 'safari') basePts += 10;
+            if (isSecretCatch) basePts += 20;
+            pts = basePts;
         }
         const rawBase = isAlphaCatch ? 75 : (TIER_POINTS[t.tier] || 0);
         base += isDuplicate ? pts : rawBase;

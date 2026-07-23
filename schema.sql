@@ -4,8 +4,14 @@ ALTER TABLE targets ADD COLUMN IF NOT EXISTS method TEXT DEFAULT 'wild';
 -- Run this to add is_alpha column
 ALTER TABLE targets ADD COLUMN IF NOT EXISTS is_alpha BOOLEAN DEFAULT FALSE;
 
+-- Run this to add is_secret column
+ALTER TABLE targets ADD COLUMN IF NOT EXISTS is_secret BOOLEAN DEFAULT FALSE;
+
 -- Migrate old tier values
 UPDATE targets SET tier = 'tier' || tier WHERE tier ~ '^[0-7]$';
+
+-- Migrate old 'secret' method to is_secret flag
+UPDATE targets SET is_secret = TRUE, method = 'wild' WHERE method = 'secret';
 
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
@@ -25,6 +31,7 @@ CREATE TABLE IF NOT EXISTS targets (
   tier TEXT DEFAULT 'tier7',
   method TEXT DEFAULT 'wild',
   is_alpha BOOLEAN DEFAULT FALSE,
+  is_secret BOOLEAN DEFAULT FALSE,
   caught BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );

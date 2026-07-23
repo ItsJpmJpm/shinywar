@@ -42,14 +42,14 @@
     }
 
     function getMemberPoints(user) {
-        return getUserTargets(user.id).reduce((s, t) => s + calculatePoints(t.tier, 'wild', t.is_alpha), 0);
+        return getUserTargets(user.id).reduce((s, t) => s + calculatePoints(t.tier, 'wild', t.is_alpha, t.is_secret), 0);
     }
 
     function updateStats() {
         const el = (id) => document.getElementById(id);
         const totalTargets = allTargets.length;
         const totalCaught = allTargets.filter(t => t.caught).length;
-        const totalPoints = allTargets.reduce((s, t) => s + calculatePoints(t.tier, t.method || 'wild', t.is_alpha), 0);
+        const totalPoints = allTargets.reduce((s, t) => s + calculatePoints(t.tier, t.method || 'wild', t.is_alpha, t.is_secret), 0);
         if (el('totalAssigned')) el('totalAssigned').textContent = totalTargets;
         if (el('totalCaught')) el('totalCaught').textContent = totalCaught;
         if (el('totalMembers')) el('totalMembers').textContent = allUsers.length;
@@ -120,7 +120,7 @@
             const tc = t.tier === 'legendary' ? 'legendary' : t.tier === 'alpha' ? 'alpha' : `tier-${t.tier.replace('tier', '')}`;
             const tl = t.tier === 'legendary' ? 'LEG' : t.tier === 'alpha' ? 'ALPHA' : `T${t.tier.replace('tier', '')}`;
             const sprite = getShinySpriteUrl(t.pokemon_name);
-            const pts = calculatePoints(t.tier, t.method || 'wild', t.is_alpha);
+            const pts = calculatePoints(t.tier, t.method || 'wild', t.is_alpha, t.is_secret);
             const method = t.method || 'wild';
             return `
                 <div class="my-target-item ${t.caught ? 'is-caught' : ''}">
@@ -131,13 +131,13 @@
                     <span class="tier-badge ${tc}">${tl}</span>
                     <span class="my-target-name">${esc(t.pokemon_name)}</span>
                     <div class="target-options" data-tid="${t.id}">
-                        <button class="alpha-pill ${t.is_alpha ? 'active' : ''}" data-alpha="true" title="Alpha (75 pts base)">🅰️ Alpha</button>
+                        <button class="toggle-pill alpha-pill ${t.is_alpha ? 'active' : ''}" data-toggle="is_alpha" title="Alpha (75 pts base)">🅰️ Alpha</button>
+                        <button class="toggle-pill secret-pill ${t.is_secret ? 'active' : ''}" data-toggle="is_secret" title="Secret Shiny (+20 pts)">💎 Secret</button>
                         <span class="options-sep">|</span>
                         <div class="method-pills">
                             <button class="method-pill ${method === 'wild' ? 'active' : ''}" data-method="wild" title="Salvaje">🌿</button>
                             <button class="method-pill ${method === 'egg' ? 'active' : ''}" data-method="egg" title="Huevo">🥚</button>
                             <button class="method-pill ${method === 'safari' ? 'active' : ''}" data-method="safari" title="Safari">🌴</button>
-                            <button class="method-pill ${method === 'secret' ? 'active' : ''}" data-method="secret" title="Secret">✨</button>
                         </div>
                     </div>
                     <span class="my-target-pts">${pts} pts</span>
@@ -149,14 +149,14 @@
         container.querySelectorAll('.caught-btn').forEach(btn => {
             btn.addEventListener('click', () => toggleMyCaught(btn.dataset.tid));
         });
-        container.querySelectorAll('.alpha-pill').forEach(pill => {
+        container.querySelectorAll('.toggle-pill').forEach(pill => {
             pill.addEventListener('click', () => {
                 const opts = pill.parentElement;
                 const tid = opts.dataset.tid;
-                const newAlpha = pill.dataset.alpha === 'true' && pill.classList.contains('active') ? false : true;
+                const field = pill.dataset.toggle;
+                const newVal = !pill.classList.contains('active');
                 pill.classList.toggle('active');
-                pill.dataset.alpha = newAlpha ? 'true' : 'false';
-                changeAlpha(tid, newAlpha);
+                changeToggle(tid, field, newVal);
             });
         });
         container.querySelectorAll('.method-pill').forEach(pill => {
@@ -204,7 +204,7 @@
 
         const { data, error } = await supabaseClient
             .from('targets')
-            .insert({ user_id: session.id, pokemon_name: name, tier, method: 'wild', is_alpha: false, caught: false })
+            .insert({ user_id: session.id, pokemon_name: name, tier, method: 'wild', is_alpha: false, is_secret: false, caught: false })
             .select('id, user_id, pokemon_name, tier, method, caught')
             .single();
         if (error) {
@@ -247,13 +247,13 @@
         if (currentView === 'teamRoster') renderTeamRoster();
     }
 
-    async function changeAlpha(targetId, isAlpha) {
+    async function changeToggle(targetId, field, value) {
         const session = getSession();
         const target = allTargets.find(t => t.id === targetId);
         if (!target || !session || target.user_id !== session.id) return;
-        const { error } = await supabaseClient.from('targets').update({ is_alpha: isAlpha }).eq('id', targetId);
+        const { error } = await supabaseClient.from('targets').update({ [field]: value }).eq('id', targetId);
         if (error) { alert(friendlyError(error)); return; }
-        target.is_alpha = isAlpha;
+        target[field] = value;
         renderMyTargets();
         updateStats();
         if (currentView === 'teamRoster') renderTeamRoster();
@@ -391,9 +391,9 @@
                                     const tc = t.tier === 'legendary' ? 'legendary' : t.tier === 'alpha' ? 'alpha' : `tier-${t.tier.replace('tier', '')}`;
                                     const tl = t.tier === 'legendary' ? 'LEG' : t.tier === 'alpha' ? 'ALPHA' : `T${t.tier.replace('tier', '')}`;
                                     const sprite = getShinySpriteUrl(t.pokemon_name);
-                                    const pts2 = calculatePoints(t.tier, t.method || 'wild', t.is_alpha);
+                                    const pts2 = calculatePoints(t.tier, t.method || 'wild', t.is_alpha, t.is_secret);
                                     const method = t.method || 'wild';
-                                    const methodLabel = method === 'egg' ? '🥚' : method === 'safari' ? '🌴' : method === 'secret' ? '✨' : '🌿';
+                                    const methodLabel = method === 'egg' ? '🥚' : method === 'safari' ? '🌴' : '🌿';
                                     return `
                                         <div class="target-row ${t.caught ? 'is-caught' : ''}">
                                             <span class="caught-indicator ${t.caught ? 'is-caught' : ''}">${t.caught ? '✓' : '○'}</span>
@@ -401,6 +401,7 @@
                                             <span class="tier-badge ${tc}">${tl}</span>
                                             <span class="target-name">${esc(t.pokemon_name)}</span>
                                             ${t.is_alpha ? '<span class="alpha-dot" title="Alpha">🅰️</span>' : ''}
+                                            ${t.is_secret ? '<span class="secret-dot" title="Secret Shiny">💎</span>' : ''}
                                             <span class="method-pill-ro" title="${method}">${methodLabel}</span>
                                             <span class="target-pts">${pts2} pts</span>
                                         </div>
