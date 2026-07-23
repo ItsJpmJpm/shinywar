@@ -2159,14 +2159,14 @@ footer {
 }
 .secret-pill:hover {
     opacity: 0.8;
-    border-color: #60a5fa;
+    border-color: #facc15;
 }
 .secret-pill.active {
     opacity: 1;
-    border-color: #60a5fa;
-    background: rgba(96,165,250,0.15);
-    box-shadow: 0 0 6px rgba(96,165,250,0.25);
-    color: #60a5fa;
+    border-color: #facc15;
+    background: rgba(250,204,21,0.15);
+    box-shadow: 0 0 6px rgba(250,204,21,0.25);
+    color: #facc15;
 }
 .toggle-pill {
     height: 24px;
