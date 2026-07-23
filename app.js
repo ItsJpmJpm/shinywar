@@ -57,6 +57,7 @@
                         }
                         return { id: m.id || (m.id = TEAM_NAMES.indexOf(m.name) + 1), name: m.name, targets: [] };
                     });
+                    }
                 }
             }
         } catch {}
