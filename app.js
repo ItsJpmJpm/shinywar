@@ -49,12 +49,24 @@
         if (!supabaseClient) throw new Error('No se pudo conectar con la base de datos.');
         const { data: users, error: errU } = await supabaseClient
             .from('users').select('id, username, display_name, role').order('created_at');
-        const { data: targets, error: errT } = await supabaseClient
-            .from('targets').select('id, user_id, pokemon_name, tier, method, is_alpha, is_secret, caught').order('created_at');
         if (errU) throw new Error(friendlyError(errU));
-        if (errT) throw new Error(friendlyError(errT));
         allUsers = users || [];
+
+        let targets;
+        const { data: tFull, error: errFull } = await supabaseClient
+            .from('targets').select('id, user_id, pokemon_name, tier, method, is_alpha, is_secret, caught').order('created_at');
+        if (!errFull && tFull) {
+            targets = tFull;
+        } else {
+            const { data: tBasic, error: errBasic } = await supabaseClient
+                .from('targets').select('id, user_id, pokemon_name, tier, caught').order('created_at');
+            if (errBasic) throw new Error(friendlyError(errBasic));
+            targets = tBasic || [];
+        }
         allTargets = (targets || []).map(t => {
+            if (!t.method) t.method = 'wild';
+            if (t.is_alpha == null) t.is_alpha = false;
+            if (t.is_secret == null) t.is_secret = false;
             if (t.tier && !t.tier.startsWith('tier') && t.tier !== 'legendary' && t.tier !== 'alpha') {
                 t.tier = 'tier' + t.tier;
             }

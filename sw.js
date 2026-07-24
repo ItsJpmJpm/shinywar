@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const SHELL = [
   './',
   './index.html',
@@ -45,7 +45,21 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Cache-first for shell assets
+  // Network-first for JS/CSS (version-busted) to always get latest
+  if (url.pathname.match(/\.(js|css)$/) && url.searchParams.has('v')) {
+    e.respondWith(
+      fetch(e.request)
+        .then(r => {
+          const clone = r.clone();
+          caches.open(CACHE_VERSION).then(c => c.put(e.request, clone));
+          return r;
+        })
+        .catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
+  // Cache-first for other shell assets (HTML, etc.)
   e.respondWith(
     caches.match(e.request).then(r => r || fetch(e.request))
   );
