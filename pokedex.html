@@ -195,6 +195,13 @@
         });
     });
     </script>
-
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js');
+        navigator.serviceWorker.addEventListener('message', e => {
+          if (e.data === 'SW_SELF_DESTRUCT') location.reload();
+        });
+      }
+    </script>
 </body>
 </html>
