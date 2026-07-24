@@ -67,8 +67,10 @@
             if (!t.method) t.method = 'wild';
             if (t.is_alpha == null) t.is_alpha = false;
             if (t.is_secret == null) t.is_secret = false;
-            if (t.tier && !t.tier.startsWith('tier') && t.tier !== 'legendary' && t.tier !== 'alpha') {
-                t.tier = 'tier' + t.tier;
+            const correctTier = getPokemonTier(t.pokemon_name);
+            if (correctTier && correctTier !== t.tier) {
+                t.tier = correctTier;
+                supabaseClient.from('targets').update({ tier: correctTier }).eq('id', t.id).then(() => {});
             }
             return t;
         });
