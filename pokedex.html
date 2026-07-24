@@ -27,6 +27,22 @@
             </div>
             <div class="pokedex-count" id="pokedexCount"></div>
         </div>
+        <div class="pokedex-filters" id="pokedexFilters">
+            <button class="filter-btn active" data-tier="all">Todos</button>
+            <button class="filter-btn" data-tier="legendary">LEG</button>
+            <button class="filter-btn" data-tier="tier0">T0</button>
+            <button class="filter-btn" data-tier="tier1">T1</button>
+            <button class="filter-btn" data-tier="tier2">T2</button>
+            <button class="filter-btn" data-tier="tier3">T3</button>
+            <button class="filter-btn" data-tier="tier4">T4</button>
+            <button class="filter-btn" data-tier="tier5">T5</button>
+            <button class="filter-btn" data-tier="tier6">T6</button>
+            <button class="filter-btn" data-tier="tier7">T7</button>
+        </div>
+        <div class="pokedex-sort">
+            <button class="filter-btn active" id="sortNum">por N.º Pokédex</button>
+            <button class="filter-btn" id="sortAlpha">A → Z</button>
+        </div>
         <div id="pokedexGrid" class="pokedex-pokemon-grid"></div>
     </main>
 
@@ -34,7 +50,8 @@
         <p>Team Snow ❄️ • Shiny Wars 2026</p>
     </footer>
 
-    <script src="pokemon-sprites.js?v=2"></script>
+    <script src="pokemon-data.js?v=13"></script>
+    <script src="pokemon-sprites.js?v=13"></script>
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         var grid = document.getElementById("pokedexGrid");
@@ -46,10 +63,13 @@
         for (var key in POKEAPI_IDS) {
             var id = POKEAPI_IDS[key];
             if (id <= 649) {
-                allPokemon.push({ name: key, id: id });
+                var tier = getPokemonTier(key) || "unassigned";
+                allPokemon.push({ name: key, id: id, tier: tier });
             }
         }
-        allPokemon.sort(function(a, b) { return a.id - b.id; });
+
+        var currentTier = "all";
+        var currentSort = "num";
 
         function loadAssignedMap() {
             var map = {};
@@ -100,13 +120,18 @@
             var assignedMap = loadAssignedMap();
             var q = (query || "").toLowerCase();
             var filtered = [];
-            var count = 0;
 
             for (var i = 0; i < allPokemon.length; i++) {
                 var p = allPokemon[i];
                 if (q && p.name.indexOf(q) === -1) continue;
+                if (currentTier !== "all" && p.tier !== currentTier) continue;
                 filtered.push(p);
-                count++;
+            }
+
+            if (currentSort === "alpha") {
+                filtered.sort(function(a, b) { return a.name.localeCompare(b.name); });
+            } else {
+                filtered.sort(function(a, b) { return a.id - b.id; });
             }
 
             var html = "";
@@ -114,6 +139,8 @@
                 var p = filtered[i];
                 var assigned = assignedMap[p.name] || null;
                 var animSprite = getAnimatedSprite(p.id);
+                var tc = p.tier === "legendary" ? "legendary" : p.tier === "tier0" ? "tier-0" : p.tier === "tier1" ? "tier-1" : p.tier === "tier2" ? "tier-2" : p.tier === "tier3" ? "tier-3" : p.tier === "tier4" ? "tier-4" : p.tier === "tier5" ? "tier-5" : p.tier === "tier6" ? "tier-6" : p.tier === "tier7" ? "tier-7" : "";
+                var tl = p.tier === "legendary" ? "LEG" : p.tier === "tier0" ? "T0" : p.tier === "tier1" ? "T1" : p.tier === "tier2" ? "T2" : p.tier === "tier3" ? "T3" : p.tier === "tier4" ? "T4" : p.tier === "tier5" ? "T5" : p.tier === "tier6" ? "T6" : p.tier === "tier7" ? "T7" : "?";
 
                 html += '<div class="pokedex-card' + (assigned ? ' claimed' : '') + '" title="' + (assigned ? 'Asignado a: ' + assigned : '') + '">';
                 html += '<div class="pokedex-sprite-wrap">';
@@ -124,24 +151,47 @@
                 html += '</div>';
                 html += '<div class="pokedex-card-name">' + displayName(p.name) + '</div>';
                 html += '<div class="pokedex-card-id">#' + p.id + '</div>';
+                html += '<span class="tier-badge ' + tc + '">' + tl + '</span>';
                 if (assigned) {
                     html += '<div class="pokedex-card-member">' + assigned + '</div>';
                 }
                 html += '</div>';
             }
 
-            if (count === 0) {
+            if (filtered.length === 0) {
                 html = '<div class="pokedex-empty">No se encontraron Pokémon.</div>';
             }
 
             grid.innerHTML = html;
-            countEl.textContent = count + " Pokémon";
+            countEl.textContent = filtered.length + " Pokémon";
         }
 
         render("");
 
         searchInput.addEventListener("input", function(e) {
             render(e.target.value);
+        });
+
+        document.querySelectorAll("#pokedexFilters .filter-btn").forEach(function(btn) {
+            btn.addEventListener("click", function() {
+                document.querySelectorAll("#pokedexFilters .filter-btn").forEach(function(b) { b.classList.remove("active"); });
+                btn.classList.add("active");
+                currentTier = btn.dataset.tier;
+                render(searchInput.value);
+            });
+        });
+
+        document.getElementById("sortNum").addEventListener("click", function() {
+            currentSort = "num";
+            document.getElementById("sortNum").classList.add("active");
+            document.getElementById("sortAlpha").classList.remove("active");
+            render(searchInput.value);
+        });
+        document.getElementById("sortAlpha").addEventListener("click", function() {
+            currentSort = "alpha";
+            document.getElementById("sortAlpha").classList.add("active");
+            document.getElementById("sortNum").classList.remove("active");
+            render(searchInput.value);
         });
     });
     </script>

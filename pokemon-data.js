@@ -1,99 +1,89 @@
 const POKEMON_TIERS = {
-    // TODO: el usuario define los tiers — todos empiezan en tier7
-    tier7: [
-        "Abomasnow","Abra","Absol","Accelgor","Aerodactyl","Aggron","Aipom","Alakazam","Alomomola",
-        "Altaria","Ambipom","Amoonguss","Ampharos","Anorith","Arbok","Arcanine","Archen","Archeops",
-        "Ariados","Armaldo","Aron","Audino","Axew","Azumarill","Azurill","Bagon","Baltoy","Banette",
-        "Barboach","Basculin","Bastiodon","Bayleef","Beartic","Beautifly","Beedrill","Beheeyem",
-        "Beldum","Bellossom","Bellsprout","Bibarel","Bidoof","Bisharp","Blastoise","Blaziken",
-        "Blissey","Blitzle","Boldore","Bonsly","Bouffalant","Braviary","Breloom","Bronzong",
-        "Bronzor","Budew","Buizel","Bulbasaur","Buneary","Burmy","Butterfree","Cacnea","Cacturne",
-        "Camerupt","Carnivine","Carracosta","Carvanha","Cascoon","Castform","Caterpie","Chandelure",
-        "Chansey","Charizard","Charmander","Charmeleon","Chatot","Cherrim","Cherubi","Chikorita",
-        "Chimchar","Chimecho","Chinchou","Chingling","Cinccino","Clamperl","Claydol","Clefable",
-        "Clefairy","Cleffa","Cloyster","Cofagrigus","Combee","Combusken","Conkeldurr","Corphish",
-        "Corsola","Cottonee","Cradily","Cranidos","Crawdaunt","Croagunk","Crobat","Croconaw",
-        "Crustle","Cryogonal","Cubchoo","Cubone","Cyndaquil","Darmanitan","Darumaka","Deerling",
-        "Deino","Delcatty","Delibird","Dewgong","Dewott","Diglett","Ditto","Dodrio","Doduo",
-        "Donphan","Dragonair","Dragonite","Drapion","Dratini","Drifblim","Drifloon","Drilbur",
-        "Drowzee","Druddigon","Ducklett","Dugtrio","Dunsparce","Duosion","Durant","Dusclops",
-        "Dusknoir","Duskull","Dustox","Dwebble","Eelektrik","Eelektross","Eevee","Ekans",
-        "Electabuzz","Electivire","Electrike","Electrode","Elekid","Elgyem","Emboar","Emolga",
-        "Empoleon","Escavalier","Espeon","Excadrill","Exeggcute","Exeggutor","Farfetch'd","Fearow",
-        "Feebas","Feraligatr","Ferroseed","Ferrothorn","Finneon","Flaaffy","Flareon","Floatzel",
-        "Flygon","Foongus","Forretress","Fraxure","Frillish","Froslass","Furret","Gabite","Gallade",
-        "Galvantula","Garbodor","Garchomp","Gardevoir","Gastly","Gastrodon","Gengar","Geodude",
-        "Gible","Gigalith","Girafarig","Glaceon","Glalie","Glameow","Gligar","Gliscor","Gloom",
-        "Golbat","Goldeen","Golduck","Golem","Golett","Golurk","Gorebyss","Gothita","Gothitelle",
-        "Gothorita","Granbull","Graveler","Grimer","Grotle","Grovyle","Growlithe","Grumpig","Gulpin",
-        "Gurdurr","Gyarados","Happiny","Hariyama","Haunter","Haxorus","Heatmor","Heracross",
-        "Herdier","Hippopotas","Hippowdon","Hitmonchan","Hitmonlee","Hitmontop","Honchkrow",
-        "Hoothoot","Hoppip","Horsea","Houndoom","Houndour","Huntail","Hydreigon","Hypno","Igglybuff",
-        "Illumise","Infernape","Ivysaur","Jellicent","Jigglypuff","Jolteon","Joltik","Jumpluff",
-        "Jynx","Kabuto","Kabutops","Kadabra","Kakuna","Kangaskhan","Karrablast","Kecleon","Kingdra",
-        "Kingler","Kirlia","Klang","Klink","Klinklang","Koffing","Krabby","Kricketot","Kricketune",
-        "Krokorok","Krookodile","Lairon","Lampent","Lanturn","Lapras","Larvesta","Larvitar",
-        "Leafeon","Leavanny","Ledian","Ledyba","Lickilicky","Lickitung","Liepard","Lileep",
-        "Lilligant","Lillipup","Linoone","Litwick","Lombre","Lopunny","Lotad","Lucario","Ludicolo",
-        "Lumineon","Lunatone","Luvdisc","Luxio","Luxray","Machamp","Machoke","Machop","Magby",
-        "Magcargo","Magikarp","Magmar","Magmortar","Magnemite","Magneton","Makuhita","Mamoswine",
-        "Mandibuzz","Manectric","Mankey","Mantine","Mantyke","Maractus","Mareep","Marill","Marowak",
-        "Marshtomp","Masquerain","Mawile","Medicham","Meditite","Meganium","Meowth","Metagross",
-        "Metang","Metapod","Mienfoo","Mienshao","Mightyena","Milotic","Miltank","Mime Jr.",
-        "Minccino","Minun","Misdreavus","Mismagius","Monferno","Mothim","Mr. Mime","Mudkip","Muk",
-        "Munchlax","Munna","Murkrow","Musharna","Natu","Nidoking","Nidoqueen","Nidoran♀","Nidoran♂",
-        "Nidorina","Nidorino","Nincada","Ninjask","Ninetales","Noctowl","Nosepass","Numel","Nuzleaf","Octillery",
-        "Oddish","Omanyte","Omastar","Onix","Oshawott","Pachirisu","Palpitoad","Panpour","Pansage",
-        "Pansear","Paras","Parasect","Patrat","Pawniard","Pelipper","Persian","Petilil","Phanpy",
-        "Pichu","Pidgeot","Pidgeotto","Pidgey","Pidove","Pignite","Pikachu","Piloswine","Pineco",
-        "Pinsir","Piplup","Plusle","Politoed","Poliwag","Poliwhirl","Poliwrath","Ponyta","Poochyena",
-        "Porygon","Porygon-Z","Porygon2","Primeape","Prinplup","Probopass","Psyduck","Pupitar",
-        "Purrloin","Purugly","Quagsire","Quilava","Qwilfish","Raichu","Ralts","Rampardos","Rapidash",
-        "Raticate","Rattata","Relicanth","Remoraid","Reuniclus","Rhydon","Rhyhorn","Rhyperior",
-        "Riolu","Roggenrola","Roselia","Roserade","Rotom","Rufflet","Sableye","Salamence","Samurott",
-        "Sandile","Sandshrew","Sandslash","Sawk","Sawsbuck","Sceptile","Scizor","Scolipede",
-        "Scrafty","Scraggy","Scyther","Seadra","Seaking","Sealeo","Seedot","Seel","Seismitoad",
-        "Sentret","Serperior","Servine","Seviper","Sewaddle","Sharpedo","Shedinja","Shelgon","Shellder",
-        "Shellos","Shelmet","Shieldon","Shiftry","Shinx","Shroomish","Shuckle","Shuppet","Sigilyph",
-        "Silcoon","Simipour","Simisage","Simisear","Skarmory","Skiploom","Skitty","Skorupi",
-        "Skuntank","Slaking","Slakoth","Slowbro","Slowking","Slowpoke","Slugma","Smeargle",
-        "Smoochum","Sneasel","Snivy","Snorlax","Snorunt","Snover","Snubbull","Solosis","Solrock",
-        "Spearow","Spheal","Spinarak","Spinda","Spiritomb","Spoink","Squirtle","Stantler",
-        "Staraptor","Staravia","Starly","Starmie","Staryu","Steelix","Stoutland","Stunfisk","Stunky",
-        "Sudowoodo","Sunflora","Sunkern","Surskit","Swablu","Swadloon","Swalot","Swampert","Swanna",
-        "Swellow","Swinub","Swoobat","Taillow","Tangela","Tangrowth","Tauros","Teddiursa",
-        "Tentacool","Tentacruel","Tepig","Throh","Timburr","Tirtouga","Togekiss","Togepi","Togetic",
-        "Torchic","Torkoal","Torterra","Totodile","Toxicroak","Tranquill","Trapinch","Treecko",
-        "Tropius","Trubbish","Turtwig","Tympole","Tynamo","Typhlosion","Tyranitar","Tyrogue",
-        "Umbreon","Unfezant","Unown","Ursaring","Vanillish","Vanillite","Vanilluxe","Vaporeon",
-        "Venipede","Venomoth","Venonat","Venusaur","Vespiquen","Vibrava","Victreebel","Vigoroth",
-        "Vileplume","Volbeat","Volcarona","Voltorb","Vullaby","Vulpix","Wailmer","Wailord","Walrein",
-        "Wartortle","Watchog","Weavile","Weedle","Weepinbell","Weezing","Whimsicott","Whirlipede",
-        "Whiscash","Wigglytuff","Wingull","Wobbuffet","Woobat","Wooper","Wormadam","Wurmple",
-        "Wynaut","Xatu","Yamask","Yanma","Yanmega","Zangoose","Zebstrika","Zigzagoon","Zoroark",
-        "Zorua","Zubat","Zweilous"
+    tier0: [
+        "Bayleef","Beldum","Blastoise","Blaziken","Bulbasaur","Charizard","Charmander","Charmeleon","Chikorita","Chimchar"
+        "Combusken","Croconaw","Cyndaquil","Dewott","Eevee","Emboar","Empoleon","Espeon","Feraligatr","Flareon"
+        "Glaceon","Grotle","Grovyle","Hitmonchan","Hitmonlee","Hitmontop","Infernape","Ivysaur","Jolteon","Leafeon"
+        "Lucario","Marshtomp","Meganium","Metagross","Metang","Monferno","Mudkip","Munchlax","Oshawott","Pignite"
+        "Piplup","Porygon","Porygon-Z","Porygon2","Prinplup","Quilava","Riolu","Rotom","Samurott","Sceptile"
+        "Serperior","Servine","Shedinja","Snivy","Snorlax","Squirtle","Swampert","Tepig","Togekiss","Togepi"
+        "Togetic","Torchic","Torterra","Totodile","Treecko","Turtwig","Typhlosion","Tyrogue","Umbreon","Vaporeon"
+        "Venusaur","Wartortle"
     ],
-
-    tier6: [],
-    tier5: [],
-    tier4: [],
-    tier3: [],
-    tier2: [],
-    tier1: [],
-    tier0: [],
-
-    // Legendarios/Míticos — 200 pts
+    tier1: [
+        "Absol","Alomomola","Audino","Blissey","Breloom","Burmy","Carnivine","Castform","Chansey","Cherrim"
+        "Cherubi","Combee","Delcatty","Drapion","Drilbur","Ducklett","Emolga","Excadrill","Gulpin","Kangaskhan"
+        "Larvesta","Minun","Mothim","Panpour","Pansage","Pansear","Pinsir","Plusle","Scizor","Scyther"
+        "Shroomish","Simipour","Simisage","Simisear","Skarmory","Skitty","Skorupi","Slaking","Slakoth","Spiritomb"
+        "Sudowoodo","Swalot","Swanna","Vespiquen","Vigoroth","Volcarona","Wormadam"
+    ],
+    tier2: [
+        "Aerodactyl","Aipom","Ambipom","Anorith","Archen","Archeops","Armaldo","Bagon","Bastiodon","Bisharp"
+        "Carracosta","Clefable","Clefairy","Cleffa","Cloyster","Corsola","Cradily","Cranidos","Feebas","Forretress"
+        "Gallade","Gardevoir","Houndoom","Houndour","Kabuto","Kabutops","Kirlia","Lapras","Lileep","Milotic"
+        "Miltank","Mr. Mime","Nincada","Ninjask","Omanyte","Omastar","Pawniard","Pineco","Qwilfish","Ralts"
+        "Rampardos","Relicanth","Salamence","Shelgon","Shellder","Shieldon","Shuckle","Tirtouga"
+    ],
+    tier3: [
+        "Arcanine","Barboach","Cacnea","Cacturne","Carvanha","Chatot","Chimecho","Croagunk","Cryogonal","Darmanitan"
+        "Darumaka","Delibird","Dragonair","Dragonite","Dratini","Drifblim","Drifloon","Exeggcute","Exeggutor","Farfetch'd"
+        "Finneon","Furret","Gligar","Gliscor","Growlithe","Heracross","Honchkrow","Illumise","Jynx","Kecleon"
+        "Ledian","Ledyba","Lumineon","Luvdisc","Magby","Magmar","Magmortar","Mantine","Maractus","Misdreavus"
+        "Mismagius","Murkrow","Ninetales","Nosepass","Octillery","Probopass","Remoraid","Sentret","Seviper","Sharpedo"
+        "Sigilyph","Skuntank","Smoochum","Starmie","Staryu","Stunky","Sunflora","Sunkern","Toxicroak","Tropius"
+        "Volbeat","Vulpix","Wailmer","Wailord","Whiscash","Zangoose"
+    ],
+    tier4: [
+        "Ariados","Axew","Bellossom","Bouffalant","Braviary","Buneary","Corphish","Crawdaunt","Deino","Drowzee"
+        "Electabuzz","Electivire","Elekid","Flygon","Fraxure","Gloom","Granbull","Haxorus","Heatmor","Hoothoot"
+        "Hydreigon","Hypno","Kricketot","Kricketune","Larvitar","Liepard","Lombre","Lopunny","Lotad","Ludicolo"
+        "Lunatone","Masquerain","Meowth","Noctowl","Oddish","Pachirisu","Persian","Pidove","Pupitar","Purrloin"
+        "Quagsire","Rufflet","Scrafty","Scraggy","Sneasel","Snubbull","Spinarak","Spinda","Surskit","Tranquill"
+        "Trapinch","Tyranitar","Unfezant","Venomoth","Venonat","Vibrava","Vileplume","Weavile","Wooper","Zweilous"
+    ],
+    tier5: [
+        "Accelgor","Altaria","Amoonguss","Beartic","Beautifly","Beedrill","Bellsprout","Butterfree","Camerupt","Cascoon"
+        "Caterpie","Conkeldurr","Cottonee","Crustle","Cubchoo","Dustox","Dwebble","Eelektrik","Eelektross","Escavalier"
+        "Ferroseed","Ferrothorn","Foongus","Froslass","Galvantula","Garbodor","Glalie","Gurdurr","Herdier","Hippopotas"
+        "Hippowdon","Hoppip","Horsea","Igglybuff","Jigglypuff","Joltik","Jumpluff","Kakuna","Karrablast","Kingdra"
+        "Lillipup","Metapod","Natu","Nidoking","Nidoran♂","Nidorino","Numel","Paras","Parasect","Pichu"
+        "Pikachu","Raichu","Sawk","Scolipede","Seadra","Shelmet","Silcoon","Skiploom","Snorunt","Staraptor"
+        "Staravia","Starly","Stoutland","Swablu","Swellow","Taillow","Teddiursa","Throh","Timburr","Trubbish"
+        "Tynamo","Ursaring","Venipede","Victreebel","Weedle","Weepinbell","Whimsicott","Whirlipede","Wigglytuff","Wurmple"
+        "Xatu"
+    ],
+    tier6: [
+        "Abomasnow","Abra","Aggron","Alakazam","Ampharos","Arbok","Aron","Beheeyem","Bibarel","Bidoof"
+        "Blitzle","Boldore","Chinchou","Cinccino","Clamperl","Cubone","Diglett","Ditto","Dodrio","Doduo"
+        "Donphan","Druddigon","Dugtrio","Duosion","Durant","Ekans","Electrike","Elgyem","Fearow","Flaaffy"
+        "Gigalith","Gorebyss","Gothita","Gothitelle","Gothorita","Grimer","Grumpig","Hariyama","Huntail","Kadabra"
+        "Klang","Klink","Klinklang","Lairon","Lanturn","Leavanny","Lickilicky","Lickitung","Linoone","Luxio"
+        "Luxray","Magcargo","Makuhita","Mandibuzz","Manectric","Mankey","Mareep","Marowak","Mawile","Mightyena"
+        "Minccino","Muk","Munna","Musharna","Nidoqueen","Nidoran♀","Nidorina","Palpitoad","Patrat","Pelipper"
+        "Phanpy","Pidgeot","Pidgeotto","Pidgey","Ponyta","Poochyena","Primeape","Rapidash","Reuniclus","Roggenrola"
+        "Roselia","Roserade","Sableye","Seismitoad","Sewaddle","Shinx","Slugma","Snover","Solosis","Solrock"
+        "Spearow","Spoink","Stantler","Stunfisk","Swadloon","Swoobat","Tangela","Tangrowth","Tympole","Vanillish"
+        "Vanillite","Vanilluxe","Vullaby","Watchog","Whismur","Wingull","Woobat","Zebstrika","Zigzagoon"
+    ],
+    tier7: [
+        "Azumarill","Azurill","Baltoy","Banette","Basculin","Bonsly","Bronzong","Bronzor","Budew","Buizel"
+        "Chandelure","Chingling","Claydol","Cofagrigus","Crobat","Deerling","Dewgong","Dunsparce","Dusclops","Dusknoir"
+        "Duskull","Electrode","Floatzel","Frillish","Gabite","Garchomp","Gastly","Gastrodon","Gengar","Geodude"
+        "Gible","Girafarig","Glameow","Golbat","Goldeen","Golduck","Golem","Golett","Golurk","Graveler"
+        "Gyarados","Happiny","Haunter","Jellicent","Kingler","Koffing","Krabby","Krokorok","Krookodile","Lampent"
+        "Lilligant","Litwick","Machamp","Machoke","Machop","Magikarp","Magnemite","Magneton","Mamoswine","Mantyke"
+        "Marill","Medicham","Meditite","Mienfoo","Mienshao","Mime Jr.","Nuzleaf","Onix","Petilil","Piloswine"
+        "Politoed","Poliwag","Poliwhirl","Poliwrath","Psyduck","Purugly","Raticate","Rattata","Rhydon","Rhyhorn"
+        "Rhyperior","Sandile","Sandshrew","Sandslash","Sawsbuck","Seaking","Sealeo","Seedot","Seel","Shellos"
+        "Shiftry","Shuppet","Slowbro","Slowking","Slowpoke","Smeargle","Spheal","Steelix","Swinub","Tauros"
+        "Tentacool","Tentacruel","Torkoal","Unown","Voltorb","Walrein","Weezing","Wobbuffet","Wynaut","Yamask"
+        "Yanma","Yanmega","Zoroark","Zorua","Zubat"
+    ],
     legendary: [
-        "Arceus","Articuno","Azelf","Celebi","Cobalion",
-        "Cresselia","Darkrai","Deoxys","Dialga","Entei",
-        "Genesect","Giratina","Groudon","Heatran","Ho-Oh",
-        "Jirachi","Keldeo","Kyogre","Kyurem","Landorus",
-        "Latias","Latios","Lugia","Manaphy","Meloetta",
-        "Mesprit","Mew","Mewtwo","Moltres","Palkia",
-        "Phione","Raikou","Rayquaza","Regice","Regigigas",
-        "Regirock","Registeel","Reshiram","Shaymin","Suicune",
-        "Terrakion","Thundurus","Tornadus","Uxie","Victini",
-        "Virizion","Zapdos","Zekrom"
+        "Arceus","Articuno","Azelf","Celebi","Cobalion","Cresselia","Darkrai","Deoxys","Dialga","Entei"
+        "Genesect","Giratina","Groudon","Heatran","Ho-Oh","Jirachi","Keldeo","Kyogre","Kyurem","Landorus"
+        "Latias","Latios","Lugia","Manaphy","Meloetta","Mesprit","Mew","Mewtwo","Moltres","Palkia"
+        "Phione","Raikou","Rayquaza","Regice","Regigigas","Regirock","Registeel","Reshiram","Shaymin","Suicune"
+        "Terrakion","Thundurus","Tornadus","Uxie","Victini","Virizion","Zapdos","Zekrom"
     ]
 };
 
@@ -127,7 +117,7 @@ const TIER_COLORS = {
     "tier4": "#22c55e",
     "tier5": "#14b8a6",
     "tier6": "#06b6d4",
-    "7": "#64748b"
+    "tier7": "#64748b"
 };
 
 function getPokemonTier(pokemonName) {
@@ -294,49 +284,6 @@ function searchPokemon(query) {
 
     results.sort((a, b) => b.points - a.points);
     return results.slice(0, 30);
-}
-
-// Gen 6+ Pokemon to remove (PokeMMO only has Gen 1-5)
-const GEN6PLUS = new Set([
-    "chespin","quilladin","chesnaught","fennekin","braixen","delphox","froakie","frogadier","greninja",
-    "bunnelby","diggersby","fletchling","fletchinder","talonflame","scatterbug","spewpa","vivillon",
-    "litleo","pyroar","flabebe","floette","florges","skiddo","gogoat","pancham","pangoro","furfrou",
-    "espurr","meowstic","honedge","doublade","aegislash","spritzee","aromatisse","swirlix","slurpuff",
-    "inkay","malamar","binacle","barbaracle","skrelp","dragalge","clauncher","clawitzer",
-    "helioptile","heliolisk","tyrunt","tyrantrum","amaura","aurorus","sylveon","hawlucha",
-    "dedenne","carbink","goomy","sliggoo","goodra","klefki","phantump","trevenant",
-    "pumpkaboo","gourgeist","bergmite","avalugg","noibat","noivern",
-    "xerneas","yveltal","zygarde","diancie","hoopa","volcanion",
-    "rowlet","dartrix","decidueye","litten","torracat","incineroar","popplio","brionne","primarina",
-    "pikipek","trumbeak","toucannon","yungoos","gumshoos","grubbin","charjabug","vikavolt",
-    "crabrawler","crabominable","oricorio","cutiefly","ribombee","rockruff","lycanroc",
-    "wishiwashi","mareanie","toxapex","mudbray","mudsdale","dewpider","araquanid",
-    "fomantis","lurantis","morelull","shiinotic","salandit","salazzle","stufful","bewear",
-    "bounsweet","steenee","tsareena","comfey","oranguru","passimian","wimpod","golisopod",
-    "sandygast","palossand","pyukumuku","type-null","silvally","minior","komala","turtonator",
-    "mimikyu","bruxish","drampa","dhelmise","jangmo-o","hakamo-o","kommo-o",
-    "tapu-koko","tapu-lele","tapu-bulu","tapu-fini","cosmog","cosmoem","solgaleo","lunala",
-    "nihilego","buzzwole","pheromosa","xurkitree","celesteela","kartana","guzzlord","necrozma",
-    "magearna","marshadow","zeraora","meltan","melmetal",
-    "grookey","thwackey","rillaboom","scorbunny","raboot","cinderace","sobble","drizzile","inteleon",
-    "skwovet","greedent","rookidee","corvisquire","corviknight","blipbug","dottler","orbeetle",
-    "nickit","thievul","gossifleur","eldegoss","wooloo","dubwool","chewtle","drednaw",
-    "yamper","boltund","rolycoly","carkol","coalossal","applin","flapple","appletun",
-    "silicobra","sandaconda","cramorant","arrokuda","barraskewda","toxel","toxtricity",
-    "sizzlipede","centiskorch","clobbopus","grapploct","sinistea","polteageist",
-    "hatenna","hattrem","hatterene","impidimp","morgrem","grimmsnarl",
-    "obstagoon","perrserker","cursola","sirfetch'd","mr. rime","runerigus",
-    "milcery","alcremie","falinks","pincurchin","snom","frosmoth",
-    "stonjourner","eiscue","indeedee","morpeko","cufant","copperajah",
-    "dracozolt","arctozolt","dracovish","arctovish","duraludon",
-    "dreepy","drakloak","dragapult","zacian","zamazenta","eternatus",
-    "kubfu","urshifu","zarude","regieleki","regidrago","glastrier","spectrier","calyrex",
-    "enamorus"
-]);
-
-// Filter out Gen 6+ Pokemon from all tiers
-for (const tier of Object.keys(POKEMON_TIERS)) {
-    POKEMON_TIERS[tier] = POKEMON_TIERS[tier].filter(name => !GEN6PLUS.has(name.toLowerCase()));
 }
 
 function suggestPokemon(query) {
