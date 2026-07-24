@@ -23,9 +23,6 @@ const POKEMON_TIERS = {
         "Glaceon",
         "Grotle",
         "Grovyle",
-        "Hitmonchan",
-        "Hitmonlee",
-        "Hitmontop",
         "Infernape",
         "Ivysaur",
         "Jolteon",
@@ -71,7 +68,7 @@ const POKEMON_TIERS = {
         "Umbreon",
         "Vaporeon",
         "Venusaur",
-        "Wartortle"
+        "Wartortle",
     ],
     tier1: [
         "Absol",
@@ -120,7 +117,7 @@ const POKEMON_TIERS = {
         "Vespiquen",
         "Vigoroth",
         "Volcarona",
-        "Wormadam"
+        "Wormadam",
     ],
     tier2: [
         "Aerodactyl",
@@ -136,14 +133,12 @@ const POKEMON_TIERS = {
         "Carracosta",
         "Clefable",
         "Clefairy",
-        "Cleffa",
         "Cloyster",
         "Corsola",
         "Cradily",
         "Cranidos",
         "Feebas",
         "Forretress",
-        "Gallade",
         "Gardevoir",
         "Houndoom",
         "Houndour",
@@ -170,7 +165,9 @@ const POKEMON_TIERS = {
         "Shellder",
         "Shieldon",
         "Shuckle",
-        "Tirtouga"
+        "Tirtouga",
+        "Zoroark",
+        "Zorua",
     ],
     tier3: [
         "Arcanine",
@@ -195,6 +192,9 @@ const POKEMON_TIERS = {
         "Farfetch'd",
         "Finneon",
         "Furret",
+        "Gabite",
+        "Garchomp",
+        "Gible",
         "Gligar",
         "Gliscor",
         "Growlithe",
@@ -207,7 +207,6 @@ const POKEMON_TIERS = {
         "Ledyba",
         "Lumineon",
         "Luvdisc",
-        "Magby",
         "Magmar",
         "Magmortar",
         "Mantine",
@@ -225,7 +224,6 @@ const POKEMON_TIERS = {
         "Sharpedo",
         "Sigilyph",
         "Skuntank",
-        "Smoochum",
         "Starmie",
         "Staryu",
         "Stunky",
@@ -238,7 +236,7 @@ const POKEMON_TIERS = {
         "Wailmer",
         "Wailord",
         "Whiscash",
-        "Zangoose"
+        "Zangoose",
     ],
     tier4: [
         "Ariados",
@@ -253,7 +251,6 @@ const POKEMON_TIERS = {
         "Drowzee",
         "Electabuzz",
         "Electivire",
-        "Elekid",
         "Flygon",
         "Fraxure",
         "Gloom",
@@ -300,7 +297,7 @@ const POKEMON_TIERS = {
         "Vileplume",
         "Weavile",
         "Wooper",
-        "Zweilous"
+        "Zweilous",
     ],
     tier5: [
         "Accelgor",
@@ -336,7 +333,6 @@ const POKEMON_TIERS = {
         "Hippowdon",
         "Hoppip",
         "Horsea",
-        "Igglybuff",
         "Jigglypuff",
         "Joltik",
         "Jumpluff",
@@ -352,7 +348,6 @@ const POKEMON_TIERS = {
         "Numel",
         "Paras",
         "Parasect",
-        "Pichu",
         "Pikachu",
         "Raichu",
         "Sawk",
@@ -383,7 +378,7 @@ const POKEMON_TIERS = {
         "Whirlipede",
         "Wigglytuff",
         "Wurmple",
-        "Xatu"
+        "Xatu",
     ],
     tier6: [
         "Abomasnow",
@@ -494,7 +489,7 @@ const POKEMON_TIERS = {
         "Wingull",
         "Woobat",
         "Zebstrika",
-        "Zigzagoon"
+        "Zigzagoon",
     ],
     tier7: [
         "Azumarill",
@@ -510,6 +505,7 @@ const POKEMON_TIERS = {
         "Chandelure",
         "Chingling",
         "Claydol",
+        "Cleffa",
         "Cofagrigus",
         "Crobat",
         "Deerling",
@@ -519,15 +515,14 @@ const POKEMON_TIERS = {
         "Dusknoir",
         "Duskull",
         "Electrode",
+        "Elekid",
         "Floatzel",
         "Frillish",
-        "Gabite",
-        "Garchomp",
+        "Gallade",
         "Gastly",
         "Gastrodon",
         "Gengar",
         "Geodude",
-        "Gible",
         "Girafarig",
         "Glameow",
         "Golbat",
@@ -540,6 +535,10 @@ const POKEMON_TIERS = {
         "Gyarados",
         "Happiny",
         "Haunter",
+        "Hitmonchan",
+        "Hitmonlee",
+        "Hitmontop",
+        "Igglybuff",
         "Jellicent",
         "Kingler",
         "Koffing",
@@ -552,6 +551,7 @@ const POKEMON_TIERS = {
         "Machamp",
         "Machoke",
         "Machop",
+        "Magby",
         "Magikarp",
         "Magnemite",
         "Magneton",
@@ -566,6 +566,7 @@ const POKEMON_TIERS = {
         "Nuzleaf",
         "Onix",
         "Petilil",
+        "Pichu",
         "Piloswine",
         "Politoed",
         "Poliwag",
@@ -593,6 +594,7 @@ const POKEMON_TIERS = {
         "Slowking",
         "Slowpoke",
         "Smeargle",
+        "Smoochum",
         "Spheal",
         "Steelix",
         "Swinub",
@@ -609,9 +611,7 @@ const POKEMON_TIERS = {
         "Yamask",
         "Yanma",
         "Yanmega",
-        "Zoroark",
-        "Zorua",
-        "Zubat"
+        "Zubat",
     ],
     legendary: [
         "Arceus",
@@ -661,13 +661,12 @@ const POKEMON_TIERS = {
         "Victini",
         "Virizion",
         "Zapdos",
-        "Zekrom"
-    ]
+        "Zekrom",
+    ],
 };
 
 const TIER_POINTS = {
     "legendary": 200,
-    "alpha": 75,
     "tier0": 50,
     "tier1": 45,
     "tier2": 40,
@@ -687,7 +686,6 @@ const METHOD_BONUS = {
 
 const TIER_COLORS = {
     "legendary": "#fbbf24",
-    "alpha": "#f472b6",
     "tier0": "#ef4444",
     "tier1": "#f97316",
     "tier2": "#eab308",
