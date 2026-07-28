@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="stylesheet" href="style.css?v=17">
+    <link rel="stylesheet" href="style.css?v=18">
 </head>
 <body>
     <header>
@@ -57,14 +57,15 @@
         <p>Team Snow ❄️ • Shiny Wars 2026</p>
     </footer>
 
-    <script src="pokemon-data.js?v=17"></script>
-    <script src="pokemon-sprites.js?v=17"></script>
+    <script src="pokemon-data.js?v=18"></script>
+    <script src="pokemon-sprites.js?v=18"></script>
+    <script src="supabase-config.js?v=18"></script>
+    <script src="auth.js?v=18"></script>
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         var grid = document.getElementById("pokedexGrid");
         var countEl = document.getElementById("pokedexCount");
         var searchInput = document.getElementById("pokedexSearch");
-        var STORAGE_KEY = "snow-shinywar-2026";
 
         var allPokemon = [];
         for (var key in POKEAPI_IDS) {
@@ -79,22 +80,14 @@
         var currentSeason = "all";
         var currentSort = "num";
 
-        function loadAssignedMap() {
-            var map = {};
-            try {
-                var saved = localStorage.getItem(STORAGE_KEY);
-                if (saved) {
-                    var members = JSON.parse(saved);
-                    for (var i = 0; i < members.length; i++) {
-                        var m = members[i];
-                        var targets = m.targets || [];
-                        for (var j = 0; j < targets.length; j++) {
-                            map[targets[j].name.toLowerCase()] = m.name;
-                        }
-                    }
-                }
-            } catch(e) {}
-            return map;
+        var session = window.Auth ? Auth.getSession() : null;
+        var admin = session && session.role === "admin";
+
+        function showLoginPrompt() {
+            var p = document.createElement("div");
+            p.className = "login-prompt";
+            p.innerHTML = '<a href="index.html" class="nav-link">Iniciar sesión</a> para editar estaciones';
+            document.querySelector("header").appendChild(p);
         }
 
         function getAnimatedSprite(id) {
@@ -124,8 +117,11 @@
             return name.charAt(0).toUpperCase() + name.slice(1);
         }
 
+        function seasonToLabel(season) {
+            return getSeasonLabel(season);
+        }
+
         function render(query) {
-            var assignedMap = loadAssignedMap();
             var q = (query || "").toLowerCase();
             var filtered = [];
 
@@ -146,25 +142,20 @@
             var html = "";
             for (var i = 0; i < filtered.length; i++) {
                 var p = filtered[i];
-                var assigned = assignedMap[p.name] || null;
                 var animSprite = getAnimatedSprite(p.id);
                 var tc = p.tier === "legendary" ? "legendary" : p.tier === "tier0" ? "tier-0" : p.tier === "tier1" ? "tier-1" : p.tier === "tier2" ? "tier-2" : p.tier === "tier3" ? "tier-3" : p.tier === "tier4" ? "tier-4" : p.tier === "tier5" ? "tier-5" : p.tier === "tier6" ? "tier-6" : p.tier === "tier7" ? "tier-7" : "";
                 var tl = p.tier === "legendary" ? "LEG" : p.tier === "tier0" ? "T0" : p.tier === "tier1" ? "T1" : p.tier === "tier2" ? "T2" : p.tier === "tier3" ? "T3" : p.tier === "tier4" ? "T4" : p.tier === "tier5" ? "T5" : p.tier === "tier6" ? "T6" : p.tier === "tier7" ? "T7" : "?";
+                var curSeason = getPokemonSeason(p.name);
+                var editIcon = admin ? '<span class="pokedex-edit-icon" data-name="' + p.name + '" title="Editar estación">✎</span>' : "";
 
-                html += '<div class="pokedex-card' + (assigned ? ' claimed' : '') + '" title="' + (assigned ? 'Asignado a: ' + assigned : '') + '">';
+                html += '<div class="pokedex-card" data-pname="' + p.name + '">';
                 html += '<div class="pokedex-sprite-wrap">';
                 html += '<img src="' + animSprite + '" class="pokedex-sprite" loading="lazy" onerror="this.src=\'' + getStaticSprite(p.id) + '\'">';
-                if (assigned) {
-                    html += '<div class="pokedex-claimed-badge">✓</div>';
-                }
                 html += '</div>';
-                html += '<div class="pokedex-card-name">' + displayName(p.name) + '</div>';
+                html += '<div class="pokedex-card-name">' + displayName(p.name) + editIcon + '</div>';
                 html += '<div class="pokedex-card-id">#' + p.id + '</div>';
                 html += '<span class="tier-badge ' + tc + '">' + tl + '</span>';
-                html += '<span class="season-badge">' + getSeasonLabel(getPokemonSeason(p.name)) + '</span>';
-                if (assigned) {
-                    html += '<div class="pokedex-card-member">' + assigned + '</div>';
-                }
+                html += '<span class="season-badge">' + seasonToLabel(curSeason) + '</span>';
                 html += '</div>';
             }
 
@@ -174,9 +165,142 @@
 
             grid.innerHTML = html;
             countEl.textContent = filtered.length + " Pokémon";
+
+            if (admin) {
+                document.querySelectorAll(".pokedex-edit-icon").forEach(function(icon) {
+                    icon.addEventListener("click", function(e) {
+                        e.stopPropagation();
+                        openSeasonModal(icon.dataset.name);
+                    });
+                });
+            }
+        }
+
+        var modalEl = null;
+
+        function openSeasonModal(pokemonName) {
+            if (!modalEl) {
+                modalEl = document.createElement("div");
+                modalEl.className = "season-modal-overlay";
+                modalEl.innerHTML = '<div class="season-modal">' +
+                    '<h3 class="season-modal-title">Editar estación</h3>' +
+                    '<p class="season-modal-poke" id="modalPokeName"></p>' +
+                    '<select id="modalSeasonSelect" class="season-modal-select">' +
+                    '<option value="all">🌿 Todas</option>' +
+                    '<option value="spring">🌸 Primavera</option>' +
+                    '<option value="summer">☀️ Verano</option>' +
+                    '<option value="autumn">🍂 Otoño</option>' +
+                    '<option value="winter">❄️ Invierno</option>' +
+                    '</select>' +
+                    '<div class="season-modal-actions">' +
+                    '<button id="modalSaveBtn" class="btn btn-primary">Guardar</button>' +
+                    '<button id="modalCancelBtn" class="btn btn-cancel">Cancelar</button>' +
+                    '</div>' +
+                    '</div>';
+                document.body.appendChild(modalEl);
+
+                modalEl.addEventListener("click", function(e) {
+                    if (e.target === modalEl) closeSeasonModal();
+                });
+                document.getElementById("modalCancelBtn").addEventListener("click", closeSeasonModal);
+                document.getElementById("modalSaveBtn").addEventListener("click", function() {
+                    var name = modalEl.dataset.pname;
+                    var season = document.getElementById("modalSeasonSelect").value;
+                    saveSeasonOverride(name, season);
+                });
+            }
+
+            modalEl.dataset.pname = pokemonName;
+            document.getElementById("modalPokeName").textContent = displayName(pokemonName) + " (#" + getPokemonId(pokemonName) + ")";
+            document.getElementById("modalSeasonSelect").value = getPokemonSeason(pokemonName);
+            modalEl.style.display = "flex";
+        }
+
+        function getPokemonId(name) {
+            return POKEAPI_IDS[name] || "?";
+        }
+
+        function closeSeasonModal() {
+            if (modalEl) modalEl.style.display = "none";
+        }
+
+        function saveSeasonOverride(name, season) {
+            if (season === "all") {
+                delete seasonOverrides[name];
+            } else {
+                seasonOverrides[name] = season;
+            }
+
+            document.getElementById("modalSaveBtn").textContent = "Guardando...";
+            document.getElementById("modalSaveBtn").disabled = true;
+
+            supabaseClient
+                .from("pokemon_seasons")
+                .upsert({ name: name, season: season }, { onConflict: "name" })
+                .then(function(resp) {
+                    if (resp.error) {
+                        alert("Error al guardar: " + (resp.error.message || "desconocido"));
+                        if (season === "all" && !seasonOverrides[name]) {
+                        } else {
+                            seasonOverrides[name] = season;
+                        }
+                        document.getElementById("modalSaveBtn").textContent = "Guardar";
+                        document.getElementById("modalSaveBtn").disabled = false;
+                        return;
+                    }
+                    document.getElementById("modalSaveBtn").textContent = "Guardar";
+                    document.getElementById("modalSaveBtn").disabled = false;
+                    closeSeasonModal();
+                    render(searchInput.value);
+                });
+        }
+
+        function loadSeasonOverrides() {
+            if (!window.supabaseClient) return;
+            supabaseClient
+                .from("pokemon_seasons")
+                .select("name, season")
+                .then(function(resp) {
+                    if (resp.error) {
+                        console.warn("No se pudieron cargar estaciones:", resp.error);
+                        return;
+                    }
+                    if (resp.data) {
+                        for (var i = 0; i < resp.data.length; i++) {
+                            var row = resp.data[i];
+                            seasonOverrides[row.name] = row.season;
+                        }
+                    }
+                    render(searchInput.value);
+                });
         }
 
         render("");
+
+        if (session) {
+            var navRight = document.querySelector(".nav-bar");
+            if (navRight) {
+                var userBadge = document.createElement("span");
+                userBadge.className = "nav-user-badge";
+                userBadge.textContent = session.display_name + (admin ? " ⚙️" : "");
+                navRight.appendChild(userBadge);
+
+                var logoutLink = document.createElement("a");
+                logoutLink.href = "#";
+                logoutLink.className = "nav-link nav-logout";
+                logoutLink.textContent = "Cerrar sesión";
+                logoutLink.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    Auth.logout();
+                    window.location.href = "index.html";
+                });
+                navRight.appendChild(logoutLink);
+            }
+        } else {
+            showLoginPrompt();
+        }
+
+        loadSeasonOverrides();
 
         searchInput.addEventListener("input", function(e) {
             render(e.target.value);

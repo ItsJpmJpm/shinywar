@@ -35,3 +35,10 @@ CREATE TABLE IF NOT EXISTS targets (
   caught BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Pokemon seasons table (for admin-editable season assignments)
+CREATE TABLE IF NOT EXISTS pokemon_seasons (
+  name TEXT PRIMARY KEY,
+  season TEXT NOT NULL DEFAULT 'all',
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);

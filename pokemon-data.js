@@ -1363,7 +1363,10 @@ function getPokemonTier(pokemonName) {
     return null;
 }
 
+var seasonOverrides = {};
+
 function getPokemonSeason(pokemonName) {
+    if (seasonOverrides[pokemonName]) return seasonOverrides[pokemonName];
     return POKEMON_SEASONS[pokemonName] || "all";
 }
 

@@ -2267,6 +2267,124 @@ footer {
     margin-bottom: 1rem;
 }
 
+.pokedex-edit-icon {
+    display: inline-block;
+    margin-left: 0.3rem;
+    font-size: 0.7rem;
+    cursor: pointer;
+    color: #a5b4fc;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    user-select: none;
+}
+.pokedex-edit-icon:hover {
+    opacity: 1;
+}
+
+.season-modal-overlay {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    align-items: center;
+    justify-content: center;
+}
+.season-modal {
+    background: linear-gradient(135deg, #1a1a3e, #2d1b69);
+    border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 360px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    text-align: center;
+}
+.season-modal-title {
+    color: #a5b4fc;
+    margin: 0 0 0.5rem;
+    font-size: 1.1rem;
+}
+.season-modal-poke {
+    color: #e2e8f0;
+    font-weight: 600;
+    margin: 0 0 1.2rem;
+    font-size: 1rem;
+}
+.season-modal-select {
+    width: 100%;
+    padding: 0.6rem;
+    border-radius: 8px;
+    border: 1px solid rgba(99,102,241,0.3);
+    background: rgba(15,15,40,0.8);
+    color: #e2e8f0;
+    font-size: 1rem;
+    margin-bottom: 1.2rem;
+    cursor: pointer;
+}
+.season-modal-select option {
+    background: #1a1a3e;
+    color: #e2e8f0;
+}
+.season-modal-actions {
+    display: flex;
+    gap: 0.6rem;
+    justify-content: center;
+}
+.season-modal-actions .btn {
+    padding: 0.5rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.season-modal-actions .btn-primary {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+}
+.season-modal-actions .btn-primary:hover {
+    transform: scale(1.03);
+}
+.season-modal-actions .btn-cancel {
+    background: rgba(148,163,184,0.15);
+    color: #94a3b8;
+}
+.season-modal-actions .btn-cancel:hover {
+    background: rgba(148,163,184,0.25);
+}
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.nav-user-badge {
+    color: #a5b4fc;
+    font-size: 0.75rem;
+    margin-left: auto;
+    padding: 0 0.5rem;
+}
+.nav-logout {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    text-decoration: none;
+}
+.nav-logout:hover {
+    color: #f87171;
+}
+
+.login-prompt {
+    text-align: center;
+    padding: 0.3rem;
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+.login-prompt a {
+    color: #a5b4fc;
+    text-decoration: underline;
+}
+
 @media (max-width: 480px) {
     .season-btn {
         font-size: 0.7rem;
