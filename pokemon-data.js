@@ -1354,6 +1354,9 @@ const SEASON_LABELS = {
 };
 
 function getPokemonTier(pokemonName) {
+    if (pokemonOverrides[pokemonName] && pokemonOverrides[pokemonName].tier) {
+        return pokemonOverrides[pokemonName].tier;
+    }
     const name = pokemonName.toLowerCase();
     for (const [tier, list] of Object.entries(POKEMON_TIERS)) {
         if (list.some(p => p.toLowerCase() === name)) {
@@ -1363,15 +1366,35 @@ function getPokemonTier(pokemonName) {
     return null;
 }
 
-var seasonOverrides = {};
+var pokemonOverrides = {};
+
+function getPokemonSeasons(pokemonName) {
+    if (pokemonOverrides[pokemonName] && pokemonOverrides[pokemonName].seasons !== undefined) {
+        var s = pokemonOverrides[pokemonName].seasons;
+        if (!s || s === "all") return ["all"];
+        return s.split(',');
+    }
+    var staticSeason = POKEMON_SEASONS[pokemonName] || "all";
+    return [staticSeason];
+}
 
 function getPokemonSeason(pokemonName) {
-    if (seasonOverrides[pokemonName]) return seasonOverrides[pokemonName];
-    return POKEMON_SEASONS[pokemonName] || "all";
+    return getPokemonSeasons(pokemonName)[0];
 }
 
 function getSeasonLabel(season) {
     return SEASON_LABELS[season] || "Todas";
+}
+
+function getSeasonBadgeHTML(pokemonName) {
+    var seasons = getPokemonSeasons(pokemonName);
+    if (seasons.length === 0) return "";
+    if (seasons.length === 1 && seasons[0] === "all") return '<span class="season-badge">🌿 Todas</span>';
+    var icons = {spring:"🌸", summer:"☀️", autumn:"🍂", winter:"❄️"};
+    var labels = {spring:"Primavera", summer:"Verano", autumn:"Otoño", winter:"Invierno"};
+    return seasons.map(function(s) {
+        return '<span class="season-badge season-badge-' + s + '">' + (icons[s]||"") + " " + (labels[s]||s) + "</span>";
+    }).join(" ");
 }
 
 function calculatePoints(tier, method, isAlpha, isSecret) {

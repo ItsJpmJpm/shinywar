@@ -71,8 +71,7 @@
         for (var key in POKEAPI_IDS) {
             var id = POKEAPI_IDS[key];
             if (id <= 649) {
-                var tier = getPokemonTier(key) || "unassigned";
-                allPokemon.push({ name: key, id: id, tier: tier });
+                allPokemon.push({ name: key, id: id });
             }
         }
 
@@ -86,7 +85,7 @@
         function showLoginPrompt() {
             var p = document.createElement("div");
             p.className = "login-prompt";
-            p.innerHTML = '<a href="index.html" class="nav-link">Iniciar sesión</a> para editar estaciones';
+            p.innerHTML = '<a href="index.html" class="nav-link">Iniciar sesión</a> para editar';
             document.querySelector("header").appendChild(p);
         }
 
@@ -117,8 +116,11 @@
             return name.charAt(0).toUpperCase() + name.slice(1);
         }
 
-        function seasonToLabel(season) {
-            return getSeasonLabel(season);
+        function formatTierBadge(tier) {
+            if (!tier) return '<span class="tier-badge">?</span>';
+            var cls = tier === "legendary" ? "legendary" : tier === "tier0" ? "tier-0" : tier === "tier1" ? "tier-1" : tier === "tier2" ? "tier-2" : tier === "tier3" ? "tier-3" : tier === "tier4" ? "tier-4" : tier === "tier5" ? "tier-5" : tier === "tier6" ? "tier-6" : tier === "tier7" ? "tier-7" : "";
+            var label = tier === "legendary" ? "LEG" : tier === "tier0" ? "T0" : tier === "tier1" ? "T1" : tier === "tier2" ? "T2" : tier === "tier3" ? "T3" : tier === "tier4" ? "T4" : tier === "tier5" ? "T5" : tier === "tier6" ? "T6" : tier === "tier7" ? "T7" : "?";
+            return '<span class="tier-badge ' + cls + '">' + label + '</span>';
         }
 
         function render(query) {
@@ -128,8 +130,10 @@
             for (var i = 0; i < allPokemon.length; i++) {
                 var p = allPokemon[i];
                 if (q && p.name.indexOf(q) === -1) continue;
-                if (currentTier !== "all" && p.tier !== currentTier) continue;
-                if (currentSeason !== "all" && getPokemonSeason(p.name) !== currentSeason) continue;
+                var liveTier = getPokemonTier(p.name);
+                if (currentTier !== "all" && liveTier !== currentTier) continue;
+                var liveSeasons = getPokemonSeasons(p.name);
+                if (currentSeason !== "all" && liveSeasons.indexOf(currentSeason) === -1) continue;
                 filtered.push(p);
             }
 
@@ -143,10 +147,8 @@
             for (var i = 0; i < filtered.length; i++) {
                 var p = filtered[i];
                 var animSprite = getAnimatedSprite(p.id);
-                var tc = p.tier === "legendary" ? "legendary" : p.tier === "tier0" ? "tier-0" : p.tier === "tier1" ? "tier-1" : p.tier === "tier2" ? "tier-2" : p.tier === "tier3" ? "tier-3" : p.tier === "tier4" ? "tier-4" : p.tier === "tier5" ? "tier-5" : p.tier === "tier6" ? "tier-6" : p.tier === "tier7" ? "tier-7" : "";
-                var tl = p.tier === "legendary" ? "LEG" : p.tier === "tier0" ? "T0" : p.tier === "tier1" ? "T1" : p.tier === "tier2" ? "T2" : p.tier === "tier3" ? "T3" : p.tier === "tier4" ? "T4" : p.tier === "tier5" ? "T5" : p.tier === "tier6" ? "T6" : p.tier === "tier7" ? "T7" : "?";
-                var curSeason = getPokemonSeason(p.name);
-                var editIcon = admin ? '<span class="pokedex-edit-icon" data-name="' + p.name + '" title="Editar estación">✎</span>' : "";
+                var liveTier = getPokemonTier(p.name);
+                var editIcon = admin ? '<span class="pokedex-edit-icon" data-name="' + p.name + '" title="Editar">✎</span>' : "";
 
                 html += '<div class="pokedex-card" data-pname="' + p.name + '">';
                 html += '<div class="pokedex-sprite-wrap">';
@@ -154,8 +156,8 @@
                 html += '</div>';
                 html += '<div class="pokedex-card-name">' + displayName(p.name) + editIcon + '</div>';
                 html += '<div class="pokedex-card-id">#' + p.id + '</div>';
-                html += '<span class="tier-badge ' + tc + '">' + tl + '</span>';
-                html += '<span class="season-badge">' + seasonToLabel(curSeason) + '</span>';
+                html += formatTierBadge(liveTier);
+                html += getSeasonBadgeHTML(p.name);
                 html += '</div>';
             }
 
@@ -170,7 +172,7 @@
                 document.querySelectorAll(".pokedex-edit-icon").forEach(function(icon) {
                     icon.addEventListener("click", function(e) {
                         e.stopPropagation();
-                        openSeasonModal(icon.dataset.name);
+                        openEditModal(icon.dataset.name);
                     });
                 });
             }
@@ -178,41 +180,116 @@
 
         var modalEl = null;
 
-        function openSeasonModal(pokemonName) {
+        function openEditModal(pokemonName) {
             if (!modalEl) {
                 modalEl = document.createElement("div");
                 modalEl.className = "season-modal-overlay";
-                modalEl.innerHTML = '<div class="season-modal">' +
-                    '<h3 class="season-modal-title">Editar estación</h3>' +
-                    '<p class="season-modal-poke" id="modalPokeName"></p>' +
-                    '<select id="modalSeasonSelect" class="season-modal-select">' +
-                    '<option value="all">🌿 Todas</option>' +
-                    '<option value="spring">🌸 Primavera</option>' +
-                    '<option value="summer">☀️ Verano</option>' +
-                    '<option value="autumn">🍂 Otoño</option>' +
-                    '<option value="winter">❄️ Invierno</option>' +
-                    '</select>' +
-                    '<div class="season-modal-actions">' +
-                    '<button id="modalSaveBtn" class="btn btn-primary">Guardar</button>' +
-                    '<button id="modalCancelBtn" class="btn btn-cancel">Cancelar</button>' +
-                    '</div>' +
+                modalEl.innerHTML =
+                    '<div class="season-modal">' +
+                        '<h3 class="season-modal-title">Editar Pokémon</h3>' +
+                        '<p class="season-modal-poke" id="modalPokeName"></p>' +
+                        '<div class="modal-section">' +
+                            '<label class="modal-label">Tier</label>' +
+                            '<select id="modalTierSelect" class="season-modal-select">' +
+                                '<option value="">— Por defecto —</option>' +
+                                '<option value="legendary">LEG</option>' +
+                                '<option value="tier0">T0</option>' +
+                                '<option value="tier1">T1</option>' +
+                                '<option value="tier2">T2</option>' +
+                                '<option value="tier3">T3</option>' +
+                                '<option value="tier4">T4</option>' +
+                                '<option value="tier5">T5</option>' +
+                                '<option value="tier6">T6</option>' +
+                                '<option value="tier7">T7</option>' +
+                            '</select>' +
+                        '</div>' +
+                        '<div class="modal-section">' +
+                            '<label class="modal-label">Estaciones</label>' +
+                            '<div class="modal-checkbox-group">' +
+                                '<label class="modal-checkbox"><input type="checkbox" value="spring"> 🌸 Primavera</label>' +
+                                '<label class="modal-checkbox"><input type="checkbox" value="summer"> ☀️ Verano</label>' +
+                                '<label class="modal-checkbox"><input type="checkbox" value="autumn"> 🍂 Otoño</label>' +
+                                '<label class="modal-checkbox"><input type="checkbox" value="winter"> ❄️ Invierno</label>' +
+                                '<label class="modal-checkbox modal-checkbox-all"><input type="checkbox" value="all" id="modalSeasonAll"> 🌿 Todas</label>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="season-modal-actions">' +
+                            '<button id="modalSaveBtn" class="btn btn-primary">Guardar</button>' +
+                            '<button id="modalCancelBtn" class="btn btn-cancel">Cancelar</button>' +
+                        '</div>' +
                     '</div>';
                 document.body.appendChild(modalEl);
 
                 modalEl.addEventListener("click", function(e) {
-                    if (e.target === modalEl) closeSeasonModal();
+                    if (e.target === modalEl) closeEditModal();
                 });
-                document.getElementById("modalCancelBtn").addEventListener("click", closeSeasonModal);
+                document.getElementById("modalCancelBtn").addEventListener("click", closeEditModal);
+
+                var allCheck = document.getElementById("modalSeasonAll");
+                allCheck.addEventListener("change", function() {
+                    var checked = allCheck.checked;
+                    document.querySelectorAll("#modalSeasonAll").forEach(function(cb) {
+                        cb.checked = checked;
+                    });
+                    document.querySelectorAll(".modal-checkbox-group input[type=checkbox]:not(#modalSeasonAll)").forEach(function(cb) {
+                        cb.checked = false;
+                        cb.disabled = checked;
+                    });
+                });
+
+                document.querySelectorAll(".modal-checkbox-group input[type=checkbox]:not(#modalSeasonAll)").forEach(function(cb) {
+                    cb.addEventListener("change", function() {
+                        if (cb.checked) {
+                            allCheck.checked = false;
+                        }
+                        var anyChecked = false;
+                        document.querySelectorAll(".modal-checkbox-group input[type=checkbox]:not(#modalSeasonAll)").forEach(function(c) {
+                            if (c.checked) anyChecked = true;
+                        });
+                        if (!anyChecked) allCheck.checked = true;
+                    });
+                });
+
                 document.getElementById("modalSaveBtn").addEventListener("click", function() {
                     var name = modalEl.dataset.pname;
-                    var season = document.getElementById("modalSeasonSelect").value;
-                    saveSeasonOverride(name, season);
+                    var tier = document.getElementById("modalTierSelect").value;
+
+                    var allCheck = document.getElementById("modalSeasonAll");
+                    if (allCheck.checked) {
+                        savePokemonData(name, "all", tier);
+                        return;
+                    }
+                    var selected = [];
+                    document.querySelectorAll(".modal-checkbox-group input[type=checkbox]:not(#modalSeasonAll)").forEach(function(cb) {
+                        if (cb.checked) selected.push(cb.value);
+                    });
+                    var seasonsStr = selected.length > 0 ? selected.join(",") : "all";
+                    savePokemonData(name, seasonsStr, tier);
                 });
             }
 
             modalEl.dataset.pname = pokemonName;
             document.getElementById("modalPokeName").textContent = displayName(pokemonName) + " (#" + getPokemonId(pokemonName) + ")";
-            document.getElementById("modalSeasonSelect").value = getPokemonSeason(pokemonName);
+
+            var curTier = pokemonOverrides[pokemonName] && pokemonOverrides[pokemonName].tier ? pokemonOverrides[pokemonName].tier : "";
+            document.getElementById("modalTierSelect").value = curTier;
+
+            var seasons = getPokemonSeasons(pokemonName);
+            var allCheck = document.getElementById("modalSeasonAll");
+            if (seasons.length === 1 && seasons[0] === "all") {
+                allCheck.checked = true;
+                document.querySelectorAll(".modal-checkbox-group input[type=checkbox]:not(#modalSeasonAll)").forEach(function(cb) {
+                    cb.checked = false;
+                    cb.disabled = true;
+                });
+            } else {
+                allCheck.checked = false;
+                document.querySelectorAll(".modal-checkbox-group input[type=checkbox]:not(#modalSeasonAll)").forEach(function(cb) {
+                    cb.checked = seasons.indexOf(cb.value) !== -1;
+                    cb.disabled = false;
+                });
+            }
+
             modalEl.style.display = "flex";
         }
 
@@ -220,55 +297,53 @@
             return POKEAPI_IDS[name] || "?";
         }
 
-        function closeSeasonModal() {
+        function closeEditModal() {
             if (modalEl) modalEl.style.display = "none";
         }
 
-        function saveSeasonOverride(name, season) {
-            if (season === "all") {
-                delete seasonOverrides[name];
-            } else {
-                seasonOverrides[name] = season;
-            }
-
+        function savePokemonData(name, seasons, tier) {
             document.getElementById("modalSaveBtn").textContent = "Guardando...";
             document.getElementById("modalSaveBtn").disabled = true;
 
+            if (!pokemonOverrides[name]) pokemonOverrides[name] = {};
+            pokemonOverrides[name].seasons = seasons || "all";
+            pokemonOverrides[name].tier = tier || null;
+
+            var payload = { name: name, seasons: seasons || "all" };
+            if (tier) payload.tier = tier;
+            else payload.tier = null;
+
             supabaseClient
-                .from("pokemon_seasons")
-                .upsert({ name: name, season: season }, { onConflict: "name" })
+                .from("pokemon_data")
+                .upsert(payload, { onConflict: "name" })
                 .then(function(resp) {
-                    if (resp.error) {
-                        alert("Error al guardar: " + (resp.error.message || "desconocido"));
-                        if (season === "all" && !seasonOverrides[name]) {
-                        } else {
-                            seasonOverrides[name] = season;
-                        }
-                        document.getElementById("modalSaveBtn").textContent = "Guardar";
-                        document.getElementById("modalSaveBtn").disabled = false;
-                        return;
-                    }
                     document.getElementById("modalSaveBtn").textContent = "Guardar";
                     document.getElementById("modalSaveBtn").disabled = false;
-                    closeSeasonModal();
+                    if (resp.error) {
+                        alert("Error al guardar: " + (resp.error.message || "desconocido"));
+                        return;
+                    }
+                    closeEditModal();
                     render(searchInput.value);
                 });
         }
 
-        function loadSeasonOverrides() {
+        function loadPokemonData() {
             if (!window.supabaseClient) return;
             supabaseClient
-                .from("pokemon_seasons")
-                .select("name, season")
+                .from("pokemon_data")
+                .select("name, seasons, tier")
                 .then(function(resp) {
                     if (resp.error) {
-                        console.warn("No se pudieron cargar estaciones:", resp.error);
+                        console.warn("No se pudieron cargar datos:", resp.error);
                         return;
                     }
                     if (resp.data) {
                         for (var i = 0; i < resp.data.length; i++) {
                             var row = resp.data[i];
-                            seasonOverrides[row.name] = row.season;
+                            if (!pokemonOverrides[row.name]) pokemonOverrides[row.name] = {};
+                            if (row.seasons) pokemonOverrides[row.name].seasons = row.seasons;
+                            if (row.tier) pokemonOverrides[row.name].tier = row.tier;
                         }
                     }
                     render(searchInput.value);
@@ -300,7 +375,7 @@
             showLoginPrompt();
         }
 
-        loadSeasonOverrides();
+        loadPokemonData();
 
         searchInput.addEventListener("input", function(e) {
             render(e.target.value);

@@ -36,9 +36,11 @@ CREATE TABLE IF NOT EXISTS targets (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Pokemon seasons table (for admin-editable season assignments)
-CREATE TABLE IF NOT EXISTS pokemon_seasons (
+-- Pokemon data overrides (admin-editable seasons + tier)
+DROP TABLE IF EXISTS pokemon_seasons;
+CREATE TABLE IF NOT EXISTS pokemon_data (
   name TEXT PRIMARY KEY,
-  season TEXT NOT NULL DEFAULT 'all',
+  seasons TEXT DEFAULT 'all',
+  tier TEXT,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

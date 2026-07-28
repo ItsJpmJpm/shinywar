@@ -2385,6 +2385,53 @@ footer {
     text-decoration: underline;
 }
 
+.modal-section {
+    margin-bottom: 1rem;
+    text-align: left;
+}
+.modal-label {
+    display: block;
+    color: #94a3b8;
+    font-size: 0.75rem;
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.modal-checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.modal-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #e2e8f0;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+    transition: background 0.15s;
+}
+.modal-checkbox:hover {
+    background: rgba(99,102,241,0.08);
+}
+.modal-checkbox input[type=checkbox] {
+    width: 1rem;
+    height: 1rem;
+    accent-color: #6366f1;
+    cursor: pointer;
+}
+.modal-checkbox-all {
+    margin-top: 0.3rem;
+    border-top: 1px solid rgba(99,102,241,0.15);
+    padding-top: 0.5rem;
+}
+.season-badge-spring { border-color: #f472b6 !important; }
+.season-badge-summer { border-color: #fbbf24 !important; }
+.season-badge-autumn { border-color: #fb923c !important; }
+.season-badge-winter { border-color: #60a5fa !important; }
+
 @media (max-width: 480px) {
     .season-btn {
         font-size: 0.7rem;
