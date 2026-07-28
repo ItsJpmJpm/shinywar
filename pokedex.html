@@ -57,6 +57,7 @@
         <p>Team Snow ❄️ • Shiny Wars 2026</p>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="pokemon-data.js?v=20"></script>
     <script src="pokemon-sprites.js?v=20"></script>
     <script src="supabase-config.js?v=20"></script>
@@ -302,6 +303,12 @@
         }
 
         function savePokemonData(name, seasons, tier) {
+            if (!window.supabaseClient) {
+                alert("No hay conexión con la base de datos.");
+                document.getElementById("modalSaveBtn").textContent = "Guardar";
+                document.getElementById("modalSaveBtn").disabled = false;
+                return;
+            }
             document.getElementById("modalSaveBtn").textContent = "Guardando...";
             document.getElementById("modalSaveBtn").disabled = true;
 
@@ -325,6 +332,11 @@
                     }
                     closeEditModal();
                     render(searchInput.value);
+                })
+                .catch(function(err) {
+                    document.getElementById("modalSaveBtn").textContent = "Guardar";
+                    document.getElementById("modalSaveBtn").disabled = false;
+                    alert("Error: " + (err.message || "desconocido"));
                 });
         }
 
