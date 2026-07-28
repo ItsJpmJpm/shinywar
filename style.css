@@ -369,52 +369,25 @@ main {
 }
 
 /* My Targets */
-.target-input-row, .my-targets-add {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    position: relative;
-    align-items: stretch;
-}
-
-.target-input-row input, .my-targets-add input {
-    flex: 1;
+.autocomplete-wrap input {
+    width: 340px;
     padding: 0.6rem 1rem;
     background: rgba(13,24,41,0.8);
-    border: 2px solid rgba(56,189,248,0.15);
-    border-radius: 12px;
+    border: 1px solid rgba(56,189,248,0.1);
+    border-radius: 10px;
     color: var(--text-primary);
     font-size: 0.9rem;
     transition: all 0.2s;
-    letter-spacing: 0.3px;
 }
 
-.target-input-row input:focus, .my-targets-add input:focus {
+.autocomplete-wrap input:focus {
     outline: none;
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 0 4px rgba(56,189,248,0.1);
-}
-
-.target-input-row .add-btn, .my-targets-add .action-btn.primary {
-    padding: 0.6rem 1.2rem;
-    background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
-    border: none;
-    border-radius: 12px;
-    color: #050a1a;
-    font-weight: 700;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-}
-
-.target-input-row .add-btn:hover, .my-targets-add .action-btn.primary:hover {
-    transform: scale(1.04);
-    box-shadow: 0 4px 20px rgba(56,189,248,0.25);
+    border-color: rgba(56,189,248,0.35);
+    box-shadow: 0 0 0 3px rgba(56,189,248,0.06);
 }
 
 .autocomplete-wrap {
-    flex: 4;
+    flex: 1;
     min-width: 200px;
     position: relative;
 }
