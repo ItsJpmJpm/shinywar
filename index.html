@@ -14,7 +14,11 @@
         <div class="nav-bar">
             <span class="nav-link disabled">Asignación</span>
             <span class="nav-title">❄️ Team Snow</span>
-            <a href="pokedex.html" class="nav-link">Pokédex Shiny →</a>
+            <span class="nav-right">
+                <span id="userGreeting" class="nav-user-badge"></span>
+                <a id="logoutBtn" class="nav-logout" href="#">Cerrar sesión</a>
+                <a href="pokedex.html" class="nav-link">Pokédex Shiny →</a>
+            </span>
         </div>
         <h1>Team Snow - Shiny Wars 2026</h1>
         <p class="subtitle">Evento: 1-28 Agosto 2026</p>
@@ -44,10 +48,6 @@
 
     <!-- MAIN APP -->
     <main id="mainApp" class="hidden">
-        <div class="app-top-bar">
-            <span id="userGreeting" class="user-greeting"></span>
-            <button id="logoutBtn" class="logout-btn">Cerrar sesión</button>
-        </div>
 
         <section class="stats-bar">
             <div class="stat">
@@ -88,64 +88,42 @@
             <span class="tier-badge legendary">LEG · 200</span>
         </section>
 
-        <!-- VIEW TABS -->
-        <div class="view-tabs">
-            <button class="view-tab active" data-view="myTargets">Mis Targets</button>
-            <button class="view-tab" data-view="teamRoster">Roster del Equipo</button>
+        <!-- TWO PANEL LAYOUT -->
+        <div class="two-panel">
+            <div class="panel panel-left">
+                <!-- MY TARGETS VIEW -->
+                <section id="myTargetsView" class="view-panel">
+                    <div class="my-targets-add">
+                        <div class="autocomplete-wrap">
+                            <input type="text" id="myTargetInput" placeholder="Escribí el nombre de un Pokémon..." autocomplete="off">
+                            <div id="autocompleteList" class="autocomplete-list hidden"></div>
+                        </div>
+                        <button id="myTargetAddBtn" class="action-btn primary">+ Agregar</button>
+                    </div>
+                    <div id="myTargetError" class="error-message hidden"></div>
+                    <div id="myTargetList" class="my-target-list">
+                        <div class="empty-state">Todavía no tenés targets. ¡Agregá uno arriba!</div>
+                    </div>
+                </section>
+            </div>
+            <div class="panel panel-right">
+                <!-- TEAM ROSTER VIEW -->
+                <section id="teamRosterView" class="view-panel">
+                    <div class="controls">
+                        <div class="search-box">
+                            <input type="text" id="searchInput" placeholder="Buscar miembro o Pokémon...">
+                        </div>
+                        <div class="filter-buttons">
+                            <button class="filter-btn active" data-filter="all">Todos</button>
+                            <button class="filter-btn" data-filter="assigned">Con target</button>
+                            <button class="filter-btn" data-filter="unassigned">Sin target</button>
+                            <button class="filter-btn" data-filter="caught">Capturados ✓</button>
+                        </div>
+                    </div>
+                    <div id="memberList" class="member-list"></div>
+                </section>
+            </div>
         </div>
-
-        <!-- MY TARGETS VIEW -->
-        <section id="myTargetsView" class="view-panel">
-            <div class="my-targets-add">
-                <div class="autocomplete-wrap">
-                    <input type="text" id="myTargetInput" placeholder="Escribí el nombre de un Pokémon..." autocomplete="off">
-                    <div id="autocompleteList" class="autocomplete-list hidden"></div>
-                </div>
-                <button id="myTargetAddBtn" class="action-btn primary">+ Agregar</button>
-            </div>
-            <div id="myTargetError" class="error-message hidden"></div>
-            <div id="myTargetList" class="my-target-list">
-                <div class="empty-state">Todavía no tenés targets. ¡Agregá uno arriba!</div>
-            </div>
-        </section>
-
-        <!-- TEAM ROSTER VIEW -->
-        <section id="teamRosterView" class="view-panel hidden">
-            <div class="controls">
-                <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="Buscar miembro o Pokémon...">
-                </div>
-                <div class="filter-buttons">
-                    <button class="filter-btn active" data-filter="all">Todos</button>
-                    <button class="filter-btn" data-filter="assigned">Con target</button>
-                    <button class="filter-btn" data-filter="unassigned">Sin target</button>
-                    <button class="filter-btn" data-filter="caught">Capturados ✓</button>
-                </div>
-            </div>
-            <div id="memberList" class="member-list"></div>
-        </section>
-
-        <!-- POKEMON LOOKUP (always visible) -->
-        <section class="pokemon-lookup">
-            <h2>🔍 Buscar Pokémon por Tier</h2>
-            <div class="lookup-controls">
-                <input type="text" id="pokemonLookup" placeholder="Escribí un nombre...">
-                <select id="tierFilter">
-                    <option value="">Todos los tiers</option>
-                    <option value="legendary">Legendario/Mítico (200)</option>
-                    <option value="alpha">Alpha (75)</option>
-                    <option value="0">Tier 0 (50)</option>
-                    <option value="1">Tier 1 (45)</option>
-                    <option value="2">Tier 2 (40)</option>
-                    <option value="3">Tier 3 (30)</option>
-                    <option value="4">Tier 4 (15)</option>
-                    <option value="5">Tier 5 (10)</option>
-                    <option value="6">Tier 6 (5)</option>
-                    <option value="7">Tier 7 (3)</option>
-                </select>
-            </div>
-            <div id="pokemonResults" class="pokemon-results"></div>
-        </section>
     </main>
 
     <footer>

@@ -3,7 +3,6 @@
     let allTargets = [];
     let currentFilter = 'all';
     let searchQuery = '';
-    let currentView = 'myTargets';
     let acIndex = -1;
     let refreshInterval = null;
 
@@ -84,8 +83,8 @@
             const newCaught = allTargets.filter(t => t.caught).length;
             if (newCaught > oldCaught) showToast(`¡${newCaught - oldCaught} nuevo${newCaught - oldCaught > 1 ? 's' : ''} shiny capturado!`, 'info');
             updateStats();
-            if (currentView === 'teamRoster') renderTeamRoster();
-            if (currentView === 'myTargets') renderMyTargets();
+            renderTeamRoster();
+            renderMyTargets();
         } catch (e) { /* silent */ }
     }
 
@@ -271,9 +270,9 @@
         errorDiv.classList.add('hidden');
         hideAutocomplete();
         renderMyTargets();
+        renderTeamRoster();
         updateStats();
         showToast(`${name} agregado a tu lista`);
-        if (currentView === 'teamRoster') renderTeamRoster();
     }
 
     async function toggleMyCaught(targetId) {
@@ -286,9 +285,9 @@
         if (error) { alert(friendlyError(error)); return; }
         target.caught = newCaught;
         renderMyTargets();
+        renderTeamRoster();
         updateStats();
         showToast(newCaught ? `¡${target.pokemon_name} capturado!` : `${target.pokemon_name} descapturado`, newCaught ? 'success' : 'info');
-        if (currentView === 'teamRoster') renderTeamRoster();
     }
 
     async function changeMethod(targetId, method) {
@@ -300,8 +299,8 @@
         if (error) { alert(friendlyError(error)); return; }
         target.method = method;
         renderMyTargets();
+        renderTeamRoster();
         updateStats();
-        if (currentView === 'teamRoster') renderTeamRoster();
     }
 
     async function changeToggle(targetId, field, value) {
@@ -313,8 +312,8 @@
         if (error) { alert(friendlyError(error)); return; }
         target[field] = value;
         renderMyTargets();
+        renderTeamRoster();
         updateStats();
-        if (currentView === 'teamRoster') renderTeamRoster();
     }
 
     async function removeMyTarget(targetId) {
@@ -326,9 +325,9 @@
         if (error) { alert(friendlyError(error)); return; }
         allTargets = allTargets.filter(t => t.id !== targetId);
         renderMyTargets();
+        renderTeamRoster();
         updateStats();
         showToast(`${target.pokemon_name} eliminado`, 'info');
-        if (currentView === 'teamRoster') renderTeamRoster();
     }
 
     // ─── AUTOCOMPLETE ───
@@ -495,48 +494,6 @@
         });
     }
 
-    // ─── POKEMON LOOKUP ───
-
-    function renderPokemonResults(query) {
-        const container = document.getElementById('pokemonResults');
-        if (!container) return;
-        const tierFilter = document.getElementById('tierFilter').value;
-        let results = searchPokemon(query);
-        if (tierFilter) results = results.filter(r => r.tier === tierFilter);
-
-        container.innerHTML = results.map(r => {
-            const tc = r.tier === 'legendary' ? 'legendary' : r.tier === 'alpha' ? 'alpha' : `tier-${r.tier.replace('tier', '')}`;
-            const tl = r.tier === 'legendary' ? 'LEG' : r.tier === 'alpha' ? 'ALPHA' : `T${r.tier.replace('tier', '')}`;
-            const sprite = getShinySpriteUrl(r.name);
-            const holders = allUsers.filter(u => allTargets.some(t => t.user_id === u.id && t.pokemon_name.toLowerCase() === r.name.toLowerCase()));
-            return `
-                <div class="pokemon-result-card">
-                    ${sprite ? `<img src="${sprite}" class="pokemon-result-sprite" onerror="this.style.display='none'">` : ''}
-                    <span class="tier-badge ${tc}">${tl}</span>
-                    <span class="season-badge">${getSeasonLabel(getPokemonSeason(r.name))}</span>
-                    <span class="pokemon-result-name">${r.name}</span>
-                    <span class="pokemon-result-pts">${r.points} pts</span>
-                    ${holders.length > 0 ? holders.map(u => `<span class="pokemon-result-who">${esc(u.display_name || u.username)}</span>`).join('') : ''}
-                </div>
-            `;
-        }).join('');
-
-        if (results.length === 0 && query && query.length >= 1) {
-            container.innerHTML = '<div style="padding:0.5rem;color:var(--text-muted)">Sin resultados.</div>';
-        }
-    }
-
-    // ─── VIEW SWITCHING ───
-
-    function switchView(view) {
-        currentView = view;
-        document.querySelectorAll('.view-tab').forEach(t => t.classList.toggle('active', t.dataset.view === view));
-        document.getElementById('myTargetsView').classList.toggle('hidden', view !== 'myTargets');
-        document.getElementById('teamRosterView').classList.toggle('hidden', view !== 'teamRoster');
-        if (view === 'myTargets') renderMyTargets();
-        if (view === 'teamRoster') renderTeamRoster();
-    }
-
     // ─── INIT ───
 
     function showApp() {
@@ -548,7 +505,8 @@
         document.getElementById('myTargetList').innerHTML = '<div class="skeleton-list"><div class="skeleton-item"></div><div class="skeleton-item"></div><div class="skeleton-item"></div></div>';
         loadAllData()
             .then(() => {
-                switchView('myTargets');
+                renderMyTargets();
+                renderTeamRoster();
                 updateStats();
                 if (refreshInterval) clearInterval(refreshInterval);
                 refreshInterval = setInterval(refreshData, 30000);
@@ -609,13 +567,10 @@
             }
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', () => {
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
             if (refreshInterval) clearInterval(refreshInterval);
             Auth.logout(); showAuth();
-        });
-
-        document.querySelectorAll('.view-tab').forEach(tab => {
-            tab.addEventListener('click', () => switchView(tab.dataset.view));
         });
 
         document.getElementById('myTargetAddBtn').addEventListener('click', addMyTarget);
@@ -631,16 +586,13 @@
         nameInput.addEventListener('blur', () => setTimeout(hideAutocomplete, 200));
 
         document.getElementById('searchInput').addEventListener('input', e => { rosterSearch = e.target.value; renderTeamRoster(); });
-        document.querySelectorAll('.filter-btn').forEach(btn => {
+        document.querySelectorAll('#teamRosterView .filter-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('#teamRosterView .filter-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentFilter = btn.dataset.filter;
                 renderTeamRoster();
             });
         });
-
-        document.getElementById('pokemonLookup')?.addEventListener('input', e => renderPokemonResults(e.target.value));
-        document.getElementById('tierFilter')?.addEventListener('change', () => renderPokemonResults(document.getElementById('pokemonLookup').value));
     });
 })();
