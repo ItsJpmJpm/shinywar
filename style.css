@@ -362,7 +362,7 @@ main {
 }
 
 /* My Targets */
-.target-input-row {
+.target-input-row, .my-targets-add {
     display: flex;
     gap: 0.5rem;
     margin-bottom: 1rem;
@@ -370,7 +370,7 @@ main {
     align-items: stretch;
 }
 
-.target-input-row input {
+.target-input-row input, .my-targets-add input {
     flex: 1;
     padding: 0.65rem 0.8rem;
     background: rgba(13,24,41,0.8);
@@ -381,13 +381,13 @@ main {
     transition: all 0.2s;
 }
 
-.target-input-row input:focus {
+.target-input-row input:focus, .my-targets-add input:focus {
     outline: none;
     border-color: rgba(56,189,248,0.35);
     box-shadow: 0 0 0 3px rgba(56,189,248,0.06);
 }
 
-.target-input-row .add-btn {
+.target-input-row .add-btn, .my-targets-add .action-btn.primary {
     padding: 0.65rem 1.2rem;
     background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
     border: none;
@@ -400,19 +400,18 @@ main {
     white-space: nowrap;
 }
 
-.target-input-row .add-btn:hover {
+.target-input-row .add-btn:hover, .my-targets-add .action-btn.primary:hover {
     transform: scale(1.03);
     box-shadow: 0 4px 16px rgba(56,189,248,0.2);
 }
 
-.error-msg {
-    color: var(--danger);
-    font-size: 0.8rem;
-    margin-bottom: 0.5rem;
+.autocomplete-wrap {
+    flex: 2;
+    min-width: 160px;
+    position: relative;
 }
 
-/* Autocomplete */
-.autocomplete {
+.autocomplete-list, .autocomplete {
     position: absolute;
     top: 100%;
     left: 0;
@@ -727,13 +726,17 @@ main {
     margin-bottom: 1.5rem;
 }
 
-.scoreboard h2 {
+.scoreboard h2, .scoreboard-title {
     font-size: 0.85rem;
     margin-bottom: 0.75rem;
     color: var(--text-muted);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.06em;
+}
+
+.score-breakdown, .score-per-player {
+    margin-bottom: 0.5rem;
 }
 
 .sb-card {
@@ -847,7 +850,7 @@ main {
     text-align: center;
 }
 
-.auth-card h1 {
+.auth-card h1, .auth-title {
     font-size: 1.5rem;
     margin-bottom: 0.25rem;
     background: linear-gradient(90deg, var(--accent-snow), var(--accent-cyan), var(--accent-blue));
@@ -856,9 +859,17 @@ main {
     background-clip: text;
 }
 
-.auth-card .subtitle {
+.auth-card .subtitle, .auth-subtitle {
     margin-bottom: 1.5rem;
     color: var(--text-muted);
+}
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    padding: 2rem 1rem;
 }
 
 .auth-tabs {
@@ -956,8 +967,14 @@ main {
     margin-bottom: 0.5rem;
 }
 
+.error-message {
+    color: var(--danger);
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+
 /* Main App Header */
-.app-header {
+.app-header, .app-top-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -987,6 +1004,10 @@ main {
 }
 
 /* View Tabs */
+.view-panel {
+    margin-bottom: 1.5rem;
+}
+
 .view-tabs {
     display: flex;
     gap: 0;
@@ -1038,6 +1059,70 @@ main {
 
 .member-filters .search-box input {
     width: 100%;
+}
+
+.member-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Pokemon Lookup */
+.pokemon-lookup {
+    background: linear-gradient(135deg, rgba(13,24,41,0.95) 0%, rgba(15,35,65,0.6) 100%);
+    border: 1px solid rgba(56,189,248,0.08);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.pokemon-lookup h2 {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+}
+
+.lookup-controls {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: stretch;
+}
+
+.lookup-controls input {
+    flex: 1;
+    min-width: 160px;
+    padding: 0.6rem 1rem;
+    background: rgba(13,24,41,0.8);
+    border: 1px solid rgba(56,189,248,0.1);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.lookup-controls input:focus {
+    outline: none;
+    border-color: rgba(56,189,248,0.35);
+}
+
+.lookup-controls select {
+    padding: 0.6rem 0.8rem;
+    background: rgba(13,24,41,0.8);
+    border: 1px solid rgba(56,189,248,0.1);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.lookup-controls select:focus {
+    outline: none;
+    border-color: rgba(56,189,248,0.35);
+}
+
+.lookup-controls select option {
+    background: #0a182e;
+    color: var(--text-primary);
 }
 
 /* Member Cards */
@@ -1691,8 +1776,30 @@ footer {
         justify-content: center;
     }
 
-    .target-input-row {
+    .target-input-row, .my-targets-add {
         flex-direction: column;
+    }
+
+    .autocomplete-wrap {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .my-targets-add .action-btn.primary {
+        width: 100%;
+    }
+
+    .pokemon-lookup {
+        padding: 1rem;
+    }
+    .lookup-controls {
+        flex-direction: column;
+    }
+    .lookup-controls input {
+        min-width: 0;
+    }
+    .pokemon-results {
+        grid-template-columns: 1fr;
     }
 }
 
