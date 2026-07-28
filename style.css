@@ -379,12 +379,12 @@ main {
 
 .target-input-row input, .my-targets-add input {
     flex: 1;
-    padding: 0.9rem 1.2rem;
+    padding: 0.6rem 1rem;
     background: rgba(13,24,41,0.8);
     border: 2px solid rgba(56,189,248,0.15);
-    border-radius: 14px;
+    border-radius: 12px;
     color: var(--text-primary);
-    font-size: 1.05rem;
+    font-size: 0.9rem;
     transition: all 0.2s;
     letter-spacing: 0.3px;
 }
@@ -396,13 +396,13 @@ main {
 }
 
 .target-input-row .add-btn, .my-targets-add .action-btn.primary {
-    padding: 0.9rem 1.6rem;
+    padding: 0.6rem 1.2rem;
     background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
     border: none;
-    border-radius: 14px;
+    border-radius: 12px;
     color: #050a1a;
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.2s;
     white-space: nowrap;
@@ -414,7 +414,7 @@ main {
 }
 
 .autocomplete-wrap {
-    flex: 2;
+    flex: 4;
     min-width: 200px;
     position: relative;
 }
