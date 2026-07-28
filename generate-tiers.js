@@ -4,7 +4,6 @@ const evoCode = fs.readFileSync('./evolution-lines.js', 'utf8');
 const match = evoCode.match(/const EVOLUTION_LINES = (\{[\s\S]*?\});/);
 const EVOLUTION_LINES = eval('(' + match[1] + ')');
 
-// User's tier assignments (base forms only)
 const userTiers = {
     tier0: [
         "Bulbasaur","Charmander","Squirtle","Eevee","Porygon","Snorlax",
@@ -44,7 +43,7 @@ const userTiers = {
         "Bouffalant","Rufflet","Heatmor","Deino"
     ],
     tier5: [
-        "Caterpie","Weedle","Pikachu","Nidoran♂","Jigglypuff","Paras",
+        "Caterpie","Weedle","Pikachu","Nidoran\u2642","Jigglypuff","Paras",
         "Bellsprout","Horsea","Natu","Hoppip","Teddiursa","Wurmple",
         "Taillow","Numel","Swablu","Snorunt","Starly","Hippopotas",
         "Lillipup","Timburr","Throh","Sawk","Venipede","Cottonee",
@@ -52,7 +51,7 @@ const userTiers = {
         "Tynamo","Cubchoo","Shelmet"
     ],
     tier6: [
-        "Pidgey","Spearow","Ekans","Nidoran♀","Diglett","Mankey",
+        "Pidgey","Spearow","Ekans","Nidoran\u2640","Diglett","Mankey",
         "Abra","Ponyta","Doduo","Grimer","Cubone","Lickitung",
         "Tangela","Ditto","Chinchou","Mareep","Slugma","Phanpy",
         "Stantler","Poochyena","Zigzagoon","Wingull","Whismur","Makuhita",
@@ -74,17 +73,6 @@ const userTiers = {
     ]
 };
 
-// Build reverse map: pokemon name -> tier (for base forms only)
-const baseToTier = {};
-for (const [tier, list] of Object.entries(userTiers)) {
-    for (const name of list) {
-        baseToTier[name] = tier;
-    }
-}
-
-// Expand: assign all evolutions the same tier as their base form
-const POKEMON_TIERS = { tier0: [], tier1: [], tier2: [], tier3: [], tier4: [], tier5: [], tier6: [], tier7: [], legendary: [] };
-
 const legendaries = [
     "Articuno","Zapdos","Moltres","Mewtwo","Mew",
     "Raikou","Entei","Suicune","Lugia","Ho-Oh","Celebi",
@@ -99,93 +87,71 @@ const legendaries = [
     "Keldeo","Meloetta","Genesect"
 ];
 
-// Map all legendaries
-for (const name of legendaries) {
-    POKEMON_TIERS.legendary.push(name);
+// Build tiers
+const baseToTier = {};
+for (const [tier, list] of Object.entries(userTiers)) {
+    for (const name of list) baseToTier[name] = tier;
 }
 
-// First: assign all base forms
+const POKEMON_TIERS = { tier0: [], tier1: [], tier2: [], tier3: [], tier4: [], tier5: [], tier6: [], tier7: [], legendary: [] };
+
+for (const name of legendaries) POKEMON_TIERS.legendary.push(name);
+
 for (const [tier, list] of Object.entries(userTiers)) {
     for (const name of list) {
-        if (!POKEMON_TIERS[tier].includes(name)) {
-            POKEMON_TIERS[tier].push(name);
-        }
+        if (!POKEMON_TIERS[tier].includes(name)) POKEMON_TIERS[tier].push(name);
     }
 }
 
-// Second: expand evolutions
 const assigned = new Set();
 for (const [tier, list] of Object.entries(userTiers)) {
-    for (const name of list) {
-        assigned.add(name.toLowerCase());
-    }
+    for (const name of list) assigned.add(name.toLowerCase());
 }
-for (const name of legendaries) {
-    assigned.add(name.toLowerCase());
-}
+for (const name of legendaries) assigned.add(name.toLowerCase());
 
-// For each base form in EVOLUTION_LINES, find evolutions not yet assigned
 for (const [evo, base] of Object.entries(EVOLUTION_LINES)) {
     if (assigned.has(evo.toLowerCase())) continue;
-    
-    // Find the tier of the base form
     let tier = null;
-    // Check if base form is in userTiers
     for (const [t, list] of Object.entries(userTiers)) {
-        if (list.some(n => n.toLowerCase() === base.toLowerCase())) {
-            tier = t;
-            break;
-        }
+        if (list.some(n => n.toLowerCase() === base.toLowerCase())) { tier = t; break; }
     }
-    // Check if it's legendary
-    if (!tier && legendaries.some(n => n.toLowerCase() === base.toLowerCase())) {
-        tier = 'legendary';
-    }
-    
+    if (!tier && legendaries.some(n => n.toLowerCase() === base.toLowerCase())) tier = 'legendary';
     if (tier) {
-        if (!POKEMON_TIERS[tier].includes(evo)) {
-            POKEMON_TIERS[tier].push(evo);
-        }
+        if (!POKEMON_TIERS[tier].includes(evo)) POKEMON_TIERS[tier].push(evo);
         assigned.add(evo.toLowerCase());
     }
 }
 
-// Third: any Pokemon in EVOLUTION_LINES not yet assigned -> tier7
 for (const [evo, base] of Object.entries(EVOLUTION_LINES)) {
     if (!assigned.has(evo.toLowerCase())) {
-        if (!POKEMON_TIERS.tier7.includes(evo)) {
-            POKEMON_TIERS.tier7.push(evo);
-        }
+        if (!POKEMON_TIERS.tier7.includes(evo)) POKEMON_TIERS.tier7.push(evo);
         assigned.add(evo.toLowerCase());
     }
 }
 
-// Sort each tier alphabetically
 for (const tier of Object.keys(POKEMON_TIERS)) {
     POKEMON_TIERS[tier].sort((a, b) => a.localeCompare(b));
 }
 
-// Print summary
-let total = 0;
-for (const [tier, list] of Object.entries(POKEMON_TIERS)) {
-    console.log(`${tier}: ${list.length}`);
-    total += list.length;
+// Build seasons map (all default to "all")
+const allNames = [];
+for (const list of Object.values(POKEMON_TIERS)) {
+    for (const n of list) allNames.push(n);
 }
-console.log(`TOTAL: ${total}`);
+allNames.sort((a, b) => a.localeCompare(b));
 
-// Generate the JS file
-let js = 'const POKEMON_TIERS = {\n';
-for (const [tier, list] of Object.entries(POKEMON_TIERS)) {
-    js += `    ${tier}: [\n`;
-    for (const name of list) {
-        js += `        "${name}",\n`;
-    }
-    js += '    ],\n';
-}
-js += '};\n';
+const seasonEntries = allNames.map(n => '    "' + n.replace(/"/g, '\\"') + '": "all"').join(',\n');
 
-// Append the rest of the file
-js += `
+// Generate the file
+const tierEntries = Object.entries(POKEMON_TIERS).map(([tier, list]) => {
+    const names = list.map(n => '        "' + n.replace(/"/g, '\\"') + '"').join(',\n');
+    return '    ' + tier + ': [\n' + names + ',\n    ]';
+}).join(',\n');
+
+const js = `const POKEMON_TIERS = {
+${tierEntries},
+};
+
 const TIER_POINTS = {
     "legendary": 200,
     "tier0": 50,
@@ -217,6 +183,18 @@ const TIER_COLORS = {
     "tier7": "#64748b"
 };
 
+const POKEMON_SEASONS = {
+${seasonEntries},
+};
+
+const SEASON_LABELS = {
+    "all": "Todas",
+    "spring": "Primavera",
+    "summer": "Verano",
+    "autumn": "Otono",
+    "winter": "Invierno"
+};
+
 function getPokemonTier(pokemonName) {
     const name = pokemonName.toLowerCase();
     for (const [tier, list] of Object.entries(POKEMON_TIERS)) {
@@ -225,6 +203,14 @@ function getPokemonTier(pokemonName) {
         }
     }
     return null;
+}
+
+function getPokemonSeason(pokemonName) {
+    return POKEMON_SEASONS[pokemonName] || "all";
+}
+
+function getSeasonLabel(season) {
+    return SEASON_LABELS[season] || "Todas";
 }
 
 function calculatePoints(tier, method, isAlpha, isSecret) {
@@ -342,4 +328,4 @@ function suggestPokemon(query) {
 `;
 
 fs.writeFileSync('pokemon-data.js', js);
-console.log('\nFile written successfully!');
+console.log('Done! Tiers: ' + Object.values(POKEMON_TIERS).reduce((a,l) => a+l.length, 0) + ' Pokemon');
