@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="stylesheet" href="style.css?v=23">
+    <link rel="stylesheet" href="style.css?v=24">
 </head>
 <body>
     <header>
@@ -58,10 +58,10 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="pokemon-data.js?v=23"></script>
-    <script src="pokemon-sprites.js?v=23"></script>
-    <script src="supabase-config.js?v=23"></script>
-    <script src="auth.js?v=23"></script>
+    <script src="pokemon-data.js?v=24"></script>
+    <script src="pokemon-sprites.js?v=24"></script>
+    <script src="supabase-config.js?v=24"></script>
+    <script src="auth.js?v=24"></script>
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         var grid = document.getElementById("pokedexGrid");
@@ -228,19 +228,16 @@
 
                 var allCheck = document.getElementById("modalSeasonAll");
                 allCheck.addEventListener("change", function() {
-                    var checked = allCheck.checked;
-                    document.querySelectorAll("#modalSeasonAll").forEach(function(cb) {
-                        cb.checked = checked;
-                    });
-                    document.querySelectorAll(".modal-checkbox-group input[type=checkbox]:not(#modalSeasonAll)").forEach(function(cb) {
-                        cb.checked = false;
-                        cb.disabled = checked;
-                    });
+                    if (allCheck.checked) {
+                        document.querySelectorAll(".modal-checkbox-group input[type=checkbox]:not(#modalSeasonAll)").forEach(function(cb) {
+                            cb.checked = false;
+                        });
+                    }
                 });
 
                 document.querySelectorAll(".modal-checkbox-group input[type=checkbox]:not(#modalSeasonAll)").forEach(function(cb) {
                     cb.addEventListener("change", function() {
-                        if (cb.checked) {
+                        if (allCheck.checked) {
                             allCheck.checked = false;
                         }
                         var anyChecked = false;
@@ -281,13 +278,11 @@
                 allCheck.checked = true;
                 document.querySelectorAll(".modal-checkbox-group input[type=checkbox]:not(#modalSeasonAll)").forEach(function(cb) {
                     cb.checked = false;
-                    cb.disabled = true;
                 });
             } else {
                 allCheck.checked = false;
                 document.querySelectorAll(".modal-checkbox-group input[type=checkbox]:not(#modalSeasonAll)").forEach(function(cb) {
                     cb.checked = seasons.indexOf(cb.value) !== -1;
-                    cb.disabled = false;
                 });
             }
 

@@ -1649,11 +1649,11 @@ footer {
 .modal-checkbox {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.5rem;
     color: var(--text-primary);
     font-size: 0.85rem;
     cursor: pointer;
-    padding: 0.3rem 0.5rem;
+    padding: 0.35rem 0.5rem;
     border-radius: 6px;
     transition: background 0.15s;
 }
@@ -1661,10 +1661,34 @@ footer {
     background: rgba(56,189,248,0.06);
 }
 .modal-checkbox input[type=checkbox] {
-    width: 1rem;
-    height: 1rem;
-    accent-color: var(--accent-blue);
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border-light);
+    border-radius: 4px;
+    background: transparent;
     cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.modal-checkbox input[type=checkbox]:checked {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+}
+.modal-checkbox input[type=checkbox]:checked::after {
+    content: '✓';
+    color: #050a1a;
+    font-size: 13px;
+    font-weight: 800;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 .modal-checkbox-all {
     margin-top: 0.3rem;
