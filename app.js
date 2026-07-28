@@ -573,6 +573,16 @@
             Auth.logout(); showAuth();
         });
 
+        document.querySelectorAll('.view-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const view = tab.dataset.view;
+                document.getElementById('myTargetsView').classList.toggle('hidden', view !== 'targets');
+                document.getElementById('teamRosterView').classList.toggle('hidden', view !== 'roster');
+            });
+        });
+
         document.getElementById('myTargetAddBtn').addEventListener('click', addMyTarget);
 
         const nameInput = document.getElementById('myTargetInput');
