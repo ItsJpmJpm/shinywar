@@ -370,20 +370,20 @@ main {
 
 /* My Targets */
 .autocomplete-wrap input {
-    flex: 1;
-    padding: 0.5rem 1.2rem;
+    width: 250px;
+    padding: 0.6rem 1rem;
     background: rgba(13,24,41,0.8);
-    border: 2px solid rgba(56,189,248,0.15);
+    border: 1px solid rgba(56,189,248,0.1);
     border-radius: 10px;
     color: var(--text-primary);
     font-size: 0.9rem;
     transition: all 0.2s;
+    outline: none;
 }
 
 .autocomplete-wrap input:focus {
-    outline: none;
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 0 3px rgba(56,189,248,0.1);
+    border-color: rgba(56,189,248,0.35);
+    box-shadow: 0 0 0 3px rgba(56,189,248,0.06);
 }
 
 .autocomplete-wrap {
