@@ -43,6 +43,13 @@
             <button class="filter-btn active" id="sortNum">por N.º Pokédex</button>
             <button class="filter-btn" id="sortAlpha">A → Z</button>
         </div>
+        <div class="pokedex-season-filters">
+            <button class="season-btn active" data-season="all">🌿 Todas</button>
+            <button class="season-btn" data-season="spring">🌸 Primavera</button>
+            <button class="season-btn" data-season="summer">☀️ Verano</button>
+            <button class="season-btn" data-season="autumn">🍂 Otoño</button>
+            <button class="season-btn" data-season="winter">❄️ Invierno</button>
+        </div>
         <div id="pokedexGrid" class="pokedex-pokemon-grid"></div>
     </main>
 
@@ -69,6 +76,7 @@
         }
 
         var currentTier = "all";
+        var currentSeason = "all";
         var currentSort = "num";
 
         function loadAssignedMap() {
@@ -125,6 +133,7 @@
                 var p = allPokemon[i];
                 if (q && p.name.indexOf(q) === -1) continue;
                 if (currentTier !== "all" && p.tier !== currentTier) continue;
+                if (currentSeason !== "all" && getPokemonSeason(p.name) !== currentSeason) continue;
                 filtered.push(p);
             }
 
@@ -193,6 +202,15 @@
             document.getElementById("sortAlpha").classList.add("active");
             document.getElementById("sortNum").classList.remove("active");
             render(searchInput.value);
+        });
+
+        document.querySelectorAll(".season-btn").forEach(function(btn) {
+            btn.addEventListener("click", function() {
+                document.querySelectorAll(".season-btn").forEach(function(b) { b.classList.remove("active"); });
+                btn.classList.add("active");
+                currentSeason = btn.dataset.season;
+                render(searchInput.value);
+            });
         });
     });
     </script>
