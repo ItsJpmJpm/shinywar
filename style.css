@@ -397,42 +397,43 @@ main {
 
 .target-input-row input, .my-targets-add input {
     flex: 1;
-    padding: 0.8rem 1rem;
+    padding: 0.9rem 1.2rem;
     background: rgba(13,24,41,0.8);
-    border: 1px solid rgba(56,189,248,0.15);
-    border-radius: 12px;
+    border: 2px solid rgba(56,189,248,0.15);
+    border-radius: 14px;
     color: var(--text-primary);
-    font-size: 1rem;
+    font-size: 1.05rem;
     transition: all 0.2s;
+    letter-spacing: 0.3px;
 }
 
 .target-input-row input:focus, .my-targets-add input:focus {
     outline: none;
-    border-color: rgba(56,189,248,0.4);
-    box-shadow: 0 0 0 4px rgba(56,189,248,0.08);
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 4px rgba(56,189,248,0.1);
 }
 
 .target-input-row .add-btn, .my-targets-add .action-btn.primary {
-    padding: 0.8rem 1.4rem;
+    padding: 0.9rem 1.6rem;
     background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
     border: none;
-    border-radius: 12px;
+    border-radius: 14px;
     color: #050a1a;
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     cursor: pointer;
     transition: all 0.2s;
     white-space: nowrap;
 }
 
 .target-input-row .add-btn:hover, .my-targets-add .action-btn.primary:hover {
-    transform: scale(1.03);
-    box-shadow: 0 4px 16px rgba(56,189,248,0.2);
+    transform: scale(1.04);
+    box-shadow: 0 4px 20px rgba(56,189,248,0.25);
 }
 
 .autocomplete-wrap {
     flex: 2;
-    min-width: 160px;
+    min-width: 200px;
     position: relative;
 }
 
@@ -776,7 +777,8 @@ main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.25rem;
+    justify-content: center;
+    text-align: center;
     padding-bottom: 0.75rem;
     margin-bottom: 0.75rem;
     border-bottom: 1px solid rgba(56,189,248,0.06);
@@ -791,12 +793,14 @@ main {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     line-height: 1.1;
+    width: 100%;
 }
 
 .sb-total-label {
     font-size: 0.8rem;
     color: var(--text-muted);
     font-weight: 500;
+    width: 100%;
 }
 
 .sb-row {
