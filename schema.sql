@@ -44,3 +44,24 @@ CREATE TABLE IF NOT EXISTS pokemon_data (
   tier TEXT,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- RLS policies for pokemon_data
+ALTER TABLE pokemon_data ENABLE ROW LEVEL SECURITY;
+
+-- Allow anyone (anon key) to read pokemon_data
+DROP POLICY IF EXISTS "Anyone can read pokemon_data" ON pokemon_data;
+CREATE POLICY "Anyone can read pokemon_data"
+  ON pokemon_data FOR SELECT
+  USING (true);
+
+-- Allow anyone (anon key) to insert/update pokemon_data
+-- (frontend already restricts edit UI to admin users)
+DROP POLICY IF EXISTS "Anyone can upsert pokemon_data" ON pokemon_data;
+CREATE POLICY "Anyone can upsert pokemon_data"
+  ON pokemon_data FOR INSERT
+  WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Anyone can update pokemon_data" ON pokemon_data;
+CREATE POLICY "Anyone can update pokemon_data"
+  ON pokemon_data FOR UPDATE
+  USING (true);
