@@ -557,6 +557,8 @@
 
     let preyFilter = 'all';
     let preySearch = '';
+    let preyRouteSearch = '';
+    let preyTierFilter = 'all';
 
     function renderClanPrey() {
         const list = document.getElementById('clanPreyList');
@@ -591,6 +593,32 @@
         else if (preyFilter === '2+') filtered = filtered.filter(function(g) { return g.hunters.length >= 2; });
         else if (preyFilter === 'caught') filtered = filtered.filter(function(g) { return g.anyCaught; });
 
+        // Tier filter
+        if (preyTierFilter !== 'all') {
+            filtered = filtered.filter(function(g) {
+                var tier = getPokemonTier(g.pokemon);
+                if (!tier) return false;
+                return tier === preyTierFilter;
+            });
+        }
+
+        // Route filter
+        if (preyRouteSearch) {
+            var rq = preyRouteSearch.toLowerCase();
+            filtered = filtered.filter(function(g) {
+                var routes = getPokemonRoutes(g.pokemon);
+                for (var s in routes) {
+                    var list = routes[s];
+                    if (!list || !list.length) continue;
+                    for (var i = 0; i < list.length; i++) {
+                        var r = typeof list[i] === 'string' ? list[i] : list[i].route;
+                        if (r.toLowerCase().indexOf(rq) !== -1) return true;
+                    }
+                }
+                return false;
+            });
+        }
+
         // Search
         if (preySearch) {
             var q = preySearch.toLowerCase();
@@ -610,11 +638,16 @@
 
         list.innerHTML = filtered.map(function(g) {
             var sprite = getShinySpriteUrl(g.pokemon);
+            var tier = getPokemonTier(g.pokemon);
+            var tierLabel = tier === 'legendary' ? 'LEG' : tier === 'alpha' ? 'ALPHA' : tier ? 'T' + tier.replace('tier', '') : '';
+            var tierColor = TIER_COLORS[tier] || 'var(--text-muted)';
+            var tierBadge = tier ? '<span class="prey-card-tier" style="color:' + tierColor + '">' + tierLabel + '</span>' : '';
             return '<div class="prey-card">' +
                 (sprite ? '<img src="' + sprite + '" class="my-target-sprite" onerror="this.style.display=\'none\'">' : '') +
                 '<div class="prey-card-info">' +
                     '<div class="prey-card-header">' +
                         '<span class="prey-card-name" data-pname="' + g.pokemon + '">' + esc(displayName(g.pokemon)) + '</span>' +
+                        tierBadge +
                         '<span class="prey-card-id">#' + getPokemonId(g.pokemon) + '</span>' +
                         getSeasonBadgeHTML(g.pokemon) +
                         '<span class="prey-card-count">' + g.hunters.length + ' cazador' + (g.hunters.length > 1 ? 'es' : '') + '</span>' +
@@ -953,6 +986,16 @@
                 document.querySelectorAll('#clanPreyView .filter-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 preyFilter = btn.dataset.preyfilter;
+                renderClanPrey();
+            });
+        });
+
+        document.getElementById('preyRouteSearch').addEventListener('input', e => { preyRouteSearch = e.target.value; renderClanPrey(); });
+        document.querySelectorAll('.prey-tier-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.prey-tier-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                preyTierFilter = btn.dataset.pretier;
                 renderClanPrey();
             });
         });

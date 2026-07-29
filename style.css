@@ -2204,6 +2204,11 @@ footer {
     cursor: pointer;
 }
 .prey-card-name:hover { color: var(--accent-blue); }
+.prey-card-tier {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
 .prey-card-id {
     font-size: 0.65rem;
     color: var(--text-muted);
