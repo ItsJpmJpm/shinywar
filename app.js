@@ -51,6 +51,16 @@
         if (errU) throw new Error(friendlyError(errU));
         allUsers = users || [];
 
+        // Load season overrides from pokemon_data so Pokedex changes reflect here
+        const { data: pokeData, error: pokeErr } = await supabaseClient
+            .from('pokemon_data').select('name, seasons');
+        if (!pokeErr && pokeData) {
+            for (const row of pokeData) {
+                if (!pokemonOverrides[row.name]) pokemonOverrides[row.name] = {};
+                if (row.seasons) pokemonOverrides[row.name].seasons = row.seasons;
+            }
+        }
+
         let targets;
         const { data: tFull, error: errFull } = await supabaseClient
             .from('targets').select('id, user_id, pokemon_name, tier, method, is_alpha, is_secret, caught, sort_order').order('sort_order', { ascending: true, nullsFirst: true }).order('created_at');
