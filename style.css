@@ -699,6 +699,25 @@ main {
     color: var(--danger);
 }
 
+/* Drag-and-drop */
+.my-target-item[draggable] {
+    cursor: grab;
+}
+
+.my-target-item[draggable]:active {
+    cursor: grabbing;
+}
+
+.my-target-item.dragging {
+    opacity: 0.4;
+}
+
+.my-target-item.drag-over {
+    border-color: var(--accent-blue);
+    background: rgba(56,189,248,0.08);
+    transform: translateY(2px);
+}
+
 /* Empty state */
 .empty-state {
     text-align: center;

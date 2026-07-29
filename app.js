@@ -53,12 +53,12 @@
 
         let targets;
         const { data: tFull, error: errFull } = await supabaseClient
-            .from('targets').select('id, user_id, pokemon_name, tier, method, is_alpha, is_secret, caught').order('created_at');
+            .from('targets').select('id, user_id, pokemon_name, tier, method, is_alpha, is_secret, caught, sort_order').order('sort_order', { ascending: true, nullsFirst: true }).order('created_at');
         if (!errFull && tFull) {
             targets = tFull;
         } else {
             const { data: tBasic, error: errBasic } = await supabaseClient
-                .from('targets').select('id, user_id, pokemon_name, tier, caught').order('created_at');
+                .from('targets').select('id, user_id, pokemon_name, tier, caught, sort_order').order('sort_order', { ascending: true, nullsFirst: true }).order('created_at');
             if (errBasic) throw new Error(friendlyError(errBasic));
             targets = tBasic || [];
         }
@@ -174,7 +174,7 @@
             const pts = calculatePoints(t.tier, t.method || 'wild', t.is_alpha, t.is_secret);
             const method = t.method || 'wild';
             return `
-                <div class="my-target-item ${t.caught ? 'is-caught' : ''}">
+                <div class="my-target-item ${t.caught ? 'is-caught' : ''}" draggable="true" data-tid="${t.id}">
                     <button class="caught-btn ${t.caught ? 'is-caught' : ''}" data-tid="${t.id}" title="${t.caught ? 'Descapturar' : 'Marcar como capturado'}">
                         ${t.caught ? '✓' : '○'}
                     </button>
@@ -225,6 +225,54 @@
         container.querySelectorAll('.my-target-remove').forEach(btn => {
             btn.addEventListener('click', () => removeMyTarget(btn.dataset.tid));
         });
+
+        // Drag-and-drop reordering
+        let dragSrcId = null;
+        let didDrop = false;
+        container.querySelectorAll('.my-target-item[draggable]').forEach(item => {
+            item.addEventListener('dragstart', function(e) {
+                dragSrcId = this.dataset.tid;
+                didDrop = false;
+                this.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', this.dataset.tid);
+            });
+            item.addEventListener('dragend', function() {
+                this.classList.remove('dragging');
+                container.querySelectorAll('.my-target-item').forEach(el => el.classList.remove('drag-over'));
+                if (didDrop) saveSortOrder(container);
+                dragSrcId = null;
+                didDrop = false;
+            });
+            item.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                container.querySelectorAll('.my-target-item').forEach(el => el.classList.remove('drag-over'));
+                this.classList.add('drag-over');
+            });
+            item.addEventListener('dragleave', function() {
+                this.classList.remove('drag-over');
+            });
+            item.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('drag-over');
+                const fromId = dragSrcId;
+                const toId = this.dataset.tid;
+                if (!fromId || fromId === toId) return;
+                const allItems = Array.from(container.querySelectorAll('.my-target-item'));
+                const fromEl = allItems.find(el => el.dataset.tid === fromId);
+                const toEl = allItems.find(el => el.dataset.tid === toId);
+                if (!fromEl || !toEl) return;
+                const fromIdx = allItems.indexOf(fromEl);
+                const toIdx = allItems.indexOf(toEl);
+                if (fromIdx < toIdx) {
+                    container.insertBefore(fromEl, toEl.nextSibling);
+                } else {
+                    container.insertBefore(fromEl, toEl);
+                }
+                didDrop = true;
+            });
+        });
     }
 
     async function addMyTarget() {
@@ -254,10 +302,11 @@
             return;
         }
 
+        const maxOrder = myTargets.length > 0 ? Math.max(...myTargets.map(t => t.sort_order || 0)) : 0;
         const { data, error } = await supabaseClient
             .from('targets')
-            .insert({ user_id: session.id, pokemon_name: name, tier, method: 'wild', is_alpha: false, is_secret: false, caught: false })
-            .select('id, user_id, pokemon_name, tier, method, is_alpha, is_secret, caught')
+            .insert({ user_id: session.id, pokemon_name: name, tier, method: 'wild', is_alpha: false, is_secret: false, caught: false, sort_order: maxOrder + 1 })
+            .select('id, user_id, pokemon_name, tier, method, is_alpha, is_secret, caught, sort_order')
             .single();
         if (error) {
             errorDiv.textContent = friendlyError(error);
@@ -328,6 +377,23 @@
         renderTeamRoster();
         updateStats();
         showToast(`${target.pokemon_name} eliminado`, 'info');
+    }
+
+    async function saveSortOrder(container) {
+        const items = container.querySelectorAll('.my-target-item');
+        const updates = [];
+        items.forEach((el, idx) => {
+            const tid = el.dataset.tid;
+            const target = allTargets.find(t => t.id === tid);
+            if (target && target.sort_order !== idx) {
+                target.sort_order = idx;
+                updates.push(supabaseClient.from('targets').update({ sort_order: idx }).eq('id', tid));
+            }
+        });
+        if (updates.length > 0) {
+            await Promise.all(updates);
+        }
+        allTargets.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
     }
 
     // ─── AUTOCOMPLETE ───

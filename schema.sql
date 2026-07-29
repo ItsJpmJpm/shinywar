@@ -36,6 +36,17 @@ CREATE TABLE IF NOT EXISTS targets (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Add sort_order column for target reordering
+ALTER TABLE targets ADD COLUMN IF NOT EXISTS sort_order INTEGER;
+
+-- Backfill sort_order for existing targets (by created_at per user)
+WITH numbered AS (
+  SELECT id, ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY created_at) - 1 AS n
+  FROM targets WHERE sort_order IS NULL
+)
+UPDATE targets SET sort_order = numbered.n
+FROM numbered WHERE targets.id = numbered.id;
+
 -- Pokemon data overrides (admin-editable seasons + tier)
 DROP TABLE IF EXISTS pokemon_seasons;
 CREATE TABLE IF NOT EXISTS pokemon_data (

@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="stylesheet" href="style.css?v=24">
+    <link rel="stylesheet" href="style.css?v=25">
 </head>
 <body>
     <header>
@@ -58,10 +58,10 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="pokemon-data.js?v=24"></script>
-    <script src="pokemon-sprites.js?v=24"></script>
-    <script src="supabase-config.js?v=24"></script>
-    <script src="auth.js?v=24"></script>
+    <script src="pokemon-data.js?v=25"></script>
+    <script src="pokemon-sprites.js?v=25"></script>
+    <script src="supabase-config.js?v=25"></script>
+    <script src="auth.js?v=25"></script>
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         var grid = document.getElementById("pokedexGrid");
@@ -86,7 +86,7 @@
         function showLoginPrompt() {
             var p = document.createElement("div");
             p.className = "login-prompt";
-            p.innerHTML = '<a href="index.html" class="nav-link">Iniciar sesión</a> para editar';
+            p.innerHTML = '<a href="index.html" class="nav-link">Inicia sesión</a> para editar estaciones';
             document.querySelector("header").appendChild(p);
         }
 
@@ -149,7 +149,7 @@
                 var p = filtered[i];
                 var animSprite = getAnimatedSprite(p.id);
                 var liveTier = getPokemonTier(p.name);
-                var editIcon = admin ? '<span class="pokedex-edit-icon" data-name="' + p.name + '" title="Editar">✎</span>' : "";
+                var editIcon = '<span class="pokedex-edit-icon" data-name="' + p.name + '" title="Editar estaciones">✎</span>';
 
                 html += '<div class="pokedex-card" data-pname="' + p.name + '">';
                 html += '<div class="pokedex-sprite-wrap">';
@@ -169,14 +169,12 @@
             grid.innerHTML = html;
             countEl.textContent = filtered.length + " Pokémon";
 
-            if (admin) {
-                document.querySelectorAll(".pokedex-edit-icon").forEach(function(icon) {
-                    icon.addEventListener("click", function(e) {
-                        e.stopPropagation();
-                        openEditModal(icon.dataset.name);
-                    });
+            document.querySelectorAll(".pokedex-edit-icon").forEach(function(icon) {
+                icon.addEventListener("click", function(e) {
+                    e.stopPropagation();
+                    openEditModal(icon.dataset.name);
                 });
-            }
+            });
         }
 
         var modalEl = null;
@@ -187,23 +185,8 @@
                 modalEl.className = "season-modal-overlay";
                 modalEl.innerHTML =
                     '<div class="season-modal">' +
-                        '<h3 class="season-modal-title">Editar Pokémon</h3>' +
+                        '<h3 class="season-modal-title">Estaciones</h3>' +
                         '<p class="season-modal-poke" id="modalPokeName"></p>' +
-                        '<div class="modal-section">' +
-                            '<label class="modal-label">Tier</label>' +
-                            '<select id="modalTierSelect" class="season-modal-select">' +
-                                '<option value="">— Por defecto —</option>' +
-                                '<option value="legendary">LEG</option>' +
-                                '<option value="tier0">T0</option>' +
-                                '<option value="tier1">T1</option>' +
-                                '<option value="tier2">T2</option>' +
-                                '<option value="tier3">T3</option>' +
-                                '<option value="tier4">T4</option>' +
-                                '<option value="tier5">T5</option>' +
-                                '<option value="tier6">T6</option>' +
-                                '<option value="tier7">T7</option>' +
-                            '</select>' +
-                        '</div>' +
                         '<div class="modal-section">' +
                             '<label class="modal-label">Estaciones</label>' +
                             '<div class="modal-checkbox-group">' +
@@ -250,11 +233,10 @@
 
                 document.getElementById("modalSaveBtn").addEventListener("click", function() {
                     var name = modalEl.dataset.pname;
-                    var tier = document.getElementById("modalTierSelect").value;
 
                     var allCheck = document.getElementById("modalSeasonAll");
                     if (allCheck.checked) {
-                        savePokemonData(name, "all", tier);
+                        savePokemonData(name, "all");
                         return;
                     }
                     var selected = [];
@@ -262,15 +244,12 @@
                         if (cb.checked) selected.push(cb.value);
                     });
                     var seasonsStr = selected.length > 0 ? selected.join(",") : "all";
-                    savePokemonData(name, seasonsStr, tier);
+                    savePokemonData(name, seasonsStr);
                 });
             }
 
             modalEl.dataset.pname = pokemonName;
             document.getElementById("modalPokeName").textContent = displayName(pokemonName) + " (#" + getPokemonId(pokemonName) + ")";
-
-            var curTier = pokemonOverrides[pokemonName] && pokemonOverrides[pokemonName].tier ? pokemonOverrides[pokemonName].tier : "";
-            document.getElementById("modalTierSelect").value = curTier;
 
             var seasons = getPokemonSeasons(pokemonName);
             var allCheck = document.getElementById("modalSeasonAll");
@@ -297,7 +276,7 @@
             if (modalEl) modalEl.style.display = "none";
         }
 
-        function savePokemonData(name, seasons, tier) {
+        function savePokemonData(name, seasons) {
             if (!window.supabaseClient) {
                 alert("No hay conexión con la base de datos.");
                 document.getElementById("modalSaveBtn").textContent = "Guardar";
@@ -309,11 +288,8 @@
 
             if (!pokemonOverrides[name]) pokemonOverrides[name] = {};
             pokemonOverrides[name].seasons = seasons || "all";
-            pokemonOverrides[name].tier = tier || null;
 
             var payload = { name: name, seasons: seasons || "all" };
-            if (tier) payload.tier = tier;
-            else payload.tier = null;
 
             supabaseClient
                 .from("pokemon_data")
@@ -339,7 +315,7 @@
             if (!window.supabaseClient) return;
             supabaseClient
                 .from("pokemon_data")
-                .select("name, seasons, tier")
+                .select("name, seasons")
                 .then(function(resp) {
                     if (resp.error) {
                         console.warn("No se pudieron cargar datos:", resp.error);
@@ -350,7 +326,6 @@
                             var row = resp.data[i];
                             if (!pokemonOverrides[row.name]) pokemonOverrides[row.name] = {};
                             if (row.seasons) pokemonOverrides[row.name].seasons = row.seasons;
-                            if (row.tier) pokemonOverrides[row.name].tier = row.tier;
                         }
                     }
                     render(searchInput.value);
