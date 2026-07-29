@@ -1603,14 +1603,13 @@ function showTargetCard(pokemonName) {
         var list = routes[s];
         if (!list || !list.length) continue;
         hasRoutes = true;
-        html += '<div class="target-card-season-row"><span class="season-badge season-badge-' + s + '">' + (seasonNames[s]||s) + '</span>';
-        var routeParts = [];
+        html += '<div class="target-card-season-row"><span class="season-badge season-badge-' + s + '">' + (seasonNames[s]||s) + '</span><span class="target-card-routes">';
         for (var i = 0; i < list.length; i++) {
             var r = typeof list[i] === 'string' ? { route: list[i], time: 'all', chance: 100 } : list[i];
             var timeIcon = r.time === 'all' ? '🔄' : r.time === 'day' ? '☀️' : r.time === 'night' ? '🌙' : '🌅';
-            routeParts.push(timeIcon + ' ' + esc(r.route) + ' <span class="tcr-chance">' + (r.chance||100) + '%</span>');
+            html += '<span class="target-card-route-line">' + timeIcon + ' ' + esc(r.route) + ' <span class="tcr-chance">' + (r.chance||100) + '%</span></span>';
         }
-        html += '<span class="target-card-routes">' + routeParts.join('<span class="tcr-sep">, </span>') + '</span></div>';
+        html += '</span></div>';
     }
     if (!hasRoutes) {
         html += '<p class="target-card-no-routes">Sin rutas registradas</p>';
