@@ -188,10 +188,7 @@
             const method = t.method || 'wild';
             return `
                 <div class="my-target-item ${t.caught ? 'is-caught' : ''}" data-tid="${t.id}">
-                    <div class="my-target-move">
-                        <button class="move-btn move-up" data-tid="${t.id}" title="Mover arriba">▲</button>
-                        <button class="move-btn move-down" data-tid="${t.id}" title="Mover abajo">▼</button>
-                    </div>
+                    <span class="drag-handle" title="Arrastrar para reordenar">⠿</span>
                     <button class="caught-btn ${t.caught ? 'is-caught' : ''}" data-tid="${t.id}" title="${t.caught ? 'Descapturar' : 'Marcar como capturado'}">
                         ${t.caught ? '✓' : '○'}
                     </button>
@@ -243,42 +240,30 @@
             btn.addEventListener('click', () => removeMyTarget(btn.dataset.tid));
         });
 
-        // Move up/down reordering
-        container.querySelectorAll('.move-up').forEach(btn => {
-            btn.addEventListener('click', () => moveTarget(btn.dataset.tid, -1));
-        });
-        container.querySelectorAll('.move-down').forEach(btn => {
-            btn.addEventListener('click', () => moveTarget(btn.dataset.tid, 1));
-        });
-    }
-
-    function moveTarget(targetId, direction) {
-        const session = getSession();
-        if (!session) return;
-        const container = document.getElementById('myTargetList');
-        if (!container) return;
-        const targets = getUserTargets(session.id);
-        const idx = targets.findIndex(t => t.id === targetId);
-        if (idx === -1) return;
-        const newIdx = idx + direction;
-        if (newIdx < 0 || newIdx >= targets.length) return;
-
-        // Swap sort_order
-        const a = targets[idx];
-        const b = targets[newIdx];
-        const tempOrder = a.sort_order;
-        a.sort_order = b.sort_order;
-        b.sort_order = tempOrder;
-
-        allTargets.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
-
-        // Persist to DB
-        Promise.all([
-            supabaseClient.from('targets').update({ sort_order: a.sort_order }).eq('id', a.id),
-            supabaseClient.from('targets').update({ sort_order: b.sort_order }).eq('id', b.id)
-        ]).catch(() => {});
-
-        renderMyTargets();
+        // Sortable drag-and-drop reorder
+        if (window.Sortable) {
+            if (container._sortable) container._sortable.destroy();
+            container._sortable = new Sortable(container, {
+                animation: 150,
+                handle: '.drag-handle',
+                onEnd: function(evt) {
+                    var session = getSession();
+                    if (!session) return;
+                    var targets = getUserTargets(session.id);
+                    var items = container.querySelectorAll('.my-target-item');
+                    items.forEach(function(item, idx) {
+                        var tid = item.dataset.tid;
+                        var t = targets.find(function(t) { return t.id === tid; });
+                        if (t) t.sort_order = idx;
+                    });
+                    allTargets.sort(function(a, b) { return (a.sort_order || 0) - (b.sort_order || 0); });
+                    var updates = targets.map(function(t) {
+                        return supabaseClient.from('targets').update({ sort_order: t.sort_order }).eq('id', t.id);
+                    });
+                    Promise.all(updates).catch(function() {});
+                }
+            });
+        }
     }
 
     async function addMyTarget() {
