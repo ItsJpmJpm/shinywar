@@ -8,7 +8,7 @@ var ALL_ROUTES = [
     "Ruta 26 (Kanto)","Ruta 27 (Kanto)","Ruta 28 (Kanto)",
     "Bosque Verde","Monte Moon","Cueva Celeste","Túnel Rocoso","Central Energía",
     "Cueva Diglett","Central Térmica","Zona Safari (Kanto)","Mansión Pokémon",
-    "Islas Espuma","Calle Victoria (Kanto)","Meseta Añil",
+    "Islas Espuma","Calle Victoria (Kanto)","Meseta Añil","Torre Pokémon",
 
     // Johto
     "Ruta 29 (Johto)","Ruta 30 (Johto)","Ruta 31 (Johto)","Ruta 32 (Johto)","Ruta 33 (Johto)",
@@ -18,6 +18,7 @@ var ALL_ROUTES = [
     "Torre Bellsprout","Ruinas Alfa","Cueva Unión","Bosque Ilex","Pozo Slowpoke",
     "Torre Quemada","Torre Hojosa","Túnel Oscuro","Islas Remolino","Monte Mortal",
     "Camino Helado","Cueva Dragón","Calle Victoria (Johto)","Meseta Plata",
+    "Cueva Plateada","Torre Batalla (Johto)",
 
     // Hoenn
     "Ruta 101 (Hoenn)","Ruta 102 (Hoenn)","Ruta 103 (Hoenn)","Ruta 104 (Hoenn)","Ruta 105 (Hoenn)",
@@ -30,6 +31,7 @@ var ALL_ROUTES = [
     "Bosque Petalia","Túnel Rusturf","Cueva Granito","Camino Ígneo","Llanura Calcinada",
     "Cueva Meteoro","Monte Chimenea","Paso Angosto","Zona Safari (Hoenn)",
     "Cueva Raíces","Cueva Origen","Calle Victoria (Hoenn)","Pilar Celeste",
+    "Monte Triz","Torre Espejismo","Cueva Terrena","Cueva Marina",
 
     // Sinnoh
     "Ruta 201 (Sinnoh)","Ruta 202 (Sinnoh)","Ruta 203 (Sinnoh)","Ruta 204 (Sinnoh)","Ruta 205 (Sinnoh)",
@@ -40,7 +42,7 @@ var ALL_ROUTES = [
     "Ruta 226 (Sinnoh)","Ruta 227 (Sinnoh)","Ruta 228 (Sinnoh)","Ruta 229 (Sinnoh)","Ruta 230 (Sinnoh)",
     "Mina Pirita","Central Eolia","Bosque Eterna","Monte Corona","Gran Pantano",
     "Isla Férrea","Lago Valor","Lago Veraz","Lago Agudeza","Calle Victoria (Sinnoh)",
-    "Pilar Clave","Mundo Distorsión","Cabo Reburbia",
+    "Pilar Clave","Mundo Distorsión","Cabo Reburbia","Jardín Trofeo",
 
     // Unova
     "Ruta 1 (Unova)","Ruta 2 (Unova)","Ruta 3 (Unova)","Ruta 4 (Unova)","Ruta 5 (Unova)",
@@ -49,7 +51,8 @@ var ALL_ROUTES = [
     "Ruta 16 (Unova)","Ruta 17 (Unova)","Ruta 18 (Unova)","Ruta 19 (Unova)","Ruta 20 (Unova)",
     "Ruta 21 (Unova)","Ruta 22 (Unova)","Ruta 23 (Unova)",
     "Bosque Azulejo","Cueva Manantial","Castillo Relincho","Desierto Resort",
-    "Monte Tuerca","Torre Dragón","Calle Victoria (Unova)","Abismo Gigante"
+    "Monte Tuerca","Torre Dragón","Calle Victoria (Unova)","Abismo Gigante",
+    "Cueva Electrorroca","Bosque Espejismo","Cueva Arcilla","Puente Torbellino"
 ];
 
 function suggestRoutes(query) {
