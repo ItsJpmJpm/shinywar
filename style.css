@@ -1725,10 +1725,10 @@ footer {
     border-top: 1px solid rgba(56,189,248,0.1);
     padding-top: 0.5rem;
 }
-.season-badge-spring { border-color: #f472b6 !important; }
-.season-badge-summer { border-color: #fbbf24 !important; }
-.season-badge-autumn { border-color: #fb923c !important; }
-.season-badge-winter { border-color: #60a5fa !important; }
+.season-badge-spring { background: rgba(244,114,182,0.2) !important; border-color: #f472b6 !important; color: #f9a8d4 !important; }
+.season-badge-summer { background: rgba(251,191,36,0.2) !important; border-color: #fbbf24 !important; color: #fde68a !important; }
+.season-badge-autumn { background: rgba(251,146,60,0.2) !important; border-color: #fb923c !important; color: #fdba74 !important; }
+.season-badge-winter { background: rgba(96,165,250,0.2) !important; border-color: #60a5fa !important; color: #93c5fd !important; }
 
 /* ─── RESPONSIVE ─── */
 
