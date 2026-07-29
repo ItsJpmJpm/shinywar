@@ -175,6 +175,7 @@
             const method = t.method || 'wild';
             return `
                 <div class="my-target-item ${t.caught ? 'is-caught' : ''}" draggable="true" data-tid="${t.id}">
+                    <span class="drag-handle" title="Arrastrar para reordenar">⠿</span>
                     <button class="caught-btn ${t.caught ? 'is-caught' : ''}" data-tid="${t.id}" title="${t.caught ? 'Descapturar' : 'Marcar como capturado'}">
                         ${t.caught ? '✓' : '○'}
                     </button>
@@ -226,53 +227,59 @@
             btn.addEventListener('click', () => removeMyTarget(btn.dataset.tid));
         });
 
-        // Drag-and-drop reordering
-        let dragSrcId = null;
-        let didDrop = false;
-        container.querySelectorAll('.my-target-item[draggable]').forEach(item => {
-            item.addEventListener('dragstart', function(e) {
-                dragSrcId = this.dataset.tid;
+        // Drag-and-drop reordering (event delegation, set up once)
+        if (!container._dragInit) {
+            container._dragInit = true;
+            let dragSrcEl = null;
+            let didDrop = false;
+            container.addEventListener('dragstart', function(e) {
+                const item = e.target.closest('.my-target-item');
+                if (!item) return;
+                dragSrcEl = item;
                 didDrop = false;
-                this.classList.add('dragging');
+                item.classList.add('dragging');
                 e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/plain', this.dataset.tid);
+                e.dataTransfer.setData('text/plain', item.dataset.tid);
             });
-            item.addEventListener('dragend', function() {
-                this.classList.remove('dragging');
+            container.addEventListener('dragend', function(e) {
+                const item = e.target.closest('.my-target-item');
+                if (!item) return;
+                item.classList.remove('dragging');
                 container.querySelectorAll('.my-target-item').forEach(el => el.classList.remove('drag-over'));
                 if (didDrop) saveSortOrder(container);
-                dragSrcId = null;
+                dragSrcEl = null;
                 didDrop = false;
             });
-            item.addEventListener('dragover', function(e) {
+            container.addEventListener('dragover', function(e) {
+                const item = e.target.closest('.my-target-item');
+                if (!item) return;
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'move';
                 container.querySelectorAll('.my-target-item').forEach(el => el.classList.remove('drag-over'));
-                this.classList.add('drag-over');
+                item.classList.add('drag-over');
             });
-            item.addEventListener('dragleave', function() {
-                this.classList.remove('drag-over');
+            container.addEventListener('dragleave', function(e) {
+                const item = e.target.closest('.my-target-item');
+                if (!item) return;
+                item.classList.remove('drag-over');
             });
-            item.addEventListener('drop', function(e) {
+            container.addEventListener('drop', function(e) {
+                const item = e.target.closest('.my-target-item');
+                if (!item) return;
                 e.preventDefault();
-                this.classList.remove('drag-over');
-                const fromId = dragSrcId;
-                const toId = this.dataset.tid;
-                if (!fromId || fromId === toId) return;
+                item.classList.remove('drag-over');
+                if (!dragSrcEl || dragSrcEl === item) return;
                 const allItems = Array.from(container.querySelectorAll('.my-target-item'));
-                const fromEl = allItems.find(el => el.dataset.tid === fromId);
-                const toEl = allItems.find(el => el.dataset.tid === toId);
-                if (!fromEl || !toEl) return;
-                const fromIdx = allItems.indexOf(fromEl);
-                const toIdx = allItems.indexOf(toEl);
+                const fromIdx = allItems.indexOf(dragSrcEl);
+                const toIdx = allItems.indexOf(item);
                 if (fromIdx < toIdx) {
-                    container.insertBefore(fromEl, toEl.nextSibling);
+                    container.insertBefore(dragSrcEl, item.nextSibling);
                 } else {
-                    container.insertBefore(fromEl, toEl);
+                    container.insertBefore(dragSrcEl, item);
                 }
                 didDrop = true;
             });
-        });
+        }
     }
 
     async function addMyTarget() {
