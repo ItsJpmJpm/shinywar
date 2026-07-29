@@ -1602,8 +1602,8 @@ function showTargetCard(pokemonName) {
         html += '<div class="target-card-season-row"><span class="season-badge season-badge-' + s + '">' + (seasonNames[s]||s) + '</span>';
         var routeParts = [];
         for (var i = 0; i < list.length; i++) {
-            var r = typeof list[i] === 'string' ? { route: list[i], time: 'day-night', chance: 100 } : list[i];
-            var timeIcon = r.time === 'day' ? '☀️' : r.time === 'night' ? '🌙' : '☀️🌙';
+            var r = typeof list[i] === 'string' ? { route: list[i], time: 'morning', chance: 100 } : list[i];
+            var timeIcon = r.time === 'day' ? '☀️' : r.time === 'night' ? '🌙' : '🌅';
             routeParts.push(timeIcon + ' ' + esc(r.route) + ' <span class="tcr-chance">' + (r.chance||100) + '%</span>');
         }
         html += '<span class="target-card-routes">' + routeParts.join('<span class="tcr-sep">, </span>') + '</span></div>';
