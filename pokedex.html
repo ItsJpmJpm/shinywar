@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="stylesheet" href="style.css?v=38">
+    <link rel="stylesheet" href="style.css?v=39">
 </head>
 <body>
     <header>
@@ -58,11 +58,11 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="pokemon-data.js?v=38"></script>
-    <script src="pokemon-routes.js?v=38"></script>
-    <script src="pokemon-sprites.js?v=38"></script>
-    <script src="supabase-config.js?v=38"></script>
-    <script src="auth.js?v=38"></script>
+    <script src="pokemon-data.js?v=39"></script>
+    <script src="pokemon-routes.js?v=39"></script>
+    <script src="pokemon-sprites.js?v=39"></script>
+    <script src="supabase-config.js?v=39"></script>
+    <script src="auth.js?v=39"></script>
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         var grid = document.getElementById("pokedexGrid");
@@ -156,6 +156,13 @@
                 icon.addEventListener("click", function(e) {
                     e.stopPropagation();
                     openEditModal(icon.dataset.name);
+                });
+            });
+
+            document.querySelectorAll(".pokedex-sprite, .pokedex-card-name").forEach(function(el) {
+                el.addEventListener("click", function(e) {
+                    var pname = this.closest(".pokedex-card").dataset.pname;
+                    if (pname) showTargetCard(pname);
                 });
             });
         }
