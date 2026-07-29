@@ -197,7 +197,7 @@
                     </button>
                     ${sprite ? `<img src="${sprite}" class="my-target-sprite" onerror="this.style.display='none'">` : ''}
                     <span class="tier-badge ${tc}">${tl}</span>
-                    <span class="season-badge">${getSeasonLabel(getPokemonSeason(t.pokemon_name))}</span>
+                    ${getSeasonBadgeHTML(t.pokemon_name)}
                     <span class="my-target-name">${esc(t.pokemon_name)}</span>
                     <div class="target-options" data-tid="${t.id}">
                         <button class="toggle-pill alpha-pill ${t.is_alpha ? 'active' : ''}" data-toggle="is_alpha" title="Alpha (75 pts base)">🅰️ Alpha</button>
@@ -406,7 +406,7 @@
                     <div class="ac-item ${inMyList ? 'in-list' : ''}" data-name="${esc(r.name)}">
                         ${sprite ? `<img src="${sprite}" class="ac-sprite" onerror="this.style.display='none'">` : ''}
                         <span class="tier-badge ${tc}">${tl}</span>
-                        ${getSeasonLabel(getPokemonSeason(r.name))}
+                        ${getSeasonBadgeHTML(r.name)}
                         <span class="ac-name">${esc(r.name)}</span>
                         <span class="ac-pts">${r.points} pts</span>
                         ${inMyList ? '<span class="ac-badge">YA LO TENÉS</span>' : ''}
@@ -525,7 +525,7 @@
                                             ${canEdit ? `<button class="caught-btn-sm ${t.caught ? 'is-caught' : ''}" data-tid="${t.id}" title="${t.caught ? 'Descapturar' : 'Marcar como capturado'}">${t.caught ? '✓' : '○'}</button>` : `<span class="caught-indicator ${t.caught ? 'is-caught' : ''}">${t.caught ? '✓' : '○'}</span>`}
                                             ${sprite ? `<img src="${sprite}" class="target-sprite" onerror="this.style.display='none'">` : ''}
                                             <span class="tier-badge ${tc}">${tl}</span>
-                                            <span class="season-badge">${getSeasonLabel(getPokemonSeason(t.pokemon_name))}</span>
+                                            ${getSeasonBadgeHTML(t.pokemon_name)}
                                             <span class="target-name">${esc(t.pokemon_name)}</span>
                                             ${t.is_alpha ? '<span class="alpha-dot" title="Alpha">🅰️</span>' : ''}
                                             ${t.is_secret ? '<span class="secret-dot" title="Secret Shiny">⭐</span>' : ''}
