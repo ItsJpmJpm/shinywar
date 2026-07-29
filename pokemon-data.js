@@ -1391,6 +1391,12 @@ function getPokemonSeason(pokemonName) {
     return getPokemonSeasons(pokemonName)[0];
 }
 
+function getPokemonRoutes(pokemonName) {
+    var ov = getPokemonOverride(pokemonName.toLowerCase());
+    if (ov && ov.routes) return ov.routes;
+    return {};
+}
+
 function getSeasonLabel(season) {
     return SEASON_LABELS[season] || "Todas";
 }

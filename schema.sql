@@ -53,8 +53,12 @@ CREATE TABLE IF NOT EXISTS pokemon_data (
   name TEXT PRIMARY KEY,
   seasons TEXT DEFAULT 'all',
   tier TEXT,
+  routes JSONB DEFAULT '{}',
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Add routes column for existing databases
+ALTER TABLE pokemon_data ADD COLUMN IF NOT EXISTS routes JSONB DEFAULT '{}';
 
 -- RLS policies for pokemon_data
 ALTER TABLE pokemon_data ENABLE ROW LEVEL SECURITY;
