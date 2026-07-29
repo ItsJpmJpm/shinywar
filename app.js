@@ -245,7 +245,6 @@
             if (container._sortable) container._sortable.destroy();
             container._sortable = new Sortable(container, {
                 animation: 150,
-                handle: '.drag-handle',
                 onEnd: function(evt) {
                     var session = getSession();
                     if (!session) return;
