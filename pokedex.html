@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="stylesheet" href="style.css?v=48">
+    <link rel="stylesheet" href="style.css?v=49">
 </head>
 <body>
     <header>
@@ -63,11 +63,11 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="pokemon-data.js?v=48"></script>
-    <script src="pokemon-routes.js?v=48"></script>
-    <script src="pokemon-sprites.js?v=48"></script>
-    <script src="supabase-config.js?v=48"></script>
-    <script src="auth.js?v=48"></script>
+    <script src="pokemon-data.js?v=49"></script>
+    <script src="pokemon-routes.js?v=49"></script>
+    <script src="pokemon-sprites.js?v=49"></script>
+    <script src="supabase-config.js?v=49"></script>
+    <script src="auth.js?v=49"></script>
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         var grid = document.getElementById("pokedexGrid");
@@ -307,6 +307,23 @@
 
                 var timeIcons = {all:"🔄", day:"☀️", night:"🌙", morning:"🌅"};
 
+                // Click chip to edit, click ✕ to remove
+                document.getElementById('modalRoutesList').addEventListener('click', function(e) {
+                    var chip = e.target.closest('.picker-route-chip');
+                    if (!chip) return;
+                    if (e.target.classList.contains('picker-route-remove')) {
+                        chip.remove();
+                        return;
+                    }
+                    modalRouteInput.value = chip.querySelector('.picker-route-remove').dataset.route;
+                    document.getElementById('modalRouteSeasonSelect').value = chip.dataset.season;
+                    document.getElementById('modalRouteTimeSelect').value = chip.dataset.time || 'all';
+                    document.getElementById('modalRouteChanceSelect').value = chip.dataset.chance || '100';
+                    document.getElementById('modalRouteHordeSelect').value = chip.dataset.horde || '5';
+                    chip.remove();
+                    modalRouteInput.focus();
+                });
+
                 document.getElementById("modalAddRouteBtn").addEventListener("click", function() {
                     var route = modalRouteInput.value.trim();
                     if (!route) return;
@@ -324,7 +341,6 @@
                     chip.dataset.horde = hordeSize;
                     chip.innerHTML = '<span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + (timeIcons[time]||"") + ' <strong>' + hordeSize + '×</strong> ' + esc(route) + ' <span class="picker-route-chance">' + chance + '%</span> <button class="picker-route-remove" data-route="' + esc(route) + '">✕</button>';
                     list.appendChild(chip);
-                    chip.querySelector('.picker-route-remove').addEventListener('click', function() { chip.remove(); });
                     modalRouteInput.value = '';
                     modalRouteAC.classList.add('hidden');
                     modalRouteInput.focus();
@@ -396,7 +412,6 @@
                     chip.dataset.horde = r.hordeSize || 5;
                     chip.innerHTML = '<span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + (timeIcons[r.time]||"") + ' <strong>' + (r.hordeSize||5) + '×</strong> ' + esc(r.route) + ' <span class="picker-route-chance">' + (r.chance||100) + '%</span> <button class="picker-route-remove" data-route="' + esc(r.route) + '">✕</button>';
                     routesList.appendChild(chip);
-                    chip.querySelector('.picker-route-remove').addEventListener('click', function() { chip.remove(); });
                 }
             }
 

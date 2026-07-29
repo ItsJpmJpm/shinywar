@@ -834,11 +834,22 @@
 
         picker.querySelector('#addRouteBtn').addEventListener('click', addRoute);
 
-        // Remove existing route chips
-        picker.querySelectorAll('.picker-route-remove').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                this.parentElement.remove();
-            });
+        // Click chip to edit, click ✕ to remove
+        picker.querySelector('#pickerRoutesList').addEventListener('click', function(e) {
+            var chip = e.target.closest('.picker-route-chip');
+            if (!chip) return;
+            if (e.target.classList.contains('picker-route-remove')) {
+                chip.remove();
+                return;
+            }
+            // Populate fields and remove chip for editing
+            document.getElementById('routeInput').value = chip.querySelector('.picker-route-remove').dataset.route;
+            document.getElementById('routeSeasonSelect').value = chip.dataset.season;
+            document.getElementById('routeTimeSelect').value = chip.dataset.time || 'all';
+            document.getElementById('routeChanceSelect').value = chip.dataset.chance || '100';
+            document.getElementById('routeHordeSelect').value = chip.dataset.horde || '5';
+            chip.remove();
+            document.getElementById('routeInput').focus();
         });
 
         // Save
