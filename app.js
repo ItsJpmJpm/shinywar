@@ -580,10 +580,12 @@
         html += '<div class="season-picker-header">Rutas</div>';
         html += '<div class="picker-routes-list" id="pickerRoutesList">';
         var seasonNames = {all:"🌿 Todas", spring:"🌸 Primavera", summer:"☀️ Verano", autumn:"🍂 Otoño", winter:"❄️ Invierno"};
+        var timeIcons = {day:"☀️", night:"🌙", "day-night":"☀️🌙"};
         for (var s in currentRoutes) {
             var list = currentRoutes[s];
             for (var i = 0; i < list.length; i++) {
-                html += '<div class="picker-route-chip" data-season="' + s + '"><span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + esc(list[i]) + ' <button class="picker-route-remove" data-season="' + s + '" data-route="' + esc(list[i]) + '">✕</button></div>';
+                var r = typeof list[i] === 'string' ? { route: list[i], time: 'day-night', chance: 100 } : list[i];
+                html += '<div class="picker-route-chip" data-season="' + s + '" data-time="' + (r.time||'day-night') + '" data-chance="' + (r.chance||100) + '"><span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + (timeIcons[r.time]||"") + ' ' + esc(r.route) + ' <span class="picker-route-chance">' + (r.chance||100) + '%</span> <button class="picker-route-remove" data-route="' + esc(r.route) + '">✕</button></div>';
             }
         }
         html += '</div>';
@@ -596,6 +598,17 @@
         html += '<option value="summer">☀️ Verano</option>';
         html += '<option value="autumn">🍂 Otoño</option>';
         html += '<option value="winter">❄️ Invierno</option>';
+        html += '</select>';
+        html += '<select id="routeTimeSelect" class="picker-route-season-select" style="width:auto">';
+        html += '<option value="day-night">☀️🌙 Ambas</option>';
+        html += '<option value="day">☀️ Día</option>';
+        html += '<option value="night">🌙 Noche</option>';
+        html += '</select>';
+        html += '<select id="routeChanceSelect" class="picker-route-season-select" style="width:auto">';
+        html += '<option value="100">100%</option>';
+        html += '<option value="75">75%</option>';
+        html += '<option value="50">50%</option>';
+        html += '<option value="25">25%</option>';
         html += '</select>';
         html += '<button id="addRouteBtn" class="picker-add-route-btn">+</button>';
         html += '</div>';
@@ -653,17 +666,23 @@
             }
         });
 
+        var timeIcons = {day:"☀️", night:"🌙", "day-night":"☀️🌙"};
+
         // Add route button
         function addRoute() {
             var route = routeInput.value.trim();
             if (!route) return;
             var s = document.getElementById('routeSeasonSelect').value;
+            var time = document.getElementById('routeTimeSelect').value;
+            var chance = parseInt(document.getElementById('routeChanceSelect').value, 10);
             var routesList = document.getElementById('pickerRoutesList');
             var seasonNames = {all:"🌿 Todas", spring:"🌸 Primavera", summer:"☀️ Verano", autumn:"🍂 Otoño", winter:"❄️ Invierno"};
             var chip = document.createElement('div');
             chip.className = 'picker-route-chip';
             chip.dataset.season = s;
-            chip.innerHTML = '<span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + esc(route) + ' <button class="picker-route-remove" data-season="' + s + '" data-route="' + esc(route) + '">✕</button>';
+            chip.dataset.time = time;
+            chip.dataset.chance = chance;
+            chip.innerHTML = '<span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + (timeIcons[time]||"") + ' ' + esc(route) + ' <span class="picker-route-chance">' + chance + '%</span> <button class="picker-route-remove" data-route="' + esc(route) + '">✕</button>';
             routesList.appendChild(chip);
             chip.querySelector('.picker-route-remove').addEventListener('click', function() { chip.remove(); });
             routeInput.value = '';
@@ -691,8 +710,10 @@
             picker.querySelectorAll('.picker-route-chip').forEach(function(chip) {
                 var s = chip.dataset.season;
                 var route = chip.querySelector('.picker-route-remove').dataset.route;
+                var time = chip.dataset.time || 'day-night';
+                var chance = parseInt(chip.dataset.chance, 10) || 100;
                 if (!routes[s]) routes[s] = [];
-                routes[s].push(route);
+                routes[s].push({ route: route, time: time, chance: chance });
             });
 
             saveTargetSeason(targetId, pokemonName, selected, routes);

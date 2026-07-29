@@ -1539,7 +1539,8 @@ function getRouteChipsHTML(pokemonName) {
         var seasonRoutes = routes[s];
         if (!seasonRoutes || !seasonRoutes.length) continue;
         for (var i = 0; i < seasonRoutes.length; i++) {
-            parts.push('<span class="route-chip">' + esc(seasonRoutes[i]) + '</span>');
+            var routeName = typeof seasonRoutes[i] === 'string' ? seasonRoutes[i] : seasonRoutes[i].route;
+            parts.push('<span class="route-chip">' + esc(routeName) + '</span>');
         }
     }
     if (parts.length === 0) return '';
@@ -1599,7 +1600,13 @@ function showTargetCard(pokemonName) {
         if (!list || !list.length) continue;
         hasRoutes = true;
         html += '<div class="target-card-season-row"><span class="season-badge season-badge-' + s + '">' + (seasonNames[s]||s) + '</span>';
-        html += '<span class="target-card-routes">' + list.map(function(r) { return esc(r); }).join(', ') + '</span></div>';
+        var routeParts = [];
+        for (var i = 0; i < list.length; i++) {
+            var r = typeof list[i] === 'string' ? { route: list[i], time: 'day-night', chance: 100 } : list[i];
+            var timeIcon = r.time === 'day' ? '☀️' : r.time === 'night' ? '🌙' : '☀️🌙';
+            routeParts.push(timeIcon + ' ' + esc(r.route) + ' <span class="tcr-chance">' + (r.chance||100) + '%</span>');
+        }
+        html += '<span class="target-card-routes">' + routeParts.join('<span class="tcr-sep">, </span>') + '</span></div>';
     }
     if (!hasRoutes) {
         html += '<p class="target-card-no-routes">Sin rutas registradas</p>';

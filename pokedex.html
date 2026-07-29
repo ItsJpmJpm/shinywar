@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="stylesheet" href="style.css?v=41">
+    <link rel="stylesheet" href="style.css?v=42">
 </head>
 <body>
     <header>
@@ -58,11 +58,11 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="pokemon-data.js?v=41"></script>
-    <script src="pokemon-routes.js?v=41"></script>
-    <script src="pokemon-sprites.js?v=41"></script>
-    <script src="supabase-config.js?v=41"></script>
-    <script src="auth.js?v=41"></script>
+    <script src="pokemon-data.js?v=42"></script>
+    <script src="pokemon-routes.js?v=42"></script>
+    <script src="pokemon-sprites.js?v=42"></script>
+    <script src="supabase-config.js?v=42"></script>
+    <script src="auth.js?v=42"></script>
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         var grid = document.getElementById("pokedexGrid");
@@ -199,6 +199,17 @@
                                     '<option value="autumn">🍂 Otoño</option>' +
                                     '<option value="winter">❄️ Invierno</option>' +
                                 '</select>' +
+                                '<select id="modalRouteTimeSelect" class="picker-route-season-select" style="width:auto">' +
+                                    '<option value="day-night">☀️🌙 Ambas</option>' +
+                                    '<option value="day">☀️ Día</option>' +
+                                    '<option value="night">🌙 Noche</option>' +
+                                '</select>' +
+                                '<select id="modalRouteChanceSelect" class="picker-route-season-select" style="width:auto">' +
+                                    '<option value="100">100%</option>' +
+                                    '<option value="75">75%</option>' +
+                                    '<option value="50">50%</option>' +
+                                    '<option value="25">25%</option>' +
+                                '</select>' +
                                 '<button id="modalAddRouteBtn" class="picker-add-route-btn">+</button>' +
                             '</div>' +
                             '<div class="route-autocomplete hidden" id="modalRouteAutocomplete"></div>' +
@@ -268,16 +279,22 @@
                     }
                 });
 
+                var timeIcons = {day:"☀️", night:"🌙", "day-night":"☀️🌙"};
+
                 document.getElementById("modalAddRouteBtn").addEventListener("click", function() {
                     var route = modalRouteInput.value.trim();
                     if (!route) return;
                     var s = document.getElementById('modalRouteSeasonSelect').value;
+                    var time = document.getElementById('modalRouteTimeSelect').value;
+                    var chance = parseInt(document.getElementById('modalRouteChanceSelect').value, 10);
                     var list = document.getElementById('modalRoutesList');
                     var seasonNames = {all:"🌿 Todas", spring:"🌸 Primavera", summer:"☀️ Verano", autumn:"🍂 Otoño", winter:"❄️ Invierno"};
                     var chip = document.createElement('div');
                     chip.className = 'picker-route-chip';
                     chip.dataset.season = s;
-                    chip.innerHTML = '<span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + esc(route) + ' <button class="picker-route-remove" data-season="' + s + '" data-route="' + esc(route) + '">✕</button>';
+                    chip.dataset.time = time;
+                    chip.dataset.chance = chance;
+                    chip.innerHTML = '<span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + (timeIcons[time]||"") + ' ' + esc(route) + ' <span class="picker-route-chance">' + chance + '%</span> <button class="picker-route-remove" data-route="' + esc(route) + '">✕</button>';
                     list.appendChild(chip);
                     chip.querySelector('.picker-route-remove').addEventListener('click', function() { chip.remove(); });
                     modalRouteInput.value = '';
@@ -304,8 +321,10 @@
                     document.querySelectorAll('#modalRoutesList .picker-route-chip').forEach(function(chip) {
                         var s = chip.dataset.season;
                         var route = chip.querySelector('.picker-route-remove').dataset.route;
+                        var time = chip.dataset.time || 'day-night';
+                        var chance = parseInt(chip.dataset.chance, 10) || 100;
                         if (!routes[s]) routes[s] = [];
-                        routes[s].push(route);
+                        routes[s].push({ route: route, time: time, chance: chance });
                     });
 
                     savePokemonData(name, seasonsStr, routes);
@@ -335,13 +354,17 @@
             routesList.innerHTML = '';
             var currentRoutes = getPokemonRoutes(pokemonName);
             var seasonNames = {all:"🌿 Todas", spring:"🌸 Primavera", summer:"☀️ Verano", autumn:"🍂 Otoño", winter:"❄️ Invierno"};
+            var timeIcons = {day:"☀️", night:"🌙", "day-night":"☀️🌙"};
             for (var s in currentRoutes) {
                 var list = currentRoutes[s];
                 for (var i = 0; i < list.length; i++) {
+                    var r = typeof list[i] === 'string' ? { route: list[i], time: 'day-night', chance: 100 } : list[i];
                     var chip = document.createElement('div');
                     chip.className = 'picker-route-chip';
                     chip.dataset.season = s;
-                    chip.innerHTML = '<span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + esc(list[i]) + ' <button class="picker-route-remove" data-season="' + s + '" data-route="' + esc(list[i]) + '">✕</button>';
+                    chip.dataset.time = r.time || 'day-night';
+                    chip.dataset.chance = r.chance || 100;
+                    chip.innerHTML = '<span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + (timeIcons[r.time]||"") + ' ' + esc(r.route) + ' <span class="picker-route-chance">' + (r.chance||100) + '%</span> <button class="picker-route-remove" data-route="' + esc(r.route) + '">✕</button>';
                     routesList.appendChild(chip);
                     chip.querySelector('.picker-route-remove').addEventListener('click', function() { chip.remove(); });
                 }
