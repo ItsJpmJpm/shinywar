@@ -564,6 +564,7 @@
 
         var sprite = getShinySpriteUrl(pokemonName);
         var routes = getPokemonRoutes(pokemonName);
+        var seasons = getPokemonSeasons(pokemonName);
         var seasonNames = {all:"🌿 Todas", spring:"🌸 Primavera", summer:"☀️ Verano", autumn:"🍂 Otoño", winter:"❄️ Invierno"};
 
         var html = '<div class="target-card">';
@@ -573,6 +574,14 @@
         html += '</div>';
         html += '<h3 class="target-card-name">' + esc(displayName(pokemonName)) + '</h3>';
 
+        // Seasons
+        html += '<div class="target-card-seasons">';
+        seasons.forEach(function(s) {
+            html += '<span class="season-badge season-badge-' + s + '">' + (seasonNames[s]||s) + '</span>';
+        });
+        html += '</div>';
+
+        // Routes by season
         var hasRoutes = false;
         for (var s in routes) {
             var list = routes[s];

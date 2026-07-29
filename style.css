@@ -2109,9 +2109,16 @@ footer {
     image-rendering: pixelated;
 }
 .target-card-name {
-    margin: 0.5rem 0 0.8rem;
+    margin: 0.5rem 0 0.4rem;
     color: var(--text-primary);
     font-size: 1.1rem;
+}
+.target-card-seasons {
+    display: flex;
+    justify-content: center;
+    gap: 0.3rem;
+    margin-bottom: 0.6rem;
+    flex-wrap: wrap;
 }
 .target-card-season-row {
     display: flex;
