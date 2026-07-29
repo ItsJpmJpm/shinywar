@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="stylesheet" href="style.css?v=43">
+    <link rel="stylesheet" href="style.css?v=44">
 </head>
 <body>
     <header>
@@ -58,11 +58,11 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="pokemon-data.js?v=43"></script>
-    <script src="pokemon-routes.js?v=43"></script>
-    <script src="pokemon-sprites.js?v=43"></script>
-    <script src="supabase-config.js?v=43"></script>
-    <script src="auth.js?v=43"></script>
+    <script src="pokemon-data.js?v=44"></script>
+    <script src="pokemon-routes.js?v=44"></script>
+    <script src="pokemon-sprites.js?v=44"></script>
+    <script src="supabase-config.js?v=44"></script>
+    <script src="auth.js?v=44"></script>
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         var grid = document.getElementById("pokedexGrid");
@@ -200,6 +200,7 @@
                                     '<option value="winter">❄️ Invierno</option>' +
                                 '</select>' +
                                 '<select id="modalRouteTimeSelect" class="picker-route-season-select" style="width:auto">' +
+                                    '<option value="all">🔄 Todas</option>' +
                                     '<option value="morning">🌅 Mañana</option>' +
                                     '<option value="day">☀️ Día</option>' +
                                     '<option value="night">🌙 Noche</option>' +
@@ -279,7 +280,7 @@
                     }
                 });
 
-                var timeIcons = {day:"☀️", night:"🌙", morning:"🌅"};
+                var timeIcons = {all:"🔄", day:"☀️", night:"🌙", morning:"🌅"};
 
                 document.getElementById("modalAddRouteBtn").addEventListener("click", function() {
                     var route = modalRouteInput.value.trim();
@@ -321,7 +322,7 @@
                     document.querySelectorAll('#modalRoutesList .picker-route-chip').forEach(function(chip) {
                         var s = chip.dataset.season;
                         var route = chip.querySelector('.picker-route-remove').dataset.route;
-                        var time = chip.dataset.time || 'morning';
+                        var time = chip.dataset.time || 'all';
                         var chance = parseInt(chip.dataset.chance, 10) || 100;
                         if (!routes[s]) routes[s] = [];
                         routes[s].push({ route: route, time: time, chance: chance });
@@ -354,15 +355,15 @@
             routesList.innerHTML = '';
             var currentRoutes = getPokemonRoutes(pokemonName);
             var seasonNames = {all:"🌿 Todas", spring:"🌸 Primavera", summer:"☀️ Verano", autumn:"🍂 Otoño", winter:"❄️ Invierno"};
-            var timeIcons = {day:"☀️", night:"🌙", morning:"🌅"};
+            var timeIcons = {all:"🔄", day:"☀️", night:"🌙", morning:"🌅"};
             for (var s in currentRoutes) {
                 var list = currentRoutes[s];
                 for (var i = 0; i < list.length; i++) {
-                    var r = typeof list[i] === 'string' ? { route: list[i], time: 'morning', chance: 100 } : list[i];
+                    var r = typeof list[i] === 'string' ? { route: list[i], time: 'all', chance: 100 } : list[i];
                     var chip = document.createElement('div');
                     chip.className = 'picker-route-chip';
                     chip.dataset.season = s;
-                    chip.dataset.time = r.time || 'morning';
+                    chip.dataset.time = r.time || 'all';
                     chip.dataset.chance = r.chance || 100;
                     chip.innerHTML = '<span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + (timeIcons[r.time]||"") + ' ' + esc(r.route) + ' <span class="picker-route-chance">' + (r.chance||100) + '%</span> <button class="picker-route-remove" data-route="' + esc(r.route) + '">✕</button>';
                     routesList.appendChild(chip);

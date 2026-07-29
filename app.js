@@ -580,12 +580,12 @@
         html += '<div class="season-picker-header">Rutas</div>';
         html += '<div class="picker-routes-list" id="pickerRoutesList">';
         var seasonNames = {all:"🌿 Todas", spring:"🌸 Primavera", summer:"☀️ Verano", autumn:"🍂 Otoño", winter:"❄️ Invierno"};
-        var timeIcons = {day:"☀️", night:"🌙", morning:"🌅"};
+        var timeIcons = {all:"🔄", day:"☀️", night:"🌙", morning:"🌅"};
         for (var s in currentRoutes) {
             var list = currentRoutes[s];
             for (var i = 0; i < list.length; i++) {
-                var r = typeof list[i] === 'string' ? { route: list[i], time: 'morning', chance: 100 } : list[i];
-                html += '<div class="picker-route-chip" data-season="' + s + '" data-time="' + (r.time||'morning') + '" data-chance="' + (r.chance||100) + '"><span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + (timeIcons[r.time]||"") + ' ' + esc(r.route) + ' <span class="picker-route-chance">' + (r.chance||100) + '%</span> <button class="picker-route-remove" data-route="' + esc(r.route) + '">✕</button></div>';
+                var r = typeof list[i] === 'string' ? { route: list[i], time: 'all', chance: 100 } : list[i];
+                html += '<div class="picker-route-chip" data-season="' + s + '" data-time="' + (r.time||'all') + '" data-chance="' + (r.chance||100) + '"><span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + (timeIcons[r.time]||"") + ' ' + esc(r.route) + ' <span class="picker-route-chance">' + (r.chance||100) + '%</span> <button class="picker-route-remove" data-route="' + esc(r.route) + '">✕</button></div>';
             }
         }
         html += '</div>';
@@ -600,6 +600,7 @@
         html += '<option value="winter">❄️ Invierno</option>';
         html += '</select>';
         html += '<select id="routeTimeSelect" class="picker-route-season-select" style="width:auto">';
+        html += '<option value="all">🔄 Todas</option>';
         html += '<option value="morning">🌅 Mañana</option>';
         html += '<option value="day">☀️ Día</option>';
         html += '<option value="night">🌙 Noche</option>';
@@ -666,7 +667,7 @@
             }
         });
 
-        var timeIcons = {day:"☀️", night:"🌙", morning:"🌅"};
+        var timeIcons = {all:"🔄", day:"☀️", night:"🌙", morning:"🌅"};
 
         // Add route button
         function addRoute() {
@@ -710,7 +711,7 @@
             picker.querySelectorAll('.picker-route-chip').forEach(function(chip) {
                 var s = chip.dataset.season;
                 var route = chip.querySelector('.picker-route-remove').dataset.route;
-                var time = chip.dataset.time || 'morning';
+                var time = chip.dataset.time || 'all';
                 var chance = parseInt(chip.dataset.chance, 10) || 100;
                 if (!routes[s]) routes[s] = [];
                 routes[s].push({ route: route, time: time, chance: chance });
