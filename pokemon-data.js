@@ -1566,6 +1566,10 @@ function displayName(name) {
     return name.charAt(0).toUpperCase() + name.slice(1);
 }
 
+function getPokemonId(name) {
+    return POKEAPI_IDS[name] || "?";
+}
+
 function showTargetCard(pokemonName) {
     var existing = document.getElementById('targetCard');
     if (existing) existing.remove();

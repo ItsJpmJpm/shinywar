@@ -99,6 +99,7 @@
             updateStats();
             renderTeamRoster();
             renderMyTargets();
+            renderClanPrey();
         } catch (e) { /* silent */ }
     }
 
@@ -552,6 +553,89 @@
         });
     }
 
+    // ─── CLAN PREY VIEW ───
+
+    let preyFilter = 'all';
+    let preySearch = '';
+
+    function renderClanPrey() {
+        const list = document.getElementById('clanPreyList');
+        if (!list) return;
+        const session = getSession();
+
+        // Group targets by pokemon_name
+        var groups = {};
+        allTargets.forEach(function(t) {
+            var user = allUsers.find(function(u) { return u.id === t.user_id; });
+            if (!user) return;
+            if (!groups[t.pokemon_name]) {
+                groups[t.pokemon_name] = { pokemon: t.pokemon_name, hunters: [], anyCaught: false };
+            }
+            var g = groups[t.pokemon_name];
+            var existing = g.hunters.find(function(h) { return h.id === t.user_id; });
+            if (!existing) {
+                g.hunters.push({
+                    id: t.user_id,
+                    name: user.display_name || user.username || '???',
+                    caught: t.caught,
+                    isMe: session && t.user_id === session.id
+                });
+            }
+            if (t.caught) g.anyCaught = true;
+        });
+
+        var filtered = Object.keys(groups).map(function(k) { return groups[k]; });
+
+        // Apply filters
+        if (preyFilter === '1') filtered = filtered.filter(function(g) { return g.hunters.length === 1; });
+        else if (preyFilter === '2+') filtered = filtered.filter(function(g) { return g.hunters.length >= 2; });
+        else if (preyFilter === 'caught') filtered = filtered.filter(function(g) { return g.anyCaught; });
+
+        // Search
+        if (preySearch) {
+            var q = preySearch.toLowerCase();
+            filtered = filtered.filter(function(g) { return g.pokemon.toLowerCase().indexOf(q) !== -1; });
+        }
+
+        // Sort by most hunters first, then alphabetically
+        filtered.sort(function(a, b) {
+            if (b.hunters.length !== a.hunters.length) return b.hunters.length - a.hunters.length;
+            return a.pokemon.localeCompare(b.pokemon);
+        });
+
+        if (filtered.length === 0) {
+            list.innerHTML = '<div class="prey-empty">No se encontraron Pokémon.</div>';
+            return;
+        }
+
+        list.innerHTML = filtered.map(function(g) {
+            var sprite = getShinySpriteUrl(g.pokemon);
+            return '<div class="prey-card">' +
+                (sprite ? '<img src="' + sprite + '" class="my-target-sprite" onerror="this.style.display=\'none\'">' : '') +
+                '<div class="prey-card-info">' +
+                    '<div class="prey-card-header">' +
+                        '<span class="prey-card-name" data-pname="' + g.pokemon + '">' + esc(displayName(g.pokemon)) + '</span>' +
+                        '<span class="prey-card-id">#' + getPokemonId(g.pokemon) + '</span>' +
+                        getSeasonBadgeHTML(g.pokemon) +
+                        '<span class="prey-card-count">' + g.hunters.length + ' cazador' + (g.hunters.length > 1 ? 'es' : '') + '</span>' +
+                    '</div>' +
+                    '<div class="prey-hunters">' +
+                        g.hunters.map(function(h) {
+                            return '<span class="prey-hunter' + (h.caught ? ' is-caught' : '') + (h.isMe ? ' is-me' : '') + '">' + esc(h.name) + (h.caught ? ' ✓' : '') + '</span>';
+                        }).join('') +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+        }).join('');
+
+        // Click name to open target card
+        list.querySelectorAll('.prey-card-name').forEach(function(el) {
+            el.addEventListener('click', function() {
+                showTargetCard(this.dataset.pname);
+            });
+        });
+    }
+
     // ─── SEASON PICKER ───
 
     function showSeasonPicker(targetId, pokemonName) {
@@ -760,6 +844,7 @@
             .then(() => {
                 renderMyTargets();
                 renderTeamRoster();
+                renderClanPrey();
                 updateStats();
                 if (refreshInterval) clearInterval(refreshInterval);
                 refreshInterval = setInterval(refreshData, 30000);
@@ -835,6 +920,8 @@
                 const view = tab.dataset.view;
                 document.getElementById('myTargetsView').classList.toggle('hidden', view !== 'targets');
                 document.getElementById('teamRosterView').classList.toggle('hidden', view !== 'roster');
+                document.getElementById('clanPreyView').classList.toggle('hidden', view !== 'prey');
+                if (view === 'prey') renderClanPrey();
             });
         });
 
@@ -857,6 +944,16 @@
                 btn.classList.add('active');
                 currentFilter = btn.dataset.filter;
                 renderTeamRoster();
+            });
+        });
+
+        document.getElementById('preySearch').addEventListener('input', e => { preySearch = e.target.value; renderClanPrey(); });
+        document.querySelectorAll('#clanPreyView .filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#clanPreyView .filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                preyFilter = btn.dataset.preyfilter;
+                renderClanPrey();
             });
         });
     });
