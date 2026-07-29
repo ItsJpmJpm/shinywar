@@ -76,3 +76,6 @@ DROP POLICY IF EXISTS "Anyone can update pokemon_data" ON pokemon_data;
 CREATE POLICY "Anyone can update pokemon_data"
   ON pokemon_data FOR UPDATE
   USING (true);
+
+-- Enable Realtime for targets table (instant sync between users)
+ALTER PUBLICATION supabase_realtime ADD TABLE targets;

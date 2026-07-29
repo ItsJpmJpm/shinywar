@@ -263,6 +263,18 @@
                 }
             });
         }
+
+        // Season badge click — open season picker
+        container.querySelectorAll('.my-target-item .season-badge').forEach(function(badge) {
+            badge.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var item = this.closest('.my-target-item');
+                var tid = item.dataset.tid;
+                var t = allTargets.find(function(x) { return x.id === tid; });
+                if (!t || !session || t.user_id !== session.id) return;
+                showSeasonPicker(tid, t.pokemon_name);
+            });
+        });
     }
 
     async function addMyTarget() {
@@ -533,6 +545,77 @@
         });
     }
 
+    // ─── SEASON PICKER ───
+
+    function showSeasonPicker(targetId, pokemonName) {
+        var existing = document.getElementById('seasonPicker');
+        if (existing) existing.remove();
+
+        var current = getPokemonSeasons(pokemonName);
+        var active = {};
+        current.forEach(function(s) { active[s] = true; });
+
+        var picker = document.createElement('div');
+        picker.id = 'seasonPicker';
+        picker.className = 'season-picker';
+
+        var html = '<div class="season-picker-header">Estaciones</div>';
+        html += '<label class="season-picker-opt"><input type="checkbox" ' + (active['all'] ? 'checked' : '') + ' data-s="all"> 🌿 Todas</label>';
+        html += '<label class="season-picker-opt"><input type="checkbox" ' + (active['spring'] && !active['all'] ? 'checked' : '') + ' data-s="spring"> 🌸 Primavera</label>';
+        html += '<label class="season-picker-opt"><input type="checkbox" ' + (active['summer'] && !active['all'] ? 'checked' : '') + ' data-s="summer"> ☀️ Verano</label>';
+        html += '<label class="season-picker-opt"><input type="checkbox" ' + (active['autumn'] && !active['all'] ? 'checked' : '') + ' data-s="autumn"> 🍂 Otoño</label>';
+        html += '<label class="season-picker-opt"><input type="checkbox" ' + (active['winter'] && !active['all'] ? 'checked' : '') + ' data-s="winter"> ❄️ Invierno</label>';
+        html += '<button class="season-picker-save">Guardar</button>';
+        html += '<button class="season-picker-close">✕</button>';
+        picker.innerHTML = html;
+        document.body.appendChild(picker);
+
+        var allChk = picker.querySelector('[data-s="all"]');
+        var seasonChks = picker.querySelectorAll('[data-s]:not([data-s="all"])');
+
+        allChk.addEventListener('change', function() {
+            seasonChks.forEach(function(c) { c.checked = false; });
+        });
+        seasonChks.forEach(function(c) {
+            c.addEventListener('change', function() {
+                if (this.checked) allChk.checked = false;
+                else {
+                    var anyOn = Array.from(seasonChks).some(function(x) { return x.checked; });
+                    if (!anyOn) allChk.checked = true;
+                }
+            });
+        });
+
+        picker.querySelector('.season-picker-save').addEventListener('click', function() {
+            var selected;
+            if (allChk.checked) selected = 'all';
+            else selected = Array.from(seasonChks).filter(function(c) { return c.checked; }).map(function(c) { return c.dataset.s; }).join(',') || 'all';
+            saveTargetSeason(targetId, pokemonName, selected);
+            picker.remove();
+        });
+        picker.querySelector('.season-picker-close').addEventListener('click', function() { picker.remove(); });
+    }
+
+    async function saveTargetSeason(targetId, pokemonName, seasons) {
+        var lc = pokemonName.toLowerCase();
+        if (!pokemonOverrides[lc]) pokemonOverrides[lc] = {};
+        pokemonOverrides[lc].seasons = seasons;
+        await supabaseClient.from('pokemon_data').upsert({ name: lc, seasons: seasons }, { onConflict: 'name' }).catch(function() {});
+        renderMyTargets();
+        renderTeamRoster();
+    }
+
+    // ─── REALTIME ───
+
+    var targetsChannel = null;
+
+    function subscribeRealtime() {
+        if (targetsChannel) supabaseClient.removeChannel(targetsChannel);
+        targetsChannel = supabaseClient.channel('public:targets')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'targets' }, function() { refreshData(); })
+            .subscribe();
+    }
+
     // ─── INIT ───
 
     function showApp() {
@@ -549,6 +632,7 @@
                 updateStats();
                 if (refreshInterval) clearInterval(refreshInterval);
                 refreshInterval = setInterval(refreshData, 30000);
+                subscribeRealtime();
             })
             .catch(err => {
                 document.getElementById('myTargetList').innerHTML = `
@@ -609,6 +693,7 @@
         document.getElementById('logoutBtn').addEventListener('click', (e) => {
             e.preventDefault();
             if (refreshInterval) clearInterval(refreshInterval);
+            if (targetsChannel) supabaseClient.removeChannel(targetsChannel);
             Auth.logout(); showAuth();
         });
 

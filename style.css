@@ -1904,3 +1904,60 @@ footer {
         padding: 0.3rem 0.5rem;
     }
 }
+
+/* Season picker popover */
+.season-picker {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #0f1a2e;
+    border: 1px solid rgba(56,189,248,0.25);
+    border-radius: 12px;
+    padding: 1rem;
+    z-index: 1000;
+    min-width: 200px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.season-picker-header {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+    color: var(--accent-blue);
+}
+.season-picker-opt {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0;
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+.season-picker-opt input { accent-color: var(--accent-blue); }
+.season-picker-save {
+    margin-top: 0.6rem;
+    width: 100%;
+    padding: 0.4rem;
+    border: none;
+    border-radius: 6px;
+    background: var(--accent-blue);
+    color: #fff;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+.season-picker-close {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.4rem;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.9rem;
+    line-height: 1;
+    padding: 0.2rem;
+}
+
+/* Clickable season badge in my-target-item */
+.my-target-item .season-badge { cursor: pointer; }
