@@ -1354,8 +1354,9 @@ const SEASON_LABELS = {
 };
 
 function getPokemonTier(pokemonName) {
-    if (pokemonOverrides[pokemonName] && pokemonOverrides[pokemonName].tier) {
-        return pokemonOverrides[pokemonName].tier;
+    var ov = getPokemonOverride(pokemonName.toLowerCase());
+    if (ov && ov.tier) {
+        return ov.tier;
     }
     const name = pokemonName.toLowerCase();
     for (const [tier, list] of Object.entries(POKEMON_TIERS)) {
@@ -1368,11 +1369,19 @@ function getPokemonTier(pokemonName) {
 
 var pokemonOverrides = {};
 
+function getPokemonOverride(key) {
+    if (pokemonOverrides[key] !== undefined) return pokemonOverrides[key];
+    for (var k in pokemonOverrides) {
+        if (k.toLowerCase() === key) return pokemonOverrides[k];
+    }
+    return undefined;
+}
+
 function getPokemonSeasons(pokemonName) {
-    if (pokemonOverrides[pokemonName] && pokemonOverrides[pokemonName].seasons !== undefined) {
-        var s = pokemonOverrides[pokemonName].seasons;
-        if (!s || s === "all") return ["all"];
-        return s.split(',');
+    var ov = getPokemonOverride(pokemonName.toLowerCase());
+    if (ov && ov.seasons !== undefined) {
+        if (!ov.seasons || ov.seasons === "all") return ["all"];
+        return ov.seasons.split(',');
     }
     var staticSeason = POKEMON_SEASONS[pokemonName] || "all";
     return [staticSeason];

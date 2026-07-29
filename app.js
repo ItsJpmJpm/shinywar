@@ -58,8 +58,9 @@
             console.warn('Error loading pokemon_data:', pokeErr);
         } else if (pokeData) {
             for (const row of pokeData) {
-                if (!pokemonOverrides[row.name]) pokemonOverrides[row.name] = {};
-                if (row.seasons) pokemonOverrides[row.name].seasons = row.seasons;
+                const key = row.name.toLowerCase();
+                if (!pokemonOverrides[key]) pokemonOverrides[key] = {};
+                if (row.seasons) pokemonOverrides[key].seasons = row.seasons;
             }
         }
 

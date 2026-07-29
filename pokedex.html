@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="stylesheet" href="style.css?v=27">
+    <link rel="stylesheet" href="style.css?v=28">
 </head>
 <body>
     <header>
@@ -58,10 +58,10 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="pokemon-data.js?v=27"></script>
-    <script src="pokemon-sprites.js?v=27"></script>
-    <script src="supabase-config.js?v=27"></script>
-    <script src="auth.js?v=27"></script>
+    <script src="pokemon-data.js?v=28"></script>
+    <script src="pokemon-sprites.js?v=28"></script>
+    <script src="supabase-config.js?v=28"></script>
+    <script src="auth.js?v=28"></script>
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         var grid = document.getElementById("pokedexGrid");
@@ -286,10 +286,11 @@
             document.getElementById("modalSaveBtn").textContent = "Guardando...";
             document.getElementById("modalSaveBtn").disabled = true;
 
-            if (!pokemonOverrides[name]) pokemonOverrides[name] = {};
-            pokemonOverrides[name].seasons = seasons || "all";
+            var lcName = name.toLowerCase();
+            if (!pokemonOverrides[lcName]) pokemonOverrides[lcName] = {};
+            pokemonOverrides[lcName].seasons = seasons || "all";
 
-            var payload = { name: name, seasons: seasons || "all" };
+            var payload = { name: lcName, seasons: seasons || "all" };
 
             supabaseClient
                 .from("pokemon_data")
@@ -324,8 +325,9 @@
                     if (resp.data) {
                         for (var i = 0; i < resp.data.length; i++) {
                             var row = resp.data[i];
-                            if (!pokemonOverrides[row.name]) pokemonOverrides[row.name] = {};
-                            if (row.seasons) pokemonOverrides[row.name].seasons = row.seasons;
+                            var key = row.name.toLowerCase();
+                            if (!pokemonOverrides[key]) pokemonOverrides[key] = {};
+                            if (row.seasons) pokemonOverrides[key].seasons = row.seasons;
                         }
                     }
                     render(searchInput.value);
