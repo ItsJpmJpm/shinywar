@@ -590,6 +590,7 @@
             var selected;
             if (allChk.checked) selected = 'all';
             else selected = Array.from(seasonChks).filter(function(c) { return c.checked; }).map(function(c) { return c.dataset.s; }).join(',') || 'all';
+            console.log('Saving season for', pokemonName, ':', selected);
             saveTargetSeason(targetId, pokemonName, selected);
             picker.remove();
         });
@@ -600,9 +601,10 @@
         var lc = pokemonName.toLowerCase();
         if (!pokemonOverrides[lc]) pokemonOverrides[lc] = {};
         pokemonOverrides[lc].seasons = seasons;
-        await supabaseClient.from('pokemon_data').upsert({ name: lc, seasons: seasons }, { onConflict: 'name' }).catch(function() {});
         renderMyTargets();
         renderTeamRoster();
+        var { error } = await supabaseClient.from('pokemon_data').upsert({ name: lc, seasons: seasons }, { onConflict: 'name' });
+        if (error) console.warn('Error saving season override:', error);
     }
 
     // ─── REALTIME ───
