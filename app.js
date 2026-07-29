@@ -552,60 +552,6 @@
         });
     }
 
-    // ─── TARGET CARD ───
-
-    function showTargetCard(pokemonName) {
-        var existing = document.getElementById('targetCard');
-        if (existing) existing.remove();
-
-        var card = document.createElement('div');
-        card.id = 'targetCard';
-        card.className = 'target-card-overlay';
-
-        var sprite = getShinySpriteUrl(pokemonName);
-        var routes = getPokemonRoutes(pokemonName);
-        var seasons = getPokemonSeasons(pokemonName);
-        var seasonNames = {all:"🌿 Todas", spring:"🌸 Primavera", summer:"☀️ Verano", autumn:"🍂 Otoño", winter:"❄️ Invierno"};
-
-        var html = '<div class="target-card">';
-        html += '<button class="target-card-close">✕</button>';
-        html += '<div class="target-card-sprite">';
-        if (sprite) html += '<img src="' + sprite + '" onerror="this.style.display=\'none\'">';
-        html += '</div>';
-        html += '<h3 class="target-card-name">' + esc(displayName(pokemonName)) + '</h3>';
-
-        // Seasons
-        html += '<div class="target-card-seasons">';
-        seasons.forEach(function(s) {
-            html += '<span class="season-badge season-badge-' + s + '">' + (seasonNames[s]||s) + '</span>';
-        });
-        html += '</div>';
-
-        html += '<div class="target-card-divider"></div>';
-
-        // Routes by season
-        var hasRoutes = false;
-        for (var s in routes) {
-            var list = routes[s];
-            if (!list || !list.length) continue;
-            hasRoutes = true;
-            html += '<div class="target-card-season-row"><span class="season-badge season-badge-' + s + '">' + (seasonNames[s]||s) + '</span>';
-            html += '<span class="target-card-routes">' + list.map(function(r) { return esc(r); }).join(', ') + '</span></div>';
-        }
-        if (!hasRoutes) {
-            html += '<p class="target-card-no-routes">Sin rutas registradas</p>';
-        }
-
-        html += '</div>';
-        card.innerHTML = html;
-        document.body.appendChild(card);
-
-        card.addEventListener('click', function(e) {
-            if (e.target === card) card.remove();
-        });
-        card.querySelector('.target-card-close').addEventListener('click', function() { card.remove(); });
-    }
-
     // ─── SEASON PICKER ───
 
     function showSeasonPicker(targetId, pokemonName) {
