@@ -8,7 +8,7 @@ var ALL_ROUTES = [
     "Ruta 26 (Kanto)","Ruta 27 (Kanto)","Ruta 28 (Kanto)",
     "Bosque Verde","Monte Moon","Cueva Celeste","Túnel Rocoso","Central Energía",
     "Cueva Diglett","Central Térmica","Zona Safari (Kanto)","Mansión Pokémon",
-    "Cueva Celeste","Islas Espuma","Calle Victoria (Kanto)","Meseta Añil",
+    "Islas Espuma","Calle Victoria (Kanto)","Meseta Añil",
 
     // Johto
     "Ruta 29 (Johto)","Ruta 30 (Johto)","Ruta 31 (Johto)","Ruta 32 (Johto)","Ruta 33 (Johto)",
