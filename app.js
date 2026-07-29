@@ -54,7 +54,9 @@
         // Load season overrides from pokemon_data so Pokedex changes reflect here
         const { data: pokeData, error: pokeErr } = await supabaseClient
             .from('pokemon_data').select('name, seasons');
-        if (!pokeErr && pokeData) {
+        if (pokeErr) {
+            console.warn('Error loading pokemon_data:', pokeErr);
+        } else if (pokeData) {
             for (const row of pokeData) {
                 if (!pokemonOverrides[row.name]) pokemonOverrides[row.name] = {};
                 if (row.seasons) pokemonOverrides[row.name].seasons = row.seasons;
@@ -184,8 +186,11 @@
             const pts = calculatePoints(t.tier, t.method || 'wild', t.is_alpha, t.is_secret);
             const method = t.method || 'wild';
             return `
-                <div class="my-target-item ${t.caught ? 'is-caught' : ''}" draggable="true" data-tid="${t.id}">
-                    <span class="drag-handle" title="Arrastrar para reordenar">⠿</span>
+                <div class="my-target-item ${t.caught ? 'is-caught' : ''}" data-tid="${t.id}">
+                    <div class="my-target-move">
+                        <button class="move-btn move-up" data-tid="${t.id}" title="Mover arriba">▲</button>
+                        <button class="move-btn move-down" data-tid="${t.id}" title="Mover abajo">▼</button>
+                    </div>
                     <button class="caught-btn ${t.caught ? 'is-caught' : ''}" data-tid="${t.id}" title="${t.caught ? 'Descapturar' : 'Marcar como capturado'}">
                         ${t.caught ? '✓' : '○'}
                     </button>
@@ -237,59 +242,42 @@
             btn.addEventListener('click', () => removeMyTarget(btn.dataset.tid));
         });
 
-        // Drag-and-drop reordering (event delegation, set up once)
-        if (!container._dragInit) {
-            container._dragInit = true;
-            let dragSrcEl = null;
-            let didDrop = false;
-            container.addEventListener('dragstart', function(e) {
-                const item = e.target.closest('.my-target-item');
-                if (!item) return;
-                dragSrcEl = item;
-                didDrop = false;
-                item.classList.add('dragging');
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/plain', item.dataset.tid);
-            });
-            container.addEventListener('dragend', function(e) {
-                const item = e.target.closest('.my-target-item');
-                if (!item) return;
-                item.classList.remove('dragging');
-                container.querySelectorAll('.my-target-item').forEach(el => el.classList.remove('drag-over'));
-                if (didDrop) saveSortOrder(container);
-                dragSrcEl = null;
-                didDrop = false;
-            });
-            container.addEventListener('dragover', function(e) {
-                const item = e.target.closest('.my-target-item');
-                if (!item) return;
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'move';
-                container.querySelectorAll('.my-target-item').forEach(el => el.classList.remove('drag-over'));
-                item.classList.add('drag-over');
-            });
-            container.addEventListener('dragleave', function(e) {
-                const item = e.target.closest('.my-target-item');
-                if (!item) return;
-                item.classList.remove('drag-over');
-            });
-            container.addEventListener('drop', function(e) {
-                const item = e.target.closest('.my-target-item');
-                if (!item) return;
-                e.preventDefault();
-                item.classList.remove('drag-over');
-                if (!dragSrcEl || dragSrcEl === item) return;
-                const allItems = Array.from(container.querySelectorAll('.my-target-item'));
-                const fromIdx = allItems.indexOf(dragSrcEl);
-                const toIdx = allItems.indexOf(item);
-                if (fromIdx < toIdx) {
-                    container.insertBefore(dragSrcEl, item.nextSibling);
-                } else {
-                    container.insertBefore(dragSrcEl, item);
-                }
-                didDrop = true;
-            });
-        }
+        // Move up/down reordering
+        container.querySelectorAll('.move-up').forEach(btn => {
+            btn.addEventListener('click', () => moveTarget(btn.dataset.tid, -1));
+        });
+        container.querySelectorAll('.move-down').forEach(btn => {
+            btn.addEventListener('click', () => moveTarget(btn.dataset.tid, 1));
+        });
+    }
+
+    function moveTarget(targetId, direction) {
+        const session = getSession();
+        if (!session) return;
+        const container = document.getElementById('myTargetList');
+        if (!container) return;
+        const targets = getUserTargets(session.id);
+        const idx = targets.findIndex(t => t.id === targetId);
+        if (idx === -1) return;
+        const newIdx = idx + direction;
+        if (newIdx < 0 || newIdx >= targets.length) return;
+
+        // Swap sort_order
+        const a = targets[idx];
+        const b = targets[newIdx];
+        const tempOrder = a.sort_order;
+        a.sort_order = b.sort_order;
+        b.sort_order = tempOrder;
+
+        allTargets.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+
+        // Persist to DB
+        Promise.all([
+            supabaseClient.from('targets').update({ sort_order: a.sort_order }).eq('id', a.id),
+            supabaseClient.from('targets').update({ sort_order: b.sort_order }).eq('id', b.id)
+        ]).catch(() => {});
+
+        renderMyTargets();
     }
 
     async function addMyTarget() {
@@ -394,23 +382,6 @@
         renderTeamRoster();
         updateStats();
         showToast(`${target.pokemon_name} eliminado`, 'info');
-    }
-
-    async function saveSortOrder(container) {
-        const items = container.querySelectorAll('.my-target-item');
-        const updates = [];
-        items.forEach((el, idx) => {
-            const tid = el.dataset.tid;
-            const target = allTargets.find(t => t.id === tid);
-            if (target && target.sort_order !== idx) {
-                target.sort_order = idx;
-                updates.push(supabaseClient.from('targets').update({ sort_order: idx }).eq('id', tid));
-            }
-        });
-        if (updates.length > 0) {
-            await Promise.all(updates);
-        }
-        allTargets.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
     }
 
     // ─── AUTOCOMPLETE ───
