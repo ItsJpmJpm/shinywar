@@ -160,6 +160,7 @@
                 html += '<div class="pokedex-card-id">#' + p.id + '</div>';
                 html += formatTierBadge(liveTier);
                 html += getSeasonBadgeHTML(p.name);
+                html += getRouteChipsHTML(p.name);
                 html += '</div>';
             }
 
@@ -186,7 +187,7 @@
                 modalEl.className = "season-modal-overlay";
                 modalEl.innerHTML =
                     '<div class="season-modal">' +
-                        '<h3 class="season-modal-title">Estaciones</h3>' +
+                        '<h3 class="season-modal-title">Estaciones y Rutas</h3>' +
                         '<p class="season-modal-poke" id="modalPokeName"></p>' +
                         '<div class="modal-section">' +
                             '<label class="modal-label">Estaciones</label>' +
@@ -197,6 +198,22 @@
                                 '<label class="modal-checkbox"><input type="checkbox" value="winter"> ❄️ Invierno</label>' +
                                 '<label class="modal-checkbox modal-checkbox-all"><input type="checkbox" value="all" id="modalSeasonAll"> 🌿 Todas</label>' +
                             '</div>' +
+                        '</div>' +
+                        '<div class="modal-section">' +
+                            '<label class="modal-label">Rutas</label>' +
+                            '<div id="modalRoutesList" class="picker-routes-list"></div>' +
+                            '<div class="picker-add-route-row">' +
+                                '<input type="text" id="modalRouteInput" class="picker-route-input" placeholder="Escribí una ruta..." autocomplete="off">' +
+                                '<select id="modalRouteSeasonSelect" class="picker-route-season-select">' +
+                                    '<option value="all">🌿 Todas</option>' +
+                                    '<option value="spring">🌸 Primavera</option>' +
+                                    '<option value="summer">☀️ Verano</option>' +
+                                    '<option value="autumn">🍂 Otoño</option>' +
+                                    '<option value="winter">❄️ Invierno</option>' +
+                                '</select>' +
+                                '<button id="modalAddRouteBtn" class="picker-add-route-btn">+</button>' +
+                            '</div>' +
+                            '<div class="route-autocomplete hidden" id="modalRouteAutocomplete"></div>' +
                         '</div>' +
                         '<div class="season-modal-actions">' +
                             '<button id="modalSaveBtn" class="btn btn-primary">Guardar</button>' +
@@ -232,26 +249,85 @@
                     });
                 });
 
+                // Route autocomplete
+                var modalRouteInput = document.getElementById("modalRouteInput");
+                var modalRouteAC = document.getElementById("modalRouteAutocomplete");
+
+                function showModalRouteAC(query) {
+                    if (!query || query.length < 1) { modalRouteAC.classList.add('hidden'); return; }
+                    var results = suggestRoutes(query);
+                    if (!results.length) { modalRouteAC.classList.add('hidden'); return; }
+                    modalRouteAC.innerHTML = results.map(function(r) {
+                        return '<div class="route-ac-item" data-route="' + esc(r) + '">' + esc(r) + '</div>';
+                    }).join('');
+                    modalRouteAC.classList.remove('hidden');
+                    modalRouteAC.querySelectorAll('.route-ac-item').forEach(function(item) {
+                        item.addEventListener('click', function() {
+                            modalRouteInput.value = this.dataset.route;
+                            modalRouteAC.classList.add('hidden');
+                        });
+                    });
+                }
+
+                modalRouteInput.addEventListener('input', function() { showModalRouteAC(this.value); });
+                modalRouteInput.addEventListener('blur', function() { setTimeout(function() { modalRouteAC.classList.add('hidden'); }, 200); });
+                modalRouteInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        document.getElementById('modalAddRouteBtn').click();
+                    } else if (e.key === 'Escape') {
+                        modalRouteAC.classList.add('hidden');
+                    }
+                });
+
+                document.getElementById("modalAddRouteBtn").addEventListener("click", function() {
+                    var route = modalRouteInput.value.trim();
+                    if (!route) return;
+                    var s = document.getElementById('modalRouteSeasonSelect').value;
+                    var list = document.getElementById('modalRoutesList');
+                    var seasonNames = {all:"🌿 Todas", spring:"🌸 Primavera", summer:"☀️ Verano", autumn:"🍂 Otoño", winter:"❄️ Invierno"};
+                    var chip = document.createElement('div');
+                    chip.className = 'picker-route-chip';
+                    chip.dataset.season = s;
+                    chip.innerHTML = '<span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + esc(route) + ' <button class="picker-route-remove" data-season="' + s + '" data-route="' + esc(route) + '">✕</button>';
+                    list.appendChild(chip);
+                    chip.querySelector('.picker-route-remove').addEventListener('click', function() { chip.remove(); });
+                    modalRouteInput.value = '';
+                    modalRouteAC.classList.add('hidden');
+                    modalRouteInput.focus();
+                });
+
                 document.getElementById("modalSaveBtn").addEventListener("click", function() {
                     var name = modalEl.dataset.pname;
 
                     var allCheck = document.getElementById("modalSeasonAll");
+                    var seasonsStr;
                     if (allCheck.checked) {
-                        savePokemonData(name, "all");
-                        return;
+                        seasonsStr = "all";
+                    } else {
+                        var selected = [];
+                        document.querySelectorAll(".modal-checkbox-group input[type=checkbox]:not(#modalSeasonAll)").forEach(function(cb) {
+                            if (cb.checked) selected.push(cb.value);
+                        });
+                        seasonsStr = selected.length > 0 ? selected.join(",") : "all";
                     }
-                    var selected = [];
-                    document.querySelectorAll(".modal-checkbox-group input[type=checkbox]:not(#modalSeasonAll)").forEach(function(cb) {
-                        if (cb.checked) selected.push(cb.value);
+
+                    var routes = {};
+                    document.querySelectorAll('#modalRoutesList .picker-route-chip').forEach(function(chip) {
+                        var s = chip.dataset.season;
+                        var route = chip.querySelector('.picker-route-remove').dataset.route;
+                        if (!routes[s]) routes[s] = [];
+                        routes[s].push(route);
                     });
-                    var seasonsStr = selected.length > 0 ? selected.join(",") : "all";
-                    savePokemonData(name, seasonsStr);
+
+                    savePokemonData(name, seasonsStr, routes);
                 });
             }
 
             modalEl.dataset.pname = pokemonName;
             document.getElementById("modalPokeName").textContent = displayName(pokemonName) + " (#" + getPokemonId(pokemonName) + ")";
 
+            // Load seasons
             var seasons = getPokemonSeasons(pokemonName);
             var allCheck = document.getElementById("modalSeasonAll");
             if (seasons.length === 1 && seasons[0] === "all") {
@@ -266,6 +342,23 @@
                 });
             }
 
+            // Load routes
+            var routesList = document.getElementById('modalRoutesList');
+            routesList.innerHTML = '';
+            var currentRoutes = getPokemonRoutes(pokemonName);
+            var seasonNames = {all:"🌿 Todas", spring:"🌸 Primavera", summer:"☀️ Verano", autumn:"🍂 Otoño", winter:"❄️ Invierno"};
+            for (var s in currentRoutes) {
+                var list = currentRoutes[s];
+                for (var i = 0; i < list.length; i++) {
+                    var chip = document.createElement('div');
+                    chip.className = 'picker-route-chip';
+                    chip.dataset.season = s;
+                    chip.innerHTML = '<span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + esc(list[i]) + ' <button class="picker-route-remove" data-season="' + s + '" data-route="' + esc(list[i]) + '">✕</button>';
+                    routesList.appendChild(chip);
+                    chip.querySelector('.picker-route-remove').addEventListener('click', function() { chip.remove(); });
+                }
+            }
+
             modalEl.style.display = "flex";
         }
 
@@ -277,7 +370,7 @@
             if (modalEl) modalEl.style.display = "none";
         }
 
-        function savePokemonData(name, seasons) {
+        function savePokemonData(name, seasons, routes) {
             if (!window.supabaseClient) {
                 alert("No hay conexión con la base de datos.");
                 document.getElementById("modalSaveBtn").textContent = "Guardar";
@@ -290,8 +383,10 @@
             var lcName = name.toLowerCase();
             if (!pokemonOverrides[lcName]) pokemonOverrides[lcName] = {};
             pokemonOverrides[lcName].seasons = seasons || "all";
+            if (routes !== undefined) pokemonOverrides[lcName].routes = routes;
 
             var payload = { name: lcName, seasons: seasons || "all" };
+            if (routes !== undefined) payload.routes = routes;
 
             supabaseClient
                 .from("pokemon_data")

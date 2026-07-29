@@ -1524,3 +1524,24 @@ function searchPokemon(query) {
 function suggestPokemon(query) {
     return searchPokemon(query);
 }
+
+function esc(str) {
+    if (!str) return '';
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+}
+
+function getRouteChipsHTML(pokemonName) {
+    var routes = getPokemonRoutes(pokemonName);
+    var parts = [];
+    for (var s in routes) {
+        var seasonRoutes = routes[s];
+        if (!seasonRoutes || !seasonRoutes.length) continue;
+        for (var i = 0; i < seasonRoutes.length; i++) {
+            parts.push('<span class="route-chip">' + esc(seasonRoutes[i]) + '</span>');
+        }
+    }
+    if (parts.length === 0) return '';
+    return '<div class="route-chips">' + parts.join('') + '</div>';
+}

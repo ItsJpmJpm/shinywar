@@ -160,13 +160,6 @@
         perPlayerEl.innerHTML = playerHtml || '<div style="padding:0.5rem;color:var(--text-muted);font-size:0.85rem;text-align:center">Sin capturas todavía</div>';
     }
 
-    function esc(str) {
-        if (!str) return '';
-        const d = document.createElement('div');
-        d.textContent = str;
-        return d.innerHTML;
-    }
-
     // ─── MY TARGETS VIEW ───
 
     function renderMyTargets() {
@@ -545,22 +538,6 @@
                 toggleMyCaught(btn.dataset.tid);
             });
         });
-    }
-
-    // ─── ROUTE CHIPS ───
-
-    function getRouteChipsHTML(pokemonName) {
-        var routes = getPokemonRoutes(pokemonName);
-        var parts = [];
-        for (var s in routes) {
-            var seasonRoutes = routes[s];
-            if (!seasonRoutes || !seasonRoutes.length) continue;
-            for (var i = 0; i < seasonRoutes.length; i++) {
-                parts.push('<span class="route-chip">' + esc(seasonRoutes[i]) + '</span>');
-            }
-        }
-        if (parts.length === 0) return '';
-        return '<div class="route-chips">' + parts.join('') + '</div>';
     }
 
     // ─── SEASON PICKER ───
