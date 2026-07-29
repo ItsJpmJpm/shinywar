@@ -2123,6 +2123,10 @@ footer {
     margin-bottom: 0.6rem;
     flex-wrap: wrap;
 }
+.target-card-divider {
+    border-top: 1px solid rgba(56,189,248,0.15);
+    margin: 0 0 0.6rem;
+}
 .target-card-season-row {
     display: flex;
     align-items: center;

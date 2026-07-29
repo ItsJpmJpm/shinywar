@@ -581,6 +581,8 @@
         });
         html += '</div>';
 
+        html += '<div class="target-card-divider"></div>';
+
         // Routes by season
         var hasRoutes = false;
         for (var s in routes) {
