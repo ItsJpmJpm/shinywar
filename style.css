@@ -1467,6 +1467,26 @@ footer {
     color: var(--accent-blue);
     font-weight: 600;
 }
+.horde-btn {
+    background: rgba(56,189,248,0.06);
+    border: 1px solid rgba(56,189,248,0.1);
+    color: var(--text-secondary);
+    padding: 0.3rem 0.6rem;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.horde-btn:hover {
+    background: rgba(56,189,248,0.1);
+    color: var(--text-primary);
+}
+.horde-btn.active {
+    background: rgba(56,189,248,0.15);
+    border-color: rgba(56,189,248,0.35);
+    color: var(--accent-blue);
+    font-weight: 600;
+}
 
 .pokedex-pokemon-grid {
     display: grid;

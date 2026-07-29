@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="stylesheet" href="style.css?v=47">
+    <link rel="stylesheet" href="style.css?v=48">
 </head>
 <body>
     <header>
@@ -156,6 +156,13 @@
                     <button class="filter-btn prey-tier-btn" data-pretier="tier7" style="font-size:0.7rem;padding:0.3rem 0.6rem;color:#64748b">T7</button>
                 </div>
             </div>
+            <div class="controls" style="margin-top:-0.5rem">
+                <div class="filter-buttons">
+                    <button class="filter-btn prey-horde-btn active" data-prehorde="all" style="font-size:0.7rem;padding:0.3rem 0.6rem">Todas las hordas</button>
+                    <button class="filter-btn prey-horde-btn" data-prehorde="5" style="font-size:0.7rem;padding:0.3rem 0.6rem">5×</button>
+                    <button class="filter-btn prey-horde-btn" data-prehorde="3" style="font-size:0.7rem;padding:0.3rem 0.6rem">3×</button>
+                </div>
+            </div>
             <div id="clanPreyList" class="prey-list"></div>
         </section>
     </main>
@@ -166,13 +173,13 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js?v=47"></script>
-    <script src="pokemon-data.js?v=47"></script>
-    <script src="pokemon-routes.js?v=47"></script>
-    <script src="pokemon-sprites.js?v=47"></script>
-    <script src="evolution-lines.js?v=47"></script>
-    <script src="auth.js?v=47"></script>
-    <script src="app.js?v=47"></script>
+    <script src="supabase-config.js?v=48"></script>
+    <script src="pokemon-data.js?v=48"></script>
+    <script src="pokemon-routes.js?v=48"></script>
+    <script src="pokemon-sprites.js?v=48"></script>
+    <script src="evolution-lines.js?v=48"></script>
+    <script src="auth.js?v=48"></script>
+    <script src="app.js?v=48"></script>
     <script>
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(function(regs) {

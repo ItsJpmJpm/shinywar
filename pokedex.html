@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <link rel="stylesheet" href="style.css?v=47">
+    <link rel="stylesheet" href="style.css?v=48">
 </head>
 <body>
     <header>
@@ -50,6 +50,11 @@
             <button class="season-btn" data-season="autumn">🍂 Otoño</button>
             <button class="season-btn" data-season="winter">❄️ Invierno</button>
         </div>
+        <div class="pokedex-season-filters">
+            <button class="horde-btn active" data-horde="all">Todas las hordas</button>
+            <button class="horde-btn" data-horde="5">5×</button>
+            <button class="horde-btn" data-horde="3">3×</button>
+        </div>
         <div id="pokedexGrid" class="pokedex-pokemon-grid"></div>
     </main>
 
@@ -58,11 +63,11 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="pokemon-data.js?v=47"></script>
-    <script src="pokemon-routes.js?v=47"></script>
-    <script src="pokemon-sprites.js?v=47"></script>
-    <script src="supabase-config.js?v=47"></script>
-    <script src="auth.js?v=47"></script>
+    <script src="pokemon-data.js?v=48"></script>
+    <script src="pokemon-routes.js?v=48"></script>
+    <script src="pokemon-sprites.js?v=48"></script>
+    <script src="supabase-config.js?v=48"></script>
+    <script src="auth.js?v=48"></script>
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         var grid = document.getElementById("pokedexGrid");
@@ -79,6 +84,7 @@
 
         var currentTier = "all";
         var currentSeason = "all";
+        var currentHorde = "all";
         var currentSort = "num";
 
         var session = window.Auth ? Auth.getSession() : null;
@@ -117,6 +123,21 @@
                 if (currentTier !== "all" && liveTier !== currentTier) continue;
                 var liveSeasons = getPokemonSeasons(p.name);
                 if (currentSeason !== "all" && liveSeasons.indexOf(currentSeason) === -1) continue;
+                if (currentHorde !== "all") {
+                    var liveRoutes = getPokemonRoutes(p.name);
+                    var targetHorde = parseInt(currentHorde, 10);
+                    var hasHorde = false;
+                    for (var rs in liveRoutes) {
+                        var rlist = liveRoutes[rs];
+                        if (!rlist || !rlist.length) continue;
+                        for (var ri = 0; ri < rlist.length; ri++) {
+                            var rh = typeof rlist[ri] === 'string' ? 5 : (rlist[ri].hordeSize || 5);
+                            if (rh === targetHorde) { hasHorde = true; break; }
+                        }
+                        if (hasHorde) break;
+                    }
+                    if (!hasHorde) continue;
+                }
                 filtered.push(p);
             }
 
@@ -211,6 +232,10 @@
                                     '<option value="50">50%</option>' +
                                     '<option value="25">25%</option>' +
                                 '</select>' +
+                                '<select id="modalRouteHordeSelect" class="picker-route-season-select" style="width:auto;min-width:4rem">' +
+                                    '<option value="5">5×</option>' +
+                                    '<option value="3">3×</option>' +
+                                '</select>' +
                                 '<button id="modalAddRouteBtn" class="picker-add-route-btn">+</button>' +
                             '</div>' +
                             '<div class="route-autocomplete hidden" id="modalRouteAutocomplete"></div>' +
@@ -288,6 +313,7 @@
                     var s = document.getElementById('modalRouteSeasonSelect').value;
                     var time = document.getElementById('modalRouteTimeSelect').value;
                     var chance = parseInt(document.getElementById('modalRouteChanceSelect').value, 10);
+                    var hordeSize = parseInt(document.getElementById('modalRouteHordeSelect').value, 10);
                     var list = document.getElementById('modalRoutesList');
                     var seasonNames = {all:"🌿 Todas", spring:"🌸 Primavera", summer:"☀️ Verano", autumn:"🍂 Otoño", winter:"❄️ Invierno"};
                     var chip = document.createElement('div');
@@ -295,7 +321,8 @@
                     chip.dataset.season = s;
                     chip.dataset.time = time;
                     chip.dataset.chance = chance;
-                    chip.innerHTML = '<span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + (timeIcons[time]||"") + ' ' + esc(route) + ' <span class="picker-route-chance">' + chance + '%</span> <button class="picker-route-remove" data-route="' + esc(route) + '">✕</button>';
+                    chip.dataset.horde = hordeSize;
+                    chip.innerHTML = '<span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + (timeIcons[time]||"") + ' <strong>' + hordeSize + '×</strong> ' + esc(route) + ' <span class="picker-route-chance">' + chance + '%</span> <button class="picker-route-remove" data-route="' + esc(route) + '">✕</button>';
                     list.appendChild(chip);
                     chip.querySelector('.picker-route-remove').addEventListener('click', function() { chip.remove(); });
                     modalRouteInput.value = '';
@@ -324,8 +351,9 @@
                         var route = chip.querySelector('.picker-route-remove').dataset.route;
                         var time = chip.dataset.time || 'all';
                         var chance = parseInt(chip.dataset.chance, 10) || 100;
+                        var hordeSize = parseInt(chip.dataset.horde, 10) || 5;
                         if (!routes[s]) routes[s] = [];
-                        routes[s].push({ route: route, time: time, chance: chance });
+                        routes[s].push({ route: route, time: time, chance: chance, hordeSize: hordeSize });
                     });
 
                     savePokemonData(name, seasonsStr, routes);
@@ -359,13 +387,14 @@
             for (var s in currentRoutes) {
                 var list = currentRoutes[s];
                 for (var i = 0; i < list.length; i++) {
-                    var r = typeof list[i] === 'string' ? { route: list[i], time: 'all', chance: 100 } : list[i];
+                    var r = typeof list[i] === 'string' ? { route: list[i], time: 'all', chance: 100, hordeSize: 5 } : list[i];
                     var chip = document.createElement('div');
                     chip.className = 'picker-route-chip';
                     chip.dataset.season = s;
                     chip.dataset.time = r.time || 'all';
                     chip.dataset.chance = r.chance || 100;
-                    chip.innerHTML = '<span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + (timeIcons[r.time]||"") + ' ' + esc(r.route) + ' <span class="picker-route-chance">' + (r.chance||100) + '%</span> <button class="picker-route-remove" data-route="' + esc(r.route) + '">✕</button>';
+                    chip.dataset.horde = r.hordeSize || 5;
+                    chip.innerHTML = '<span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + (timeIcons[r.time]||"") + ' <strong>' + (r.hordeSize||5) + '×</strong> ' + esc(r.route) + ' <span class="picker-route-chance">' + (r.chance||100) + '%</span> <button class="picker-route-remove" data-route="' + esc(r.route) + '">✕</button>';
                     routesList.appendChild(chip);
                     chip.querySelector('.picker-route-remove').addEventListener('click', function() { chip.remove(); });
                 }
@@ -497,6 +526,14 @@
                 document.querySelectorAll(".season-btn").forEach(function(b) { b.classList.remove("active"); });
                 btn.classList.add("active");
                 currentSeason = btn.dataset.season;
+                render(searchInput.value);
+            });
+        });
+        document.querySelectorAll(".horde-btn").forEach(function(btn) {
+            btn.addEventListener("click", function() {
+                document.querySelectorAll(".horde-btn").forEach(function(b) { b.classList.remove("active"); });
+                btn.classList.add("active");
+                currentHorde = btn.dataset.horde;
                 render(searchInput.value);
             });
         });

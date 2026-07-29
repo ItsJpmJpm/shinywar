@@ -559,6 +559,7 @@
     let preySearch = '';
     let preyRouteSearch = '';
     let preyTierFilter = 'all';
+    let preyHordeFilter = 'all';
 
     function renderClanPrey() {
         const list = document.getElementById('clanPreyList');
@@ -613,6 +614,23 @@
                     for (var i = 0; i < list.length; i++) {
                         var r = typeof list[i] === 'string' ? list[i] : list[i].route;
                         if (r.toLowerCase().indexOf(rq) !== -1) return true;
+                    }
+                }
+                return false;
+            });
+        }
+
+        // Horde size filter
+        if (preyHordeFilter !== 'all') {
+            var targetHorde = parseInt(preyHordeFilter, 10);
+            filtered = filtered.filter(function(g) {
+                var routes = getPokemonRoutes(g.pokemon);
+                for (var s in routes) {
+                    var list = routes[s];
+                    if (!list || !list.length) continue;
+                    for (var i = 0; i < list.length; i++) {
+                        var h = typeof list[i] === 'string' ? 5 : (list[i].hordeSize || 5);
+                        if (h === targetHorde) return true;
                     }
                 }
                 return false;
@@ -701,8 +719,8 @@
         for (var s in currentRoutes) {
             var list = currentRoutes[s];
             for (var i = 0; i < list.length; i++) {
-                var r = typeof list[i] === 'string' ? { route: list[i], time: 'all', chance: 100 } : list[i];
-                html += '<div class="picker-route-chip" data-season="' + s + '" data-time="' + (r.time||'all') + '" data-chance="' + (r.chance||100) + '"><span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + (timeIcons[r.time]||"") + ' ' + esc(r.route) + ' <span class="picker-route-chance">' + (r.chance||100) + '%</span> <button class="picker-route-remove" data-route="' + esc(r.route) + '">✕</button></div>';
+                var r = typeof list[i] === 'string' ? { route: list[i], time: 'all', chance: 100, hordeSize: 5 } : list[i];
+                html += '<div class="picker-route-chip" data-season="' + s + '" data-time="' + (r.time||'all') + '" data-chance="' + (r.chance||100) + '" data-horde="' + (r.hordeSize||5) + '"><span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + (timeIcons[r.time]||"") + ' <strong>' + (r.hordeSize||5) + '×</strong> ' + esc(r.route) + ' <span class="picker-route-chance">' + (r.chance||100) + '%</span> <button class="picker-route-remove" data-route="' + esc(r.route) + '">✕</button></div>';
             }
         }
         html += '</div>';
@@ -727,6 +745,10 @@
         html += '<option value="75">75%</option>';
         html += '<option value="50">50%</option>';
         html += '<option value="25">25%</option>';
+        html += '</select>';
+        html += '<select id="routeHordeSelect" class="picker-route-season-select" style="width:auto;min-width:4rem">';
+        html += '<option value="5">5×</option>';
+        html += '<option value="3">3×</option>';
         html += '</select>';
         html += '<button id="addRouteBtn" class="picker-add-route-btn">+</button>';
         html += '</div>';
@@ -793,6 +815,7 @@
             var s = document.getElementById('routeSeasonSelect').value;
             var time = document.getElementById('routeTimeSelect').value;
             var chance = parseInt(document.getElementById('routeChanceSelect').value, 10);
+            var hordeSize = parseInt(document.getElementById('routeHordeSelect').value, 10);
             var routesList = document.getElementById('pickerRoutesList');
             var seasonNames = {all:"🌿 Todas", spring:"🌸 Primavera", summer:"☀️ Verano", autumn:"🍂 Otoño", winter:"❄️ Invierno"};
             var chip = document.createElement('div');
@@ -800,7 +823,8 @@
             chip.dataset.season = s;
             chip.dataset.time = time;
             chip.dataset.chance = chance;
-            chip.innerHTML = '<span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + (timeIcons[time]||"") + ' ' + esc(route) + ' <span class="picker-route-chance">' + chance + '%</span> <button class="picker-route-remove" data-route="' + esc(route) + '">✕</button>';
+            chip.dataset.horde = hordeSize;
+            chip.innerHTML = '<span class="picker-route-season">' + (seasonNames[s]||s) + '</span> ' + (timeIcons[time]||"") + ' <strong>' + hordeSize + '×</strong> ' + esc(route) + ' <span class="picker-route-chance">' + chance + '%</span> <button class="picker-route-remove" data-route="' + esc(route) + '">✕</button>';
             routesList.appendChild(chip);
             chip.querySelector('.picker-route-remove').addEventListener('click', function() { chip.remove(); });
             routeInput.value = '';
@@ -830,8 +854,9 @@
                 var route = chip.querySelector('.picker-route-remove').dataset.route;
                 var time = chip.dataset.time || 'all';
                 var chance = parseInt(chip.dataset.chance, 10) || 100;
+                var hordeSize = parseInt(chip.dataset.horde, 10) || 5;
                 if (!routes[s]) routes[s] = [];
-                routes[s].push({ route: route, time: time, chance: chance });
+                routes[s].push({ route: route, time: time, chance: chance, hordeSize: hordeSize });
             });
 
             saveTargetSeason(targetId, pokemonName, selected, routes);
@@ -996,6 +1021,14 @@
                 document.querySelectorAll('.prey-tier-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 preyTierFilter = btn.dataset.pretier;
+                renderClanPrey();
+            });
+        });
+        document.querySelectorAll('.prey-horde-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.prey-horde-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                preyHordeFilter = btn.dataset.prehorde;
                 renderClanPrey();
             });
         });

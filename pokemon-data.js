@@ -1540,7 +1540,8 @@ function getRouteChipsHTML(pokemonName) {
         if (!seasonRoutes || !seasonRoutes.length) continue;
         for (var i = 0; i < seasonRoutes.length; i++) {
             var routeName = typeof seasonRoutes[i] === 'string' ? seasonRoutes[i] : seasonRoutes[i].route;
-            parts.push('<span class="route-chip">' + esc(routeName) + '</span>');
+            var hordeSize = typeof seasonRoutes[i] === 'string' ? 5 : (seasonRoutes[i].hordeSize || 5);
+            parts.push('<span class="route-chip">' + hordeSize + '× ' + esc(routeName) + '</span>');
         }
     }
     if (parts.length === 0) return '';
@@ -1605,9 +1606,9 @@ function showTargetCard(pokemonName) {
         hasRoutes = true;
         html += '<div class="target-card-season-row"><span class="season-badge season-badge-' + s + '">' + (seasonNames[s]||s) + '</span><span class="target-card-routes">';
         for (var i = 0; i < list.length; i++) {
-            var r = typeof list[i] === 'string' ? { route: list[i], time: 'all', chance: 100 } : list[i];
+            var r = typeof list[i] === 'string' ? { route: list[i], time: 'all', chance: 100, hordeSize: 5 } : list[i];
             var timeIcon = r.time === 'all' ? '🔄' : r.time === 'day' ? '☀️' : r.time === 'night' ? '🌙' : '🌅';
-            html += '<span class="target-card-route-line">' + timeIcon + ' ' + esc(r.route) + ' <span class="tcr-chance">' + (r.chance||100) + '%</span></span>';
+            html += '<span class="target-card-route-line">' + timeIcon + ' <strong>' + (r.hordeSize||5) + '×</strong> ' + esc(r.route) + ' <span class="tcr-chance">' + (r.chance||100) + '%</span></span>';
         }
         html += '</span></div>';
     }
