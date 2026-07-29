@@ -1545,3 +1545,22 @@ function getRouteChipsHTML(pokemonName) {
     if (parts.length === 0) return '';
     return '<div class="route-chips">' + parts.join('') + '</div>';
 }
+
+var NAME_MAP = {
+    "nidoran-f": "Nidoran♀",
+    "nidoran♀": "Nidoran♀",
+    "nidoran-m": "Nidoran♂",
+    "nidoran♂": "Nidoran♂",
+    "farfetchd": "Farfetch'd",
+    "farfetch'd": "Farfetch'd",
+    "mr. mime": "Mr. Mime",
+    "mime jr.": "Mime Jr.",
+    "porygon-z": "Porygon-Z",
+    "porygon2": "Porygon2",
+    "ho-oh": "Ho-Oh"
+};
+
+function displayName(name) {
+    if (NAME_MAP[name]) return NAME_MAP[name];
+    return name.charAt(0).toUpperCase() + name.slice(1);
+}

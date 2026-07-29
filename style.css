@@ -512,12 +512,14 @@ main {
     width: 36px;
     height: 36px;
     image-rendering: pixelated;
+    cursor: pointer;
 }
 
 .my-target-name {
     flex: 1;
     font-size: 0.85rem;
     font-weight: 500;
+    cursor: pointer;
 }
 
 .target-options {
@@ -2067,3 +2069,67 @@ footer {
     color: var(--text-secondary);
 }
 .route-ac-item:hover { background: rgba(56,189,248,0.1); color: var(--text-primary); }
+
+/* Target card — click sprite/name to see routes */
+.target-card-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.target-card {
+    background: #0f1a2e;
+    border: 1px solid rgba(56,189,248,0.2);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    position: relative;
+    min-width: 220px;
+    max-width: 320px;
+    text-align: center;
+}
+.target-card-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.2rem;
+    line-height: 1;
+}
+.target-card-close:hover { color: #ef4444; }
+.target-card-sprite img {
+    width: 96px;
+    height: 96px;
+    image-rendering: pixelated;
+}
+.target-card-name {
+    margin: 0.5rem 0 0.8rem;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+}
+.target-card-season-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.4rem 0;
+    text-align: left;
+}
+.target-card-season-row .season-badge {
+    flex-shrink: 0;
+    font-size: 0.65rem;
+}
+.target-card-routes {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+.target-card-no-routes {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin: 0.5rem 0 0;
+}
